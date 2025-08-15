@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?php
+// cli launcher for your app
+
+if ($argv[1] ?? null === 'run') {
+    echo "Starting development server on http://localhost:8000...\n";
+    passthru('php -S localhost:8000 -t public');
+} else {
+    echo "Unknown command. Available commands:\n";
+    echo "  run    - Start local dev server\n";
+}
