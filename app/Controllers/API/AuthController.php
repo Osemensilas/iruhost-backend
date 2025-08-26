@@ -7,7 +7,12 @@ use Exception;
 
 class AuthController{
 
-    protected $pdo = DB::connection();
+    protected $pdo;
+
+    public function __construct() {
+        $this->pdo = DB::connection();
+    }
+
     public function register(){
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -119,6 +124,9 @@ class AuthController{
                 'email' => $email,
             ];
 
+            $userSession = $_SESSION['user'];
+            $this->checkCart($userSession);
+
             session_regenerate_id(true);
 
             echo json_encode([
@@ -184,11 +192,31 @@ class AuthController{
             'email' => $email,
         ];
 
+        $userSession = $_SESSION['user'];
+
         session_regenerate_id(true);
+        $this->checkCart($userSession);
 
         echo json_encode([
             'status' => 'success',
             'message' => 'successful'
         ]);
+    }
+
+    private function checkCart($userSession){
+        $userId = $_SESSION['user']['user_id'];
+        $guestId = $_SESSION['guest']['id'] ?? null;
+
+        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ?");
+        $stmt->execute([$guestId]);
+
+        if ($stmt->rowCount() > 0){
+            $stmt = $this->pdo->prepare("UPDATE cart SET user_id = ? WHERE user_id = ?");
+            $stmt->execute([$userId, $guestId]);
+        }
+    }
+
+    public function adminLogin(){
+        echo "Hello World";
     }
 }

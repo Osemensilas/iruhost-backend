@@ -4,7 +4,12 @@ namespace App\Controllers\API;
 
 class DomainRegistration{
 
-    private $myKey = "3079601359d46e924bfbab85";
+    private $myKey;
+    private $url;
+    public function __construct(){
+        $this->myKey = "3079601359d46e924bfbab85"; 
+        $this->url = "https://www.namesilo.com";
+    }
     public function domainSearch(){
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -26,7 +31,7 @@ class DomainRegistration{
         $tdl = substr($data, strpos($data, '.') + 1);
         $sld = substr($data, 0, strpos($data, '.'));
         
-        $api = "https://www.namesilo.com/api/checkRegisterAvailability?version=1&type=xml&key=$this->myKey&domains=$data,$sld.net,$sld.org,$sld.com,$sld.biz,$sld.ai,$sld.me,$sld.tech";
+        $api = "$this->url/api/checkRegisterAvailability?version=1&type=xml&key=$this->myKey&domains=$data,$sld.net,$sld.org,$sld.com,$sld.biz,$sld.ai,$sld.me,$sld.tech";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $api);
