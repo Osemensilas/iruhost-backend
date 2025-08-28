@@ -33,11 +33,10 @@ class CallFlutter {
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $productRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
             foreach($rows as $row){
                 $totalPrice += round($row['amount'], 2);
-                $content .= rtrim($content, ',');
+                $content .= rtrim($row['amount'], ',');
             }
         }
 
@@ -48,11 +47,10 @@ class CallFlutter {
         $amount = $totalPrice;
         $details = "Payment for $content";
 
-        $stmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`) VALUES (?,?,?,?,?)");
-        $result = $stmt->execute([$userId, $paymentId, $ref, $amount, $details]);
+        $stmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?)");
+        $stmt->execute([$userId, $paymentId, $ref, $amount, $details, $status]);
 
-        if ($result) {
-
+        if ($stmt->rowCount() > 0){
             foreach($rows as $row){
                 if ($row['product'] === 'Domain Registration'){
                     $productName = $row['product_name'];
@@ -66,7 +64,7 @@ class CallFlutter {
                         $cartId = $row['cart_id'];
                         $this->regSsl($productName, $billing, $cartId);
                     }else{
-                       if ($row['product_name'] === 'Starter' || $row['product_name'] === 'Growth' || $row['product_name'] === 'Pro' || $row['product_name'] === 'Enterprise'){
+                        if ($row['product_name'] === 'Starter' || $row['product_name'] === 'Growth' || $row['product_name'] === 'Pro' || $row['product_name'] === 'Enterprise'){
                             $productName = $row['product_name'];
                             $billing = $row['billing'];
                             $cartId = $row['cart_id'];
@@ -82,11 +80,6 @@ class CallFlutter {
                                     $productName = $row['product_name'];
                                     $cartId = $row['cart_id'];
                                     $this->webApp($productName, $cartId);
-                                }else{
-                                    echo json_encode([
-                                        'status' => 'successful',
-                                        'message' => 'Product added successfully',
-                                    ]);
                                 }
                             }
                         }
@@ -94,6 +87,11 @@ class CallFlutter {
                 }
             }
         }
+
+        echo json_encode([
+            'status' => 'successful',
+            'message' => 'Product added successfully',
+        ]);
     }
 
     private function regDomain($productName, $billing, $cartId){
