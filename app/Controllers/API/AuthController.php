@@ -26,6 +26,8 @@ class AuthController{
         $email = $data['email'] ?? null;
         $password1 = $data['password1'] ?? null;
         $password2 = $data['password2'] ?? null;
+        $role = 'user';
+        $permission = 'none';
 
         if (empty($name) || empty($email) || empty($password1) || empty($password2)) {
             //http_response_code(400);
@@ -97,8 +99,8 @@ class AuthController{
             return;
         }
 
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ? AND role = ?");
+        $stmt->execute([$email, $role]);
 
         if ($stmt->fetch()){
             echo json_encode([
@@ -111,12 +113,12 @@ class AuthController{
         $userId = uniqid("iru_");
         $password = password_hash($password1, PASSWORD_BCRYPT);
 
-        $stmt = $this->pdo->prepare("INSERT INTO `users`(`user_id`, `name`, `email`, `password`) 
-        VALUES (?, ?, ?, ?)");
+        $stmt = $this->pdo->prepare("INSERT INTO `users`(`user_id`, `role`, `permission`, `name`, `email`, `password`) 
+        VALUES (?, ?, ?, ?, ?, ?)");
 
         try{
 
-            $stmt->execute([$userId, $name, $email, $password]);
+            $stmt->execute([$userId, $role, $permission, $name, $email, $password]);
 
             $_SESSION['user'] = [
                 'user_id' => $userId,
@@ -217,6 +219,131 @@ class AuthController{
     }
 
     public function adminLogin(){
-        echo "Hello World";
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+        
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $email = $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+
+        if (empty($email) || empty($password)) {
+            //http_response_code(400);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All field required'
+            ]);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ? OR user_id = ?");
+        $stmt->execute([$email, $email]);
+
+        if ($stmt->rowCount() > 0){
+            $row = $stmt->fetch();
+
+            if($row['role'] === 'admin'){
+                if (!password_verify($password, $row['password'])){
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Incorrect password'
+                    ]);
+                    return;
+                }else{
+                    $_SESSION['user'] = [
+                        'user_id' => $row['user_id'],
+                        'name' => $row['name'],
+                        'email' => $email,
+                    ];
+
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => 'valid admin'
+                    ]);
+                }
+            }else{
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'You do not have permission'
+                ]);
+                return;
+            }
+        }
+    }
+
+    public function currency(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+        
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $currency = $data['currency'];
+        $amount = $data['value'];
+
+        if (!preg_match('/^[0-9||.]+$/', $data['value'])){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid currency value']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM currency WHERE currency = ?");
+        $stmt->execute([$currency]);
+
+        if ($stmt->rowCount() > 0){
+
+            $row = $stmt->fetch();
+
+            $id = $row['id'];
+            $created = $row['created_at'];
+
+            $stmt = $this->pdo->prepare("UPDATE `currency` SET `value`=? WHERE currency = ?");
+            $stmt->execute([$amount, $currency]);
+
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Currency value Updated'
+            ]);
+            return;
+        }
+        $stmt = $this->pdo->prepare("INSERT INTO `currency`(`currency`, `value`) VALUES (?, ?)");
+        try{
+            $stmt->execute([$currency, $amount]);
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Currency value added'
+            ]);
+        }catch(Exception $err){
+
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Database Error: ' . $err->getMessage()
+            ]);
+        }
+    }
+
+    public function getNaira(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $currency = 'naira';
+
+        $stmt = $this->pdo->prepare("SELECT * FROM currency WHERE currency = ?");
+        $stmt->execute([$currency]);
+
+        if ($stmt->rowCount() > 0){
+            $row = $stmt->fetch();
+
+            echo json_encode([
+                'status' => 'success',
+                'value' => $row['value']
+            ]);
+        }
     }
 }
