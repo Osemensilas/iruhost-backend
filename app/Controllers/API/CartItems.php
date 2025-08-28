@@ -8,10 +8,12 @@ class CartItems {
 
     private $pdo;
     private $userId;
+    private $publicKey;
 
     public function __construct(){
         $this->pdo = DB::connection();
         $this->userId = $_SESSION['user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
+        $this->publicKey = "FLWPUBK_TEST-ea3991777877ae8c494e5d206d286b33-X";
     }
     public function cartItems() {
 
@@ -184,5 +186,41 @@ class CartItems {
             'totalHostingPrice' => round($totalHostingPrice, 2),
             'totalEmailPrice' => round($totalEmailPrice, 2),
         ]);
+    }
+
+    public function cartSession(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        header("Content-Type: application/json");
+
+        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ?");
+        $stmt->execute([$this->userId]);
+        $totalPrice = 0;
+        $ref = uniqid("ref_");
+
+        if ($stmt->rowCount() > 0) {
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                $totalPrice += round($row['amount'], 2);
+            }
+        }
+
+        if (isset($_SESSION['user'])){
+            echo json_encode([
+                'success' => true,
+                'user' => $_SESSION['user'],
+                'pbk' => $this->publicKey,
+                'totalPrice' => $totalPrice,
+                'ref' => $ref
+            ]);
+        }else{
+            echo json_encode([
+                "success" => false,
+                "message" => "No active session"
+            ]);
+        }
     }
 }

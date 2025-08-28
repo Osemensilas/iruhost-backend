@@ -18,127 +18,147 @@ class CallFlutter {
         $this->clientId = "200642152";
     }
 
-    public function FlutterwaveFirstCall(){
+    public function paymentSuccessful(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
         }
-        
+
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (empty($data['cardName']) || empty($data['cardNum']) || empty($data['expDate']) || empty($data['cvv'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Missing required fields']);
-            return;
-        }
-        
-        if (!preg_match('/^\d{13,19}$/', $data['cardNum'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid card number']);
-            return;
-        }
-        // Validate expiry date format (MM/YY)
-        if (!preg_match('/^\d{2}\/\d{2}$/', $data['expDate'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid expiry date format (MM/YY)']);
-            return;
-        }
-        // Validate CVV (3-4 digits)
-        if (!preg_match('/^\d{3,4}$/', $data['cvv'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid CVV']);
-            return;
-        }
-
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ?");
         $stmt->execute([$this->userId]);
+        $totalPrice = 0;
+        $content = '';
 
-        if ($stmt->rowCount() === 0) {
-            echo json_encode(['status' => 'error', 'message' => 'User not found']);
-            return;
-        }
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        $cardName = $data['cardName'];
-        $cardNum = $data['cardNum'];
-        $cardExp = $data['expDate'];
-        $cardCvv = $data['cvv'];
-        $address = $data['address'];
-        $city = $data['city'];
-        $state = $data['state'];
-        $country = $data['country'];
-        $zip = $data['postalCode'];
-        $saveCard = $data['saveCard'];
-        $email = $row['email'];
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $productRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid email format']);
-            return;
+            foreach($rows as $row){
+                $totalPrice += round($row['amount'], 2);
+                $content .= rtrim($content, ',');
+            }
         }
 
-        $parts = preg_split('/\s+/', trim($cardName));
-        $count = count($parts);
+        $paymentId = $data['id'];
+        $status = $data['status'];
+        $ref = $data['ref'];
+        $userId = $this->userId;
+        $amount = $totalPrice;
+        $details = "Payment for $content";
 
-        $first = "";
-        $middle = "";
-        $last = "";
+        $stmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`) VALUES (?,?,?,?,?)");
+        $result = $stmt->execute([$userId, $paymentId, $ref, $amount, $details]);
 
-        if ($count === 1) {
-            $first = $parts[0];
-        } elseif ($count === 2) {
-            $first = $parts[0];
-            $last  = $parts[1];
-        } elseif ($count >= 3) {
-            $first  = $parts[0];
-            $last   = $parts[$count - 1];
-            // everything in between becomes middle name(s)
-            $middle = implode(" ", array_slice($parts, 1, $count - 2));
+        if ($result) {
+
+            foreach($rows as $row){
+                if ($row['product'] === 'Domain Registration'){
+                    $productName = $row['product_name'];
+                    $billing = $row['billing'];
+                    $cartId = $row['cart_id'];
+                    $this->regDomain($productName, $billing, $cartId);
+                }else{
+                    if ($row['product'] === 'SSL Registration'){
+                        $productName = $row['product_name'];
+                        $billing = $row['billing'];
+                        $cartId = $row['cart_id'];
+                        $this->regSsl($productName, $billing, $cartId);
+                    }else{
+                       if ($row['product_name'] === 'Starter' || $row['product_name'] === 'Growth' || $row['product_name'] === 'Pro' || $row['product_name'] === 'Enterprise'){
+                            $productName = $row['product_name'];
+                            $billing = $row['billing'];
+                            $cartId = $row['cart_id'];
+                            $this->regHosting($productName, $billing, $cartId);
+                        } else{
+                            if ($row['product'] === 'Email Registration'){
+                                $productName = $row['product_name'];
+                                $billing = $row['billing'];
+                                $cartId = $row['cart_id'];
+                                $this->regEmail($productName, $billing, $cartId);
+                            }else{
+                                if ($row['product'] === 'Web application'){
+                                    $productName = $row['product_name'];
+                                    $cartId = $row['cart_id'];
+                                    $this->webApp($productName, $cartId);
+                                }else{
+                                    echo json_encode([
+                                        'status' => 'successful',
+                                        'message' => 'Product added successfully',
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
+    }
 
-        $customerUrl = "https://api.flutterwave.cloud/developersandbox/customers";
+    private function regDomain($productName, $billing, $cartId){
+        $productId = uniqid('prod_');
+        $product = 'domain';
 
-        $customerData = [
-            "address" => [
-                "city" => $city,
-                "country" => $country,
-                "line1" => $address,
-                "line2" => "",
-                "postal_code" => $zip,
-                "state" => $state
-            ],
-            "name" => [
-                "first" => $first,
-                "middle" => $middle,
-                "last" => $last
-            ],
-            "email" => $email,
-        ];
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
 
-        $traceId = uniqid();
-        $idempotencyKey = uniqid();
-
-        $ch = curl_init($customerUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: Bearer {$this->secretKey}", // Directly use secret key
-            "Content-Type: application/json",
-            "X-Trace-Id: {$traceId}",
-            "X-Idempotency-Key: {$idempotencyKey}"
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($customerData));
-       
-        $response = curl_exec($ch);
-
-        if (curl_errno($ch)) {
-            echo 'Error: ' . curl_error($ch);
+        if ($result){
+            $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+            $stmt->execute([$cartId, $this->userId]);
         }
+    }
 
-        print_r($response);
+    private function regSsl($productName, $billing, $cartId){
+        $productId = uniqid('prod_');
+        $product = 'SSL';
 
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
 
-        echo "HTTP CODE: " . $httpcode . "\n";
-        print_r(json_decode($response, true));
+        if ($result){
+            $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+            $stmt->execute([$cartId, $this->userId]);
+        }
+    }
 
+    private function regEmail($productName, $billing, $cartId){
+        $productId = uniqid('prod_');
+        $product = 'email';
+
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
+
+        if ($result){
+            $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+            $stmt->execute([$cartId, $this->userId]);
+        }
+    }
+
+    private function regHosting($productName, $billing, $cartId){
+        $productId = uniqid('prod_');
+        $product = 'hosting';
+
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
+
+        if ($result){
+            $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+            $stmt->execute([$cartId, $this->userId]);
+        }
+    }
+
+    private function webApp($productName, $cartId){
+        $productId = uniqid('prod_');
+        $product = 'web app';
+        $billing = '';
+
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
+
+        if ($result){
+            $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+            $stmt->execute([$cartId, $this->userId]);
+        }
     }
 }

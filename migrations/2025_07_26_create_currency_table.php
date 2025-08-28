@@ -1,17 +1,15 @@
 <?php
 
-return function ($pdo) {
-    try {
-        $pdo->exec("
-            CREATE TABLE IF NOT EXISTS currency (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                currency VARCHAR(100),
-                naira VARCHAR(100),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ");
-        echo "Users table created\n";
-    } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage() . "\n";
-    }
+return function ($pdo){
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id VARCHAR(36) NOT NULL,
+            transaction_id VARCHAR(50) NOT NULL,
+            reference VARCHAR(50) NOT NULL,
+            amount VARCHAR(20) NOT NULL,
+            details VARCHAR(400) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
 };
