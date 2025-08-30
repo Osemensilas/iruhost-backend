@@ -8,6 +8,7 @@ use App\Controllers\API\AddToCart;
 use App\Controllers\API\CartItems;
 use App\Controllers\API\CallFlutter;
 use App\Controllers\API\ChatsController;
+use App\Controllers\API\UserProducts;
 
 
 $router->get('/api/session', [SessionController::class, 'userSession']);
@@ -28,8 +29,10 @@ $router->get('/api/cart-items', [CartItems::class, 'cartItems']);
 $router->get('/api/cart-total-price', [CartItems::class, 'cartTotal']);
 $router->get('/api/cart-domain', [CartItems::class, 'cartDomain']);
 $router->post('/api/empty-user-cart', [CartItems::class, 'clearAllItems']);
+$router->post('/api/remove-item', [CartItems::class, 'removeItem']);
 $router->get('/api/cart-session', [CartItems::class, 'cartSession']);
 $router->post('/api/payment-success', [CallFlutter::class, 'paymentSuccessful']);
 $router->post('/api/chat-registration', [ChatsController::class, 'createChatUser']);
 $router->post('/api/add-chat', [ChatsController::class, 'addChat']);
 $router->get('/api/get-chats', [ChatsController::class, 'getChats']);
+$router->get('/api/get-dashboard', [UserProducts::class, 'getDashboardProducts']);

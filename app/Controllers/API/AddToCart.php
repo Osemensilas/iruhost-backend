@@ -49,11 +49,11 @@ class AddToCart {
         }
 
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`)
-            VALUES (?, ?, ?, ?, ?, ?, ?)");
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
         try {
-            $stmt->execute([$this->userId, $productId, $product, $domainName, $domainPrice, $domainRenew, $billing]);
+            $stmt->execute([$this->userId, $productId, $product, $domainName, $domainPrice, $domainRenew, $billing, $domainName]);
 
             echo json_encode([
                 'status' => 'success',
@@ -109,11 +109,11 @@ class AddToCart {
         }
 
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`)
-            VALUES (?, ?, ?, ?, ?, ?, ?)");
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
         try {
-            $stmt->execute([$this->userId, $domainId, $domainProduct, $domainName, $domainPrice, $domainRenew, $domainBilling]);
+            $stmt->execute([$this->userId, $domainId, $domainProduct, $domainName, $domainPrice, $domainRenew, $domainBilling, $domainName]);
 
             $this->addAny($this->userId, $domainName, $hostingName, $hostingPrice, $hostingRenew);
         
@@ -129,14 +129,13 @@ class AddToCart {
     private function addAny($userId, $domainName, $hostingName, $hostingPrice, $hostingRenew) {
 
         $productId = uniqid('hosting_');
-        $product = "Hosting for $domainName";
-
+        $product = "Hosting Registration";
         
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`)
-            VALUES (?, ?, ?, ?, ?, ?, ?)");
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         try{
-            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $hostingRenew]);
+            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $hostingRenew, $domainName]);
         
             echo json_encode([
                 'status' => 'success',
@@ -165,6 +164,7 @@ class AddToCart {
         $sslId = uniqid("ssl_");
         $sslProduct = 'SSL Registration';
         $sslBilling = 'year';
+        $sslDomain = '';
 
         if (!$sslName || !$sslPrice || !$sslRenew || !$sslDuration) {
             echo json_encode(['status' => 'error', 'message' => 'Missing SSL details']);
@@ -183,11 +183,11 @@ class AddToCart {
         }
 
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`)
-            VALUES (?, ?, ?, ?, ?, ?, ?)");
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
         try {
-            $stmt->execute([$this->userId, $sslId, $sslProduct, $sslName, $sslPrice, $sslRenew, $sslBilling]);
+            $stmt->execute([$this->userId, $sslId, $sslProduct, $sslName, $sslPrice, $sslRenew, $sslBilling, $sslDomain]);
             
             echo json_encode([
                 'status' => 'success',

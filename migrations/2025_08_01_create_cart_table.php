@@ -11,6 +11,7 @@ return function ($pdo){
             amount DECIMAL(10,2) NOT NULL,
             renew DECIMAL(10,2) NOT NULL,
             billing VARCHAR(100) NOT NULL,
+            domain VARCHAR(50) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ");

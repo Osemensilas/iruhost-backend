@@ -10,12 +10,14 @@ class CallFlutter {
     protected $secretKey;
     protected $userId;
     protected $clientId;
+    protected $nameSiloKey;
 
     public function __construct(){
         $this->pdo = DB::connection();
         $this->secretKey = "FLWSECK_TEST-76fca9105670eb0ded6852bc4785f25b-X";
         $this->userId = $_SESSION['user']['user_id'];
         $this->clientId = "200642152";
+        $this->nameSiloKey = "514f12a14ed69fe33b7072ed8"; 
     }
 
     public function paymentSuccessful(){
@@ -36,7 +38,7 @@ class CallFlutter {
 
             foreach($rows as $row){
                 $totalPrice += round($row['amount'], 2);
-                $content .= rtrim($row['amount'], ',');
+                $content .= rtrim($row['product_name'], ',');
             }
         }
 
@@ -56,30 +58,49 @@ class CallFlutter {
                     $productName = $row['product_name'];
                     $billing = $row['billing'];
                     $cartId = $row['cart_id'];
-                    $this->regDomain($productName, $billing, $cartId);
+                    $domain = $row['domain'];
+
+                    $url = "https://www.namesilo.com/api/registerDomain?version=1&type=xml&key=$this->nameSiloKey&domain=$domain&years=1&private=1&auto_renew=0";
+    
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+                    
+                    // echo json_encode([
+                    //     $response,
+                    // ]);
+
+                    $this->regDomain($productName, $billing, $cartId, $domain);
                 }else{
                     if ($row['product'] === 'SSL Registration'){
                         $productName = $row['product_name'];
                         $billing = $row['billing'];
                         $cartId = $row['cart_id'];
-                        $this->regSsl($productName, $billing, $cartId);
+                        $domain = $row['domain'];
+                        $this->regSsl($productName, $billing, $cartId, $domain);
                     }else{
                         if ($row['product_name'] === 'Starter' || $row['product_name'] === 'Growth' || $row['product_name'] === 'Pro' || $row['product_name'] === 'Enterprise'){
                             $productName = $row['product_name'];
                             $billing = $row['billing'];
                             $cartId = $row['cart_id'];
-                            $this->regHosting($productName, $billing, $cartId);
+                            $domain = $row['domain'];
+                            $url = '/cpanel-login';
+                            $this->regHosting($url, $productName, $billing, $cartId, $domain);
                         } else{
                             if ($row['product'] === 'Email Registration'){
                                 $productName = $row['product_name'];
                                 $billing = $row['billing'];
                                 $cartId = $row['cart_id'];
-                                $this->regEmail($productName, $billing, $cartId);
+                                $domain = $row['domain'];
+                                $this->regEmail($productName, $billing, $cartId, $domain);
                             }else{
                                 if ($row['product'] === 'Web application'){
                                     $productName = $row['product_name'];
                                     $cartId = $row['cart_id'];
-                                    $this->webApp($productName, $cartId);
+                                    $domain = $row['domain'];
+                                    $this->webApp($productName, $cartId, $domain);
                                 }
                             }
                         }
@@ -94,12 +115,14 @@ class CallFlutter {
         ]);
     }
 
-    private function regDomain($productName, $billing, $cartId){
+    private function regDomain($productName, $billing, $cartId, $domain){
         $productId = uniqid('prod_');
         $product = 'domain';
+        $text = 'Manage';
+        $url = '/manage-domain';
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
@@ -107,12 +130,14 @@ class CallFlutter {
         }
     }
 
-    private function regSsl($productName, $billing, $cartId){
+    private function regSsl($productName, $billing, $cartId, $domain){
         $productId = uniqid('prod_');
         $product = 'SSL';
+        $text = 'Manage';
+        $url = '/manage-ssl';
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
@@ -120,12 +145,14 @@ class CallFlutter {
         }
     }
 
-    private function regEmail($productName, $billing, $cartId){
+    private function regEmail($productName, $billing, $cartId, $domain){
         $productId = uniqid('prod_');
         $product = 'email';
+        $text = 'Manage';
+        $url = '/manage-email';
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
@@ -133,12 +160,13 @@ class CallFlutter {
         }
     }
 
-    private function regHosting($productName, $billing, $cartId){
+    private function regHosting($url, $productName, $billing, $cartId, $domain){
         $productId = uniqid('prod_');
         $product = 'hosting';
+        $text = 'Cpanel';
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
@@ -146,13 +174,15 @@ class CallFlutter {
         }
     }
 
-    private function webApp($productName, $cartId){
+    private function webApp($productName, $cartId, $domain){
         $productId = uniqid('prod_');
         $product = 'web app';
         $billing = '';
+        $text = 'Manage';
+        $url = '/manage-web';
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`) VALUES (?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");

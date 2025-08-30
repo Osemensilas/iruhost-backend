@@ -9,6 +9,9 @@ return function ($pdo){
             product VARCHAR(255) NOT NULL,
             product_name VARCHAR(255) NOT NULL,
             billing VARCHAR(50) NOT NULL,
+            domain VARCHAR(50) NOT NULL,
+            url VARCHAR(255) NOT NULL,
+            text VARCHAR(20) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ");
