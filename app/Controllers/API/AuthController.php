@@ -131,6 +131,12 @@ class AuthController{
 
             session_regenerate_id(true);
 
+            $balance = '';
+            $userId = $_SESSION['user']['user_id'];
+            
+            $stmt = $this->pdo->prepare("INSERT INTO `account_balance`(`user_id`, `balance`) VALUES (?,?)");
+            $stmt->execute([$userId, $balance]);
+
             echo json_encode([
                 'status' => 'success',
                 'message' => 'successful'

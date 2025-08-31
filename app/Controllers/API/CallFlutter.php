@@ -87,7 +87,17 @@ class CallFlutter {
                             $cartId = $row['cart_id'];
                             $domain = $row['domain'];
                             $url = '/cpanel-login';
-                            $this->regHosting($url, $productName, $billing, $cartId, $domain);
+                            if ($row['billing'] === 'year'){
+                                $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
+                            }
+                            if ($row['billing'] === 'quarter'){
+                                $expiryDate = date('Y-m-d H:i:s', strtotime('+3 months'));
+                            }
+                            if($row['billing'] === 'month'){
+                                $expiryDate = date('Y-m-d H:i:s', strtotime('+1 month'));
+                            }
+
+                            $this->regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain);
                         } else{
                             if ($row['product'] === 'Email Registration'){
                                 $productName = $row['product_name'];
@@ -115,14 +125,36 @@ class CallFlutter {
         ]);
     }
 
+    public function topupSuccessful(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $paymentId = $data['id'];
+        $status = $data['status'];
+        $ref = $data['ref'];
+        $userId = $this->userId;
+        $amount = $data['amount'];
+        $details = "Payment for account top up.";
+
+        $stmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?)");
+        $stmt->execute([$userId, $paymentId, $ref, $amount, $details, $status]);
+
+        $this->topUp($amount);
+    }
+
     private function regDomain($productName, $billing, $cartId, $domain){
         $productId = uniqid('prod_');
         $product = 'domain';
         $text = 'Manage';
         $url = '/manage-domain';
+        $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
@@ -135,9 +167,10 @@ class CallFlutter {
         $product = 'SSL';
         $text = 'Manage';
         $url = '/manage-ssl';
+        $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
@@ -150,9 +183,10 @@ class CallFlutter {
         $product = 'email';
         $text = 'Manage';
         $url = '/manage-email';
+        $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
@@ -160,13 +194,13 @@ class CallFlutter {
         }
     }
 
-    private function regHosting($url, $productName, $billing, $cartId, $domain){
+    private function regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain){
         $productId = uniqid('prod_');
         $product = 'hosting';
         $text = 'Cpanel';
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
@@ -180,13 +214,34 @@ class CallFlutter {
         $billing = '';
         $text = 'Manage';
         $url = '/manage-web';
+        $expiryDate = '';
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`) VALUES (?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text]);
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
 
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
             $stmt->execute([$cartId, $this->userId]);
+        }
+    }
+
+    private function topUp($amount){
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `account_balance` WHERE user_id = ?");
+        $stmt->execute([$this->userId]);
+
+        if ($stmt->rowCount() > 0){
+            $row = $stmt->fetch();
+
+            $newAmount = $row['balance'] + $amount;
+
+            $stmt = $this->pdo->prepare("UPDATE `account_balance` SET `balance`=? WHERE user_id = ?");
+            $stmt->execute([$newAmount, $this->userId]);
+
+            echo json_encode([
+                'status' => 'successful',
+                'message' => 'Top up successful'
+            ]);
         }
     }
 }
