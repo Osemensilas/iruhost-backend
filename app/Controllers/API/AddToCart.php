@@ -8,9 +8,11 @@ class AddToCart {
 
     private $pdo;
     private $userId;
+    private $myKey;
 
     public function __construct() {
         $this->pdo = DB::connection();
+        $this->myKey = "3079601359d46e924bfbab85"; 
         $this->userId = $_SESSION['user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
     }
 
@@ -199,5 +201,96 @@ class AddToCart {
                 'message' => 'Database Error: ' . $err->getMessage()
             ]);
         }
+    }
+
+    public function addWebsite(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `websites` WHERE web_id = ?");
+        $stmt->execute([$data['website']]);
+
+        if ($stmt->rowCount() > 0){
+            $website = $stmt->fetch();
+
+            $cartId = uniqid('prod_');
+
+            $stmt = $this->pdo->prepare("SELECT * FROM `cart` WHERE domain = ? AND user_id = ?");
+            $stmt->execute([$data['website'], $this->userId]);
+        
+            if (!$stmt->rowCount() > 0){
+                $stmt = $this->pdo->prepare("INSERT INTO `cart`(`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`) VALUES (?,?,?,?,?,?,?,?)");
+                $stmt->execute([$this->userId, $cartId, 'Web application', 'web app', $website['price'], '', '', $data['website']]);
+
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Product added to cart'
+                ]);
+            }else{
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Product already in cart'
+                ]);
+            }
+        }
+    }
+
+    public function tranferDomain(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $domainName = $data['action'] ?? null;
+        $auth = $data['auth'] ?? null;
+        $product = 'Domain Transfer';
+        $billing = 'year';
+        $productId = uniqid("domain_");
+
+        $tdl = substr($domainName, strpos($domainName, '.') + 1);
+        $sld = substr($domainName, 0, strpos($domainName, '.'));
+
+        $api = "https://www.namesilo.com/api/getPrices?version=1&type=xml&key=$this->myKey";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $api);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $xml = simplexml_load_string($response);
+
+        $tldNode = $xml->reply->$tdl;
+        $currency = 'naira';
+
+        $stmt = $this->pdo->prepare("SELECT * FROM currency WHERE currency = ?");
+        $stmt->execute([$currency]);
+
+        if ($stmt->rowCount() > 0){
+            $row = $stmt->fetch();
+        }
+
+        $domainPrice = isset($tldNode->transfer, $row['value']) 
+            ? number_format($tldNode->transfer * $row['value'], 2, '.', '') 
+            : null;
+
+        $domainRenewal = isset($tldNode->renew, $row['value']) 
+            ? number_format($tldNode->renew * $row['value'], 2, '.', '') 
+            : null;
+        
+        $stmt = $this->pdo->prepare("INSERT INTO `cart`(`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`) VALUES (?,?,?,?,?,?,?,?)");
+        $stmt->execute([$this->userId, $productId, $product, $domainName, $domainPrice, $domainRenewal, $billing, $auth]);
+
+
+        echo json_encode([
+            'status' => 'successful',
+            'message' => 'Added to cart',
+        ]);
     }
 }

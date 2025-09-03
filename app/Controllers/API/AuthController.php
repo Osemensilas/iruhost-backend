@@ -258,7 +258,7 @@ class AuthController{
                     ]);
                     return;
                 }else{
-                    $_SESSION['user'] = [
+                    $_SESSION['admin'] = [
                         'user_id' => $row['user_id'],
                         'name' => $row['name'],
                         'email' => $email,
@@ -351,5 +351,60 @@ class AuthController{
                 'value' => $row['value']
             ]);
         }
+    }
+
+    public function addWeb(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+        
+        $category = htmlspecialchars($_POST['category'] ?? '', ENT_QUOTES, 'UTF-8');
+        $price = htmlspecialchars($_POST['price'] ?? '', ENT_QUOTES, 'UTF-8');
+        $webName = htmlspecialchars($_POST['webName'] ?? '', ENT_QUOTES, 'UTF-8');
+        $description = htmlspecialchars($_POST['description'] ?? '', ENT_QUOTES, 'UTF-8');
+        $image = null;
+
+        if (!$image) {
+            $image = '';
+        }
+
+        if (empty($category) || empty($price) || empty($webName) || empty($description) || empty($_FILES['image']['name'])){
+            echo json_encode(['status' => 'error', 'message' => 'All field required']);
+            return;
+        }
+
+        if ($_FILES['image']['name']) {
+            $uploadDir = __DIR__ . "../../../../public/uploads/";
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $filename = time() . "_" . basename($_FILES['image']['name']);
+            $targetFile = $uploadDir . $filename;
+
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
+                // store relative path (backend will serve it later)
+                $image = $filename;
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Image upload failed']);
+                return;
+            }
+        }
+
+        $webId = uniqid("web_");
+
+        $stmt = $this->pdo->prepare("INSERT INTO `websites`(`web_id`, `category`, `web_name`, `image`, `description`, `price`) VALUES (?,?,?,?,?,?)");
+        $stmt->execute([$webId, $category, $webName, $image, $description, $price]);
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => "Website added successfully"
+        ]);
     }
 }

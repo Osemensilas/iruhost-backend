@@ -10,6 +10,10 @@ class LogoutController{
                 return;
             }
 
+            $data = json_decode(file_get_contents("php://input"), true);
+
+            print_r($data['logout']);
+
             session_unset();
             session_destroy();
             echo json_encode(['status' => 'success', 'message' => 'Logged out']);

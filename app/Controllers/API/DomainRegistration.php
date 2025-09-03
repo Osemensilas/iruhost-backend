@@ -115,4 +115,65 @@ class DomainRegistration{
             'response' => $response,
         ]);
     }
+
+    public function getDomainPrices(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $api = "https://www.namesilo.com/api/getPrices?version=1&type=xml&key=$this->myKey";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $api);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $xml = simplexml_load_string($response);
+
+        $data = [];
+
+        $dotCom = $xml->reply->com;
+        $dotOrg = $xml->reply->org;
+        $dotNet = $xml->reply->net;
+
+        if ($xml && isset($xml->reply)) {
+            foreach ($xml->reply->children() as $tld) {
+                $name = "." . $tld->getName();
+
+                // Try attributes first
+                $reg      = (string) $tld['registration'];
+                $renew    = (string) $tld['renew'];
+                $transfer = (string) $tld['transfer'];
+
+                // If attributes are empty, try child nodes
+                if ($reg === "" && isset($tld->registration)) {
+                    $reg = (string) $tld->registration;
+                }
+                if ($renew === "" && isset($tld->renew)) {
+                    $renew = (string) $tld->renew;
+                }
+                if ($transfer === "" && isset($tld->transfer)) {
+                    $transfer = (string) $tld->transfer;
+                }
+
+                $data[] = [
+                    "tld" => $name,
+                    "registration" => $reg,
+                    "renewal"      => $renew,
+                    "transfer"     => $transfer,
+                ];
+            }
+        }
+
+        header("Content-Type: application/json");
+        echo json_encode([
+            "status" => "success", 
+            "prices" => $data, 
+            "dotcom" => $dotCom,
+            "dotnet" => $dotNet,
+            "dotorg" => $dotOrg
+        ], JSON_PRETTY_PRINT);
+    }
 }

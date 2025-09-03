@@ -2,6 +2,7 @@
 
 namespace App\Controllers\API;
 use App\Core\DB;
+use PDO;
 class SessionController{
 
     protected $pdo;
@@ -82,6 +83,48 @@ class SessionController{
                     ]
                     ]);
             }
+        }
+    }
+
+    public function webList(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `websites` WHERE category = ? LIMIT 4");
+        $stmt->execute([$data['website']]);
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'result' => $rows
+            ]);
+        }
+    }
+
+    public function getSingleWeb(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `websites` WHERE web_id = ?");
+        $stmt->execute([$data['website']]);
+
+        if ($stmt->rowCount() > 0){
+            $row = $stmt->fetch();
+
+            echo json_encode([
+                'status' => 'success',
+                'result' => $row
+            ]);
         }
     }
 }
