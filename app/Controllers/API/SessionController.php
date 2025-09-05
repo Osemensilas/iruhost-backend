@@ -59,6 +59,34 @@ class SessionController{
         }
     }
 
+    public function userAddress(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        header("Content-Type: application/json");
+
+        if (isset($_SESSION['user'])){
+            $user = $_SESSION['user']['user_id'];
+
+            $stmt = $this->pdo->prepare("SELECT * FROM address WHERE user_id = ?");
+            $stmt->execute([$user]);
+
+            if ($stmt->rowCount() > 0){
+                $userData = $stmt->fetch();
+
+                echo json_encode([
+                    'success' => true,
+                    'user' => [
+                        'address' => ($userData['address1']),
+                        'phone' => $userData['cCode'] . $userData['phone'],
+                    ]
+                    ]);
+            }
+        }
+    }
+
     public function acctBal(){
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);

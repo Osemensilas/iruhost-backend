@@ -407,4 +407,99 @@ class AuthController{
             'message' => "Website added successfully"
         ]);
     }
+
+    public function updateEmail(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+        $email = $data['email'];
+        $password = $data['password'];
+        $user = $_SESSION['user']['user_id'];
+
+        if (!isset($user)){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+        $stmt->execute([$user]);
+
+        if ($stmt->rowCount() > 0){
+            $row = $stmt->fetch();
+        }
+
+        if (!password_verify($password, $row['password'])){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Wrong password'
+            ]);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("UPDATE `users` SET `email`=? WHERE user_id = ?");
+        $stmt->execute([$email, $user]);
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Updated Successfully'
+        ]);
+    }
+
+    public function updateAddress(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+        $address1 = $data['address1'];
+        $address2 = $data['address2'];
+        $city = $data['city'];
+        $state = $data['state'];
+        $zip = $data['zip'];
+        $country = $data['country'];
+        $cCode = $data['cCode'];
+        $phone = $data['phone'];
+        $user = $_SESSION['user']['user_id'];
+
+        if (!isset($user)){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+            return;
+        }
+
+        if (empty($address1) || empty($city) || empty($state) || empty($zip) || empty($country) ||
+        empty($cCode) || empty($phone)
+        ){
+            echo json_encode(['status' => 'error', 'message' => 'Fill all required field']);
+            return;
+        }
+
+        if (!preg_match('/^[+][0-9]{1,3}$/', $cCode)){
+            echo json_encode(['status' => 'error', 'message' => 'Ivalid country code']);
+            return;
+        }
+
+        if (!preg_match('/^[0-9]{7,12}$/', $phone)){
+            echo json_encode(['status' => 'error', 'message' => 'Ivalid phone']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `address` WHERE user_id = ?");
+        $stmt->execute([$user]);
+
+        if ($stmt->rowCount() > 0){
+            $stmt = $this->pdo->prepare("UPDATE `address` SET `address1`=?,`address2`=?,`city`=?,`state`=?,`country`=?,`zip`=?,`cCode`=?,`phone`=? WHERE user_id = ?");
+            $stmt->execute([$address1, $address2, $city, $state, $country, $zip, $cCode, $phone, $user]);
+        
+            echo json_encode(['status' => 'success', 'message' => 'Address updated']);
+        }else{
+            $stmt = $this->pdo->prepare("INSERT INTO `address`(`user_id`, `address1`, `address2`, `city`, `state`, `country`, `zip`, `cCode`, `phone`) VALUES (?,?,?,?,?,?,?,?,?)");
+            $stmt->execute([$user, $address1, $address2, $city, $state, $country, $zip, $cCode, $phone]);
+        
+            echo json_encode(['status' => 'success', 'message' => 'Address Added']);
+        }
+    }
 }

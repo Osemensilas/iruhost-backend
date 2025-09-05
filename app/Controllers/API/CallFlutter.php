@@ -111,6 +111,23 @@ class CallFlutter {
                                     $cartId = $row['cart_id'];
                                     $domain = $row['domain'];
                                     $this->webApp($productName, $cartId, $domain);
+                                }else{
+                                    if ($row['product'] === 'Domain Transfer'){
+                                        $productName = $row['product_name'];
+                                        $billing = $row['billing'];
+                                        $cartId = $row['cart_id'];
+                                        $authCode = $row['domain'];
+
+                                        $url = "https://www.namesilo.com/api/transferDomain?version=1&type=xml&key=$this->nameSiloKey&domain=$productName&auth=$authCode&private=1&auto_renew=0";
+                        
+                                        $ch = curl_init();
+                                        curl_setopt($ch, CURLOPT_URL, $url);
+                                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                                        $response = curl_exec($ch);
+                                        curl_close($ch);
+
+                                        $this->regDomain($productName, $billing, $cartId, $authCode);
+                                    }
                                 }
                             }
                         }

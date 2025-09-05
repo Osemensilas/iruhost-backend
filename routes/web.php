@@ -14,6 +14,7 @@ use App\Controllers\API\AdminDashboard;
 
 $router->get('/api/session', [SessionController::class, 'userSession']);
 $router->get('/api/session-data', [SessionController::class, 'userData']);
+$router->get('/api/session-address', [SessionController::class, 'userAddress']);
 $router->get('/api/acct-bal', [SessionController::class, 'acctBal']);
 $router->post('/api/get-websites', [SessionController::class, 'webList']);
 $router->post('/api/get-single-website', [SessionController::class, 'getSingleWeb']);
@@ -23,6 +24,8 @@ $router->post('/api/admin-login', [AuthController::class, 'adminLogin']);
 $router->post('/api/update-naira', [AuthController::class, 'currency']);
 $router->get('/api/get-naira', [AuthController::class, 'getNaira']);
 $router->post('/api/add-website', [AuthController::class, 'addWeb']);
+$router->post('/api/update-email', [AuthController::class, 'updateEmail']);
+$router->post('/api/update-address', [AuthController::class, 'updateAddress']);
 $router->post('/api/logout', [LogoutController::class, 'userLogout']);
 $router->post('/api/domain-search', [DomainRegistration::class, 'domainSearch']);
 $router->post('/api/single-search', [DomainRegistration::class, 'singleSearch']);
