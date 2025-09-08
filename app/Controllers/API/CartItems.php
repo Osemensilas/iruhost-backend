@@ -93,6 +93,14 @@ class CartItems {
 
         $data = json_decode(file_get_contents("php://input"), true);
 
+        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE cart_id = ?");
+        $stmt->execute([$data['action']]);
+
+        $row = $stmt->fetch();
+
+        $stmt = $this->pdo->prepare("DELETE FROM cart WHERE domain = ? AND user_id = ?");
+        $stmt->execute([$row['domain'], $this->userId]);
+
         $stmt = $this->pdo->prepare("DELETE FROM cart WHERE cart_id = ? AND user_id = ?");
         $execution = $stmt->execute([$data['action'], $this->userId]);
 

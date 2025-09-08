@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\API\AdminOps;
 use App\Controllers\API\AuthController;
 use App\Controllers\API\LogoutController;
 use App\Controllers\API\SessionController;
@@ -10,7 +11,7 @@ use App\Controllers\API\CallFlutter;
 use App\Controllers\API\ChatsController;
 use App\Controllers\API\UserProducts;
 use App\Controllers\API\AdminDashboard;
-
+use App\Controllers\API\StaticController;
 
 $router->get('/api/session', [SessionController::class, 'userSession']);
 $router->get('/api/session-data', [SessionController::class, 'userData']);
@@ -54,7 +55,15 @@ $router->get('/api/user-hosting', [UserProducts::class, 'hostingList']);
 $router->get('/api/user-email', [UserProducts::class, 'emailList']);
 $router->get('/api/user-ssl', [UserProducts::class, 'sslList']);
 $router->get('/api/user-app', [UserProducts::class, 'appList']);
+$router->get('/api/get-iruap-domain', [UserProducts::class, 'getIruapDomain']);
 $router->get('/api/get-signups', [AdminDashboard::class, 'signUps']);
 $router->get('/api/get-active-users', [AdminDashboard::class, 'activeUsers']);
 $router->get('/api/get-total-sales', [AdminDashboard::class, 'getTotalSalesNum']);
 $router->get('/api/get-web-sales', [AdminDashboard::class, 'getTotalWebSalesNum']);
+$router->post('/api/add-blog', [AdminOps::class, 'addBlogs']);
+$router->get('/api/get-blogs', [StaticController::class, 'getBlogs']);
+$router->get('/api/get-recent-blogs', [StaticController::class, 'recentBlogs']);
+$router->get('/api/get-todays-blogs', [StaticController::class, 'todayBlogs']);
+$router->post('/api/get-single-blogs', [StaticController::class, 'singleBlog']);
+$router->post('/api/get-related-blogs', [StaticController::class, 'relatedBlog']);
+$router->post('/api/get-other-blogs', [StaticController::class, 'otherBlog']);

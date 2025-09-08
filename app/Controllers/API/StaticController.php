@@ -1,0 +1,131 @@
+<?php
+
+namespace App\Controllers\API;
+use App\Core\DB;
+use PDO;
+
+class StaticController{
+
+    protected $pdo;
+
+    public function __construct(){
+        $this->pdo = DB::connection();
+    }
+
+    public function getBlogs(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        header("Content-Type: application/json");
+
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs ORDER BY RAND()");
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        echo json_encode($rows);
+    }
+
+    public function recentBlogs(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        header("Content-Type: application/json");
+
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs ORDER BY id ASC LIMIT 3");
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        echo json_encode($rows);
+    }
+
+    public function todayBlogs(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        header("Content-Type: application/json");
+
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE category = ? ORDER BY id ASC");
+        $stmt->execute(['Online Business']);
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        echo json_encode($rows);
+    }
+
+    public function singleBlog(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE title = ?");
+        $stmt->execute([$data['action']]);
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'result' => $rows
+            ]);
+        }
+    }
+
+    public function relatedBlog(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE category = ? AND title != ?");
+        $stmt->execute([$data['action'], $data['blog']]);
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'result' => $rows
+            ]);
+        }
+    }
+
+    public function otherBlog(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE title != ? ORDER BY RAND()");
+        $stmt->execute([$data['blog']]);
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'result' => $rows
+            ]);
+        }
+    }
+}

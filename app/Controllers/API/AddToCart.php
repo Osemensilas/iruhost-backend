@@ -81,6 +81,7 @@ class AddToCart {
         $domainName = $data['domainName'] ?? null;
         $domainPrice = $data['domainPrice'] ?? null;
         $domainRenew = $data['domainRenew'] ?? null;
+        $domainOp = $data['domainOperation'] ?? null;
         $domainDuration = 1;
         $domainId = uniqid("domain_");
         $domainProduct = 'Domain Registration';
@@ -100,6 +101,10 @@ class AddToCart {
             return;
         }
 
+        if ($domainOp === 'existing'){
+            $this->addOld($this->userId, $domainName, $hostingName, $hostingPrice, $hostingRenew);
+            return;
+        }
         
         // Prevent duplicate domain for same user
         $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE product_name = ? AND user_id = ?");
@@ -119,7 +124,6 @@ class AddToCart {
 
             $this->addAny($this->userId, $domainName, $hostingName, $hostingPrice, $hostingRenew);
         
-            
         } catch (Exception $err) {
             echo json_encode([
                 'status' => 'error',
@@ -129,6 +133,29 @@ class AddToCart {
     }
 
     private function addAny($userId, $domainName, $hostingName, $hostingPrice, $hostingRenew) {
+
+        $productId = uniqid('hosting_');
+        $product = "Hosting Registration";
+        
+        $stmt = $this->pdo->prepare("INSERT INTO `cart`
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        try{
+            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $hostingRenew, $domainName]);
+        
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Hosting added to cart'
+            ]);
+        }catch(Exception $err){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Database Error: ' . $err->getMessage()
+            ]);
+        }
+    }
+
+    private function addOld($userId, $domainName, $hostingName, $hostingPrice, $hostingRenew) {
 
         $productId = uniqid('hosting_');
         $product = "Hosting Registration";
