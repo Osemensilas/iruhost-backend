@@ -192,10 +192,11 @@ class UserProducts{
         }
 
         $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ? AND product = ?");
-        $stmt->execute([$this->userId, 'app']);
+        $stmt->execute([$this->userId, 'web app']);
 
         if ($stmt->rowCount() > 0){
-            $rows = $stmt->fetchAll();
+
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             echo json_encode([
                 'status' => 'success',

@@ -44,3 +44,9 @@ $router->resolve($requestUri, $method);
 
 // DEBUG: Log route hit (optional during development)
 error_log("[$method] $requestUri");
+
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+

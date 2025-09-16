@@ -2,6 +2,7 @@
 
 namespace App\Controllers\API;
 use App\Core\DB;
+use PDO;
 
 class AdminOps{
     protected $adminId;
@@ -73,5 +74,51 @@ class AdminOps{
         $stmt->execute([$blogId, $title, $content, $image, $author, $category]);
 
         echo json_encode(['status' => 'success', 'message' => 'Blog added successfully']);
+    }
+
+    public function getChats(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT c.*
+            FROM chats c
+            INNER JOIN (
+                SELECT user_id, MAX(id) AS last_id
+                FROM chats
+                WHERE reciever_id = 'admin'
+                GROUP BY user_id
+            ) latest ON c.id = latest.last_id
+            ORDER BY c.id DESC");
+        $stmt->execute();
+        $rows = '';
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach($rows as $row){
+ 
+                $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+                $stmt->execute([$row['user_id']]);
+
+                if ($stmt->rowCount() > 0){
+                    $user = $stmt->fetch();
+                }
+
+                echo json_encode([
+                    'status' => 'success',
+                    'result' => [
+                        'chats' => $row,
+                        'name' => $user['name']
+                    ],
+                ]);
+            }
+        }
     }
 }

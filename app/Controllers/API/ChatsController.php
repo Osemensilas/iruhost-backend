@@ -2,8 +2,10 @@
 
 namespace App\Controllers\API;
 use App\Core\DB;
-use Exception;
 use PDO;
+use App\Services\PHPMailer\PHPMailer\PHPMailer;
+use Exception;
+
 class ChatsController{
     protected $pdo;
     private $userId;
@@ -75,27 +77,22 @@ class ChatsController{
         }
         
         $message = htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8');
-        $image = null;
+        $image = '';
 
-        if (!$image) {
-            $image = '';
-        }
-
-        if (empty($_FILES['image']['name']) && empty($message)){
+        if (empty($_FILES['image']['name'] ?? '') && empty($message)) {
             return;
         }
 
-        if ($_FILES['image']['name']) {
+        if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
             $uploadDir = __DIR__ . "../../../../public/uploads/";
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
 
-            $filename = time() . "_" . basename($_FILES['image']['name']);
+            $filename   = time() . "_" . basename($_FILES['image']['name']);
             $targetFile = $uploadDir . $filename;
 
             if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
-                // store relative path (backend will serve it later)
                 $image = $filename;
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Image upload failed']);
@@ -136,5 +133,108 @@ class ChatsController{
                 'message' => $rows
             ]);
         }
+    }
+
+    public function consult(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+        
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $firstname = $data['firstname'];
+        $lastname = $data['lastname'];
+        $email = $data['email'];
+        $phone = $data['phone'];
+        $code = $data['code'];
+
+        if (empty($firstname) || empty($lastname) || empty($email) || empty($phone) || empty($code)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All field required'
+            ]);
+            return;
+        }
+
+        if (!preg_match('/^[a-zA-Z]+$/', $firstname)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid first name'
+            ]);
+            return;
+        }
+
+        if (!preg_match('/^[a-zA-Z]+$/', $lastname)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid last name'
+            ]);
+            return;
+        }
+
+        if (!preg_match('/^[+][0-9]{1,3}$/', $code)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid country code'
+            ]);
+            return;
+        }
+
+        if (!preg_match('/^[0-9]{7,11}$/', $phone)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid phone number'
+            ]);
+            return;
+        }
+
+        if (!filter_var( $email, FILTER_VALIDATE_EMAIL)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid email address'
+            ]);
+            return;
+        }
+
+        $this->sendConsultMail($firstname, $lastname, $email, $code, $phone);
+    }
+
+    private function sendConsultMail($firstname, $lastname, $email, $code, $phone){
+        require 'PHPMailer/src/Exception.php';
+        require 'PHPMailer/src/PHPMailer.php';
+        require 'PHPMailer/src/SMTP.php';
+
+        // SMTP Configuration
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host       = $_ENV['MAIL_HOST']; 
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $_ENV['MAIL_USERNAME']; 
+            $mail->Password   = $_ENV['MAIL_PASSWORD']; 
+            $mail->SMTPSecure = $_ENV['MAIL_ENCRYPTION']; 
+            $mail->Port       = $_ENV['MAIL_PORT']; 
+
+            // Email Headers
+            $mail->setFrom('contact@mageekresult.com.ng', 'Ndiana Samuel'); // Sender
+            $mail->addAddress('ndianaisang@gmail.com'); // Recipient ndianaisang@gmail.com
+            $mail->Subject = 'New Order Notification';
+            $mail->Body = "New Consultation from $firstname $lastname\nPhone: $phone\nEmail: $email\nCode: $code";
+
+            // Send Mail
+            if ($mail->send()) {
+                $response['status'] = 'success';
+                $response['message'] = 'Message sent successfully';
+            } else {
+                $response['status'] = 'error';
+                $response['message'] = 'Message not sent. Check connection';
+            }
+        } catch (Exception $e) {
+            $response['status'] = 'error';
+            $response['message'] = "Email failed: {$mail->ErrorInfo}";
+        }
+
+        echo json_encode($response);
     }
 }

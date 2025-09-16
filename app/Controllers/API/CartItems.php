@@ -165,6 +165,7 @@ class CartItems {
         $totalSslPrice = 0;
         $totalHostingPrice = 0;
         $totalEmailPrice = 0;
+        $totalWebAppPrice = 0;
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -179,7 +180,13 @@ class CartItems {
                         if ($row['product'] == 'Email Registrations'){
                             $totalEmailPrice += round($row['amount'], 2);
                         }else{
-                            $totalHostingPrice += round($row['amount'], 2);
+                            if ($row['product'] == 'Hosting Registrations'){
+                                $totalHostingPrice += round($row['amount'], 2);
+                            }else{
+                                if ($row['product'] == 'Web application'){
+                                    $totalWebAppPrice += round($row['amount'], 2);
+                                }
+                            }
                         }
                     }
                 }
@@ -193,6 +200,7 @@ class CartItems {
             'totalSslPrice' => round($totalSslPrice, 2),
             'totalHostingPrice' => round($totalHostingPrice, 2),
             'totalEmailPrice' => round($totalEmailPrice, 2),
+            'totalWebAppPrice' => round($totalWebAppPrice, 2),
         ]);
     }
 
