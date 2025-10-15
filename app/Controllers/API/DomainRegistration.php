@@ -6,9 +6,13 @@ class DomainRegistration{
 
     private $myKey;
     private $url;
+    protected $enomUserId;
+    protected $enomApiToken;
     public function __construct(){
         $this->myKey = "3079601359d46e924bfbab85"; 
         $this->url = "https://www.namesilo.com";
+        $this->enomUserId = "osemen";
+        $this->enomApiToken = "WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R";
     }
     public function domainSearch(){
 
@@ -28,22 +32,35 @@ class DomainRegistration{
             return;
         }
 
-        $tdl = substr($data, strpos($data, '.') + 1);
+        $tdls = [substr($data, strpos($data, '.') + 1), 'com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
         $sld = substr($data, 0, strpos($data, '.'));
-        
-        $api = "$this->url/api/checkRegisterAvailability?version=1&type=xml&key=$this->myKey&domains=$data,$sld.net,$sld.org,$sld.com,$sld.biz,$sld.ai,$sld.me,$sld.tech";
+        $myCharge = 3;
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $api);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $response = curl_exec($ch);
-        curl_close($ch);
+        foreach($tdls as $tdl){
         
-         echo json_encode([
-            'status' => 'success',
-            'requested_domain' => $data,
-            'response' => $response,
-        ]);
+            $api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $api);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            $xml = simplexml_load_string($response);
+
+            $rrpCode = (int) $xml->Domains->Domain->RRPCode;
+            $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
+            $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
+            $domain = (string) $xml->Domains->Domain->Name;
+
+             echo json_encode([
+                'status' => 'success',
+                'rrpCode' => $rrpCode,
+                'regPrice' => $regPrice,
+                'renew' => $renewPrice,
+                'domain' => $domain
+            ]);
+        }
     }
 
     public function singleSearch() {
@@ -65,18 +82,30 @@ class DomainRegistration{
 
         $domainName = $data['action'];
 
-        $api = "https://www.namesilo.com/api/checkRegisterAvailability?version=1&type=xml&key=$this->myKey&domains=$domainName";
+        $tdl = substr($domainName, strpos($domainName, '.') + 1);
+        $sld = substr($domainName, 0, strpos($domainName, '.'));
+        $myCharge = 3;
+
+        $api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
     
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $api);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $response = curl_exec($ch);
         curl_close($ch);
+
+        $xml = simplexml_load_string($response);
+
+        $rrpCode = (int) $xml->Domains->Domain->RRPCode;
+        $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
+        $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
         
-         echo json_encode([
+        echo json_encode([
             'status' => 'success',
             'requested_domain' => $domainName,
-            'response' => $response,
+            'rrpCode' => $rrpCode,
+            'regPrice' => $regPrice,
+            'renewPrice' => $renewPrice
         ]);
     }
 
@@ -100,7 +129,10 @@ class DomainRegistration{
 
         $domainName = $data['action'];
 
-        $api = "https://www.namesilo.com/api/whoisInfo?version=1&type=xml&key=$this->myKey&domain=$domainName";
+        $tdl = substr($domainName, strpos($domainName, '.') + 1);
+        $sld = substr($domainName, 0, strpos($domainName, '.'));
+
+        $api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml";
 
     
         $ch = curl_init();
@@ -108,11 +140,15 @@ class DomainRegistration{
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $response = curl_exec($ch);
         curl_close($ch);
+
+        $xml = simplexml_load_string($response);
+
+        $rrpCode = (int) $xml->RRPCode;
         
          echo json_encode([
             'status' => 'success',
             'requested_domain' => $domainName,
-            'response' => $response,
+            'rrpCode' => $rrpCode,
         ]);
     }
 
@@ -122,7 +158,7 @@ class DomainRegistration{
             return;
         }
 
-        $api = "https://www.namesilo.com/api/getPrices?version=1&type=xml&key=$this->myKey";
+        $api = "https://resellert.enom.com/interface.asp?command=gettldlist&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $api);
@@ -130,50 +166,52 @@ class DomainRegistration{
         $response = curl_exec($ch);
         curl_close($ch);
 
-        $xml = simplexml_load_string($response);
+        //$xml = simplexml_load_string($response);
 
-        $data = [];
+        print_r($response);
 
-        $dotCom = $xml->reply->com;
-        $dotOrg = $xml->reply->org;
-        $dotNet = $xml->reply->net;
+        // $data = [];
 
-        if ($xml && isset($xml->reply)) {
-            foreach ($xml->reply->children() as $tld) {
-                $name = "." . $tld->getName();
+        // $dotCom = $xml->reply->com;
+        // $dotOrg = $xml->reply->org;
+        // $dotNet = $xml->reply->net;
 
-                // Try attributes first
-                $reg      = (string) $tld['registration'];
-                $renew    = (string) $tld['renew'];
-                $transfer = (string) $tld['transfer'];
+        // if ($xml && isset($xml->reply)) {
+        //     foreach ($xml->reply->children() as $tld) {
+        //         $name = "." . $tld->getName();
 
-                // If attributes are empty, try child nodes
-                if ($reg === "" && isset($tld->registration)) {
-                    $reg = (string) $tld->registration;
-                }
-                if ($renew === "" && isset($tld->renew)) {
-                    $renew = (string) $tld->renew;
-                }
-                if ($transfer === "" && isset($tld->transfer)) {
-                    $transfer = (string) $tld->transfer;
-                }
+        //         // Try attributes first
+        //         $reg      = (string) $tld['registration'];
+        //         $renew    = (string) $tld['renew'];
+        //         $transfer = (string) $tld['transfer'];
 
-                $data[] = [
-                    "tld" => $name,
-                    "registration" => $reg,
-                    "renewal"      => $renew,
-                    "transfer"     => $transfer,
-                ];
-            }
-        }
+        //         // If attributes are empty, try child nodes
+        //         if ($reg === "" && isset($tld->registration)) {
+        //             $reg = (string) $tld->registration;
+        //         }
+        //         if ($renew === "" && isset($tld->renew)) {
+        //             $renew = (string) $tld->renew;
+        //         }
+        //         if ($transfer === "" && isset($tld->transfer)) {
+        //             $transfer = (string) $tld->transfer;
+        //         }
 
-        header("Content-Type: application/json");
-        echo json_encode([
-            "status" => "success", 
-            "prices" => $data, 
-            "dotcom" => $dotCom,
-            "dotnet" => $dotNet,
-            "dotorg" => $dotOrg
-        ], JSON_PRETTY_PRINT);
+        //         $data[] = [
+        //             "tld" => $name,
+        //             "registration" => $reg,
+        //             "renewal"      => $renew,
+        //             "transfer"     => $transfer,
+        //         ];
+        //     }
+        // }
+
+        // header("Content-Type: application/json");
+        // echo json_encode([
+        //     "status" => "success", 
+        //     "prices" => $data, 
+        //     "dotcom" => $dotCom,
+        //     "dotnet" => $dotNet,
+        //     "dotorg" => $dotOrg
+        // ], JSON_PRETTY_PRINT);
     }
 }

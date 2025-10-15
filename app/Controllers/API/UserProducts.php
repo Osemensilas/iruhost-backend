@@ -255,4 +255,42 @@ class UserProducts{
             ]);
         }
     }
+
+    public function getDomainProducts(){
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['user'])){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $domain = $data['domain'];
+
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM `products` 
+            WHERE user_id = ? 
+            AND domain = ? 
+            AND product_name != ?
+        ");
+        $stmt->execute([$this->userId, $domain, $domain]);
+
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($products)) {
+            echo json_encode(['status' => 'error', 'message' => 'No products found']);
+            return;
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'user' => $_SESSION['user']['name'],
+            'products' => $products
+        ]);
+    }
 }

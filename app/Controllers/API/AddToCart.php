@@ -230,6 +230,58 @@ class AddToCart {
         }
     }
 
+    public function addEmail(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $emailName = $data['emailName'];
+        $emailPrice = $data['emailPrice'];
+        $emailRenew = $data['emailPrice'] ?? null;
+        $emailDuration = 1;
+        $emailId = uniqid("email_");
+        $emailProduct = 'Email Registration';
+        $emailBilling = 'year';
+        $emailDomain = '';
+
+        if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE product_name = ? AND user_id = ?");
+        $stmt->execute([$emailName, $this->userId]);
+
+        if ($stmt->fetch()) {
+            echo json_encode([
+                'status' => 'success',
+                'mesage' => 'Email added to cart'
+            ]);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("INSERT INTO `cart`
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        
+        try {
+            $stmt->execute([$this->userId, $emailId, $emailProduct, $emailName, $emailPrice, $emailRenew, $emailBilling, $emailDomain]);
+            
+            echo json_encode([
+                'status' => 'success',
+                'mesage' => 'Email added to cart'
+            ]);
+        } catch (Exception $err) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Database Error: ' . $err->getMessage()
+            ]);
+        }
+    }
+
     public function addWebsite(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);

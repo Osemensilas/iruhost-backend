@@ -11,6 +11,10 @@ class CallFlutter {
     protected $userId;
     protected $clientId;
     protected $nameSiloKey;
+    protected $enomUserId;
+    protected $enomApiToken;
+    protected $cpanelUsername;
+    protected $cpanelApiToken;
 
     public function __construct(){
         $this->pdo = DB::connection();
@@ -18,6 +22,10 @@ class CallFlutter {
         $this->userId = $_SESSION['user']['user_id'];
         $this->clientId = "200642152";
         $this->nameSiloKey = "514f12a14ed69fe33b7072ed8"; 
+        $this->enomUserId = "osemen";
+        $this->enomApiToken = "WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R";
+        $this->cpanelUsername = "iruhostc";
+        $this->cpanelApiToken = "6YK32KTFBWMNM5UFBT1D5OBEZ4S65SV8";
     }
 
     public function paymentSuccessful(){
@@ -60,19 +68,34 @@ class CallFlutter {
                     $cartId = $row['cart_id'];
                     $domain = $row['domain'];
 
-                    $url = "https://www.namesilo.com/api/registerDomain?version=1&type=xml&key=$this->nameSiloKey&domain=$domain&years=1&private=1&auto_renew=0";
-    
+                    $tdl = substr($domain, strpos($domain, '.') + 1);
+                    $sld = substr($domain, 0, strpos($domain, '.'));
+
+                    $url = "https://reseller.enom.com/interface.asp?command=Purchase&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tdl&responsetype=xml";
+                    
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $url);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                     $response = curl_exec($ch);
                     curl_close($ch);
-                    
-                    // echo json_encode([
-                    //     $response,
-                    // ]);
 
-                    $this->regDomain($productName, $billing, $cartId, $domain);
+                    $xml = simplexml_load_string($response);
+
+                    $rrpCode = (string) $xml->RRPCode;
+
+                    if($rrpCode === "200"){
+                        $this->regDomain($productName, $billing, $cartId, $domain);
+                    }
+                    
+                    if ($rrpCode === "1300"){
+                        $this->regDomain($productName, $billing, $cartId, $domain);
+                    }
+
+                    // if ($rrpCode !== "200" || $rrpCode !== "1300"){
+                    //     $domain = 'Unsuccessful';
+
+                    //     $this->regDomain($productName, $billing, $cartId, $domain);
+                    // }
                 }else{
                     if ($row['product'] === 'SSL Registration'){
                         $productName = $row['product_name'];
@@ -167,7 +190,7 @@ class CallFlutter {
         $productId = uniqid('prod_');
         $product = 'domain';
         $text = 'Manage';
-        $url = '/manage-domain';
+        $url = "/manage-domain?domain=$productName";
         $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
 
         $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
@@ -183,7 +206,7 @@ class CallFlutter {
         $productId = uniqid('prod_');
         $product = 'SSL';
         $text = 'Manage';
-        $url = '/manage-ssl';
+        $url = "/manage-ssl?ssl=$productName";
         $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
 
         $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
@@ -199,7 +222,7 @@ class CallFlutter {
         $productId = uniqid('prod_');
         $product = 'email';
         $text = 'Manage';
-        $url = '/manage-email';
+        $url = "/manage-email?email=$productName";
         $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
 
         $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
@@ -215,6 +238,7 @@ class CallFlutter {
         $productId = uniqid('prod_');
         $product = 'hosting';
         $text = 'Cpanel';
+        $hostingName = "iruhostc_$productName";
 
         $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
         $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
@@ -222,6 +246,78 @@ class CallFlutter {
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
             $stmt->execute([$cartId, $this->userId]);
+
+            // ===============================
+            // Your WHM credentials
+            // ===============================
+            $whm_host = "iruhost.com";  // Your WHM domain (or server IP)
+
+            // ===============================
+            // New customer details
+            // ===============================
+            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+            $stmt->execute([$this->userId]);
+
+            $rows = $stmt->fetch();
+
+            $username = "iru_" . trim(substr($rows['name'], 0, 3));
+
+            function generateRandomPassword($length = 8) {
+                $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                $password = '';
+                $maxIndex = strlen($characters) - 1;
+
+                for ($i = 0; $i < $length; $i++) {
+                    $password .= $characters[random_int(0, $maxIndex)];
+                }
+
+                return $password;
+            }
+
+            $password = generateRandomPassword();
+
+            
+            $url = "https://{$whm_host}:2087/json-api/createacct?api.version=1"
+                . "&username={$username}"
+                . "&domain={$domain}"
+                . "&password=" . urlencode($password)
+                . "&plan={$hostingName}";
+
+            // ===============================
+            // Initialize cURL
+            // ===============================
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);  // Disable SSL verify if needed
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_HEADER, 0);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Authorization: WHM {$this->cpanelUsername}:{$this->cpanelApiToken}"
+            ]);
+
+            // ===============================
+            // Execute and handle response
+            // ===============================
+            $result = curl_exec($ch);
+            if ($result === false) {
+                die("cURL Error: " . curl_error($ch));
+            }
+            curl_close($ch);
+
+            // Decode the response from JSON
+            $response = json_decode($result, true);
+
+            if (isset($response['metadata']['result']) && $response['metadata']['result'] == 1) {
+                // echo "✅ Account created successfully for {$username}\n";
+                // echo "🌐 Domain: {$domain}\n";
+                // echo "🔑 Password: {$password}\n";
+            } else {
+                // echo "❌ Failed to create account.\n";
+                // echo "Reason: " . $response['metadata']['reason'] . "\n";
+                // echo "Raw Response: " . $result;
+            }
+
         }
     }
 
@@ -230,7 +326,7 @@ class CallFlutter {
         $product = 'web app';
         $billing = '';
         $text = 'Manage';
-        $url = '/manage-web';
+        $url = "/manage-web?web=$productName";
         $expiryDate = '';
 
         $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
