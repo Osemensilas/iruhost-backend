@@ -11,9 +11,9 @@ class DB {
     public static function connection() {
         if (!self::$pdo) {
             $hostname = "localhost";
-            $username = "Banks";
-            $password = "Bank$101";
-            $dbname   = "iruhost";
+            $username = "iruhostc_osemen";
+            $password = "Bank$101Onion";
+            $dbname   = "iruhostc_iruhost";
 
             try {
                 // Connect without specifying database

@@ -33,6 +33,10 @@ $router->post('/api/domain-search', [DomainRegistration::class, 'domainSearch'])
 $router->post('/api/single-search', [DomainRegistration::class, 'singleSearch']);
 $router->post('/api/domain-check', [DomainRegistration::class, 'existingCheck']);
 $router->get('/api/get-domain-prices', [DomainRegistration::class, 'getDomainPrices']);
+$router->post('/api/update-dns', [DomainRegistration::class, 'updateDns']);
+$router->post('/api/update-host', [DomainRegistration::class, 'updateHost']);
+$router->post('/api/get-host', [DomainRegistration::class, 'getHost']);
+$router->post('/api/get-domain-details', [DomainRegistration::class, 'getDomainDetails']);
 $router->post('/api/add-to-cart', [AddToCart::class, 'addDomain']);
 $router->post('/api/transfer-to-cart', [AddToCart::class, 'tranferDomain']);
 $router->post('/api/add-to-cart-hosting', [AddToCart::class, 'addHosting']);
