@@ -13,7 +13,7 @@ if (!isset($_SESSION['user'])){
 
 // public/index.php
 header('Content-Type: application/json');
-$allowedOrigins = ['http://localhost:3000', 'https://iruhost.com', 'https://iruap-studio.vercel.app/'];
+$allowedOrigins = ['http://localhost:3000', 'https://iruhost.com'];
 if (in_array($_SERVER['HTTP_ORIGIN'] ?? '', $allowedOrigins)) {
     header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
 }
