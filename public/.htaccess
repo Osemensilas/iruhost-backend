@@ -1,39 +1,75 @@
+# ==============================
+# ✅ Core Rewrite Rules
+# ==============================
 <IfModule mod_rewrite.c>
-RewriteEngine On
+    RewriteEngine On
+    RewriteBase /
 
-# --------------------------------------------------------
-# ✅ Always pass OPTIONS requests to PHP (for preflight)
-# --------------------------------------------------------
-RewriteCond %{REQUEST_METHOD} OPTIONS
-RewriteRule ^(.*)$ index.php [QSA,L]
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-# --------------------------------------------------------
-# ✅ Send all other requests that aren't files/dirs to index.php
-# --------------------------------------------------------
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [L]
+    # Handle CORS preflight (OPTIONS)
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ index.php [QSA,L]
+
+    # Send all non-file/directory requests to index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
-# --------------------------------------------------------
-# ✅ Clean up any default LiteSpeed headers
-# --------------------------------------------------------
+# ==============================
+# ✅ CORS Headers Configuration
+# ==============================
 <IfModule mod_headers.c>
+    # Remove existing headers to prevent duplicates
     Header always unset Access-Control-Allow-Origin
     Header always unset Access-Control-Allow-Methods
     Header always unset Access-Control-Allow-Headers
     Header always unset Access-Control-Allow-Credentials
 
-    # Safe preflight defaults — PHP will still override dynamically
-    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    # Define allowed origins
+    SetEnvIf Origin "^(https?://(www\.)?(localhost:3000|iruhost\.com|iruap-studio\.vercel\.app))$" ALLOWED_ORIGIN=$1
+    
+    # Set CORS headers only for allowed origins
+    Header set Access-Control-Allow-Origin "%{ALLOWED_ORIGIN}e" env=ALLOWED_ORIGIN
+    Header set Access-Control-Allow-Credentials "true" env=ALLOWED_ORIGIN
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" env=ALLOWED_ORIGIN
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With" env=ALLOWED_ORIGIN
+    Header set Access-Control-Max-Age "86400" env=ALLOWED_ORIGIN
+    
+    # Add Vary header for proper caching
+    Header append Vary Origin
+    
+    # Security headers
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
 </IfModule>
 
-# --------------------------------------------------------
-# ✅ Tell LiteSpeed not to cache and to pass ORIGIN header to PHP
-# --------------------------------------------------------
+# ==============================
+# ✅ LiteSpeed Configuration
+# ==============================
 <IfModule LiteSpeed>
-    RewriteRule .* - [E=Cache-Control:no-cache]
-    RewriteRule .* - [E=HTTP_ORIGIN:%{HTTP:ORIGIN}]
-    RewriteRule .* - [E=VARY:Origin]
+    CacheEnable public
+    CacheDisable /api/
+    RewriteEngine On
+    
+    # Pass Origin header and prevent caching for API requests
+    RewriteCond %{REQUEST_URI} ^/api/ [NC]
+    RewriteRule .* - [E=Cache-Control:no-store,E=HTTP_ORIGIN:%{HTTP:ORIGIN}]
+    
+    # Enable CORS for LiteSpeed
+    SetEnv LSAPI_MAX_HEADER_LEN 65536
+    SetEnv LSAPI_ACCEPT_UNIX_SOCKET_CREDENTIALS 1
+</IfModule>
+
+# ==============================
+# ✅ PHP Configuration
+# ==============================
+<IfModule mod_php.c>
+    php_value session.cookie_httponly 1
+    php_value session.cookie_secure 1
+    php_value session.cookie_samesite "Strict"
 </IfModule>

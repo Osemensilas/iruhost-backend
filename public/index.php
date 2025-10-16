@@ -5,7 +5,7 @@ session_start();
 // Create guest session if user not logged in
 if (!isset($_SESSION['user'])) {
     $_SESSION['guest'] = [
-        'id' => session_id(), // unique session ID
+        'id' => session_id(),
         'started_at' => date('Y-m-d H:i:s'),
         'ip' => $_SERVER['REMOTE_ADDR'] ?? '',
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
@@ -24,24 +24,31 @@ $allowedOrigins = [
     'https://iruap-studio.vercel.app'
 ];
 
+// Get the Origin header
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if ($origin && in_array($origin, $allowedOrigins, true)) {
+// Check if origin is in allowed list
+if (in_array($origin, $allowedOrigins, true)) {
     header("Access-Control-Allow-Origin: $origin");
-    header('Access-Control-Allow-Credentials: true');
-} else {
-    // Log invalid or missing origins for debugging
-    error_log('CORS blocked origin: ' . ($origin ?: 'NO ORIGIN HEADER'));
+    header("Access-Control-Allow-Credentials: true");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+    
+    // Add additional headers for better browser support
+    header("Access-Control-Max-Age: 86400"); // 24 hours cache for preflight
+    header("Vary: Origin"); // Important for caching responses with different origins
 }
 
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-
-// Handle preflight requests (OPTIONS)
+// Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+    http_response_code(204); // No content needed for OPTIONS
+    exit();
 }
+
+// Log debugging information
+error_log("Request Origin: " . ($origin ?: 'NO ORIGIN'));
+error_log("Request Method: " . ($_SERVER['REQUEST_METHOD'] ?? 'NO METHOD'));
+error_log("Request URI: " . ($_SERVER['REQUEST_URI'] ?? 'NO URI'));
 
 // ------------------------------------------------------------
 // 🧩 BOOTSTRAP APPLICATION
@@ -55,7 +62,6 @@ $dotenv->load();
 
 // Initialize Router
 use App\Core\Router;
-
 $router = new Router();
 
 // Load route definitions
@@ -65,7 +71,5 @@ require_once __DIR__ . '/../routes/web.php';
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Handle the route
 $router->resolve($requestUri, $method);
-
-// Optional: Log route hit for debugging
-error_log("[$method] $requestUri");
