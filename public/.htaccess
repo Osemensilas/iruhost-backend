@@ -1,21 +1,39 @@
 <IfModule mod_rewrite.c>
 RewriteEngine On
 
-# Allow preflight (OPTIONS) requests to reach PHP
+# --------------------------------------------------------
+# ✅ Always pass OPTIONS requests to PHP (for preflight)
+# --------------------------------------------------------
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# Send all other non-file requests to index.php
+# --------------------------------------------------------
+# ✅ Send all other requests that aren't files/dirs to index.php
+# --------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [L]
 </IfModule>
 
-# --- CORS Fix for LiteSpeed ---
+# --------------------------------------------------------
+# ✅ Clean up any default LiteSpeed headers
+# --------------------------------------------------------
 <IfModule mod_headers.c>
-    # Remove any wildcard or default CORS headers injected by LiteSpeed or Apache
     Header always unset Access-Control-Allow-Origin
     Header always unset Access-Control-Allow-Methods
     Header always unset Access-Control-Allow-Headers
     Header always unset Access-Control-Allow-Credentials
+
+    # Safe preflight defaults — PHP will still override dynamically
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+</IfModule>
+
+# --------------------------------------------------------
+# ✅ Tell LiteSpeed not to cache and to pass ORIGIN header to PHP
+# --------------------------------------------------------
+<IfModule LiteSpeed>
+    RewriteRule .* - [E=Cache-Control:no-cache]
+    RewriteRule .* - [E=HTTP_ORIGIN:%{HTTP:ORIGIN}]
+    RewriteRule .* - [E=VARY:Origin]
 </IfModule>
