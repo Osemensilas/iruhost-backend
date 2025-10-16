@@ -48,6 +48,8 @@ class DomainRegistration{
 
             $xml = simplexml_load_string($response);
 
+            print_r($response);
+
             $rrpCode = (int) $xml->Domains->Domain->RRPCode;
             $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
             $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
@@ -359,7 +361,6 @@ class DomainRegistration{
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
         $url = "https://reseller.enom.com/interface.asp?command=GetDomainInfo&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tdl&responsetype=xml";
-        //$url2 = "http://reseller.enom.com/interface.asp?command=portal_getdomaininfo&uid=osemen&pw=WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R&sld=iruhost&tld=com&ResponseType=XML";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
