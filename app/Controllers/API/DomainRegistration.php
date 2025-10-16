@@ -48,8 +48,6 @@ class DomainRegistration{
 
             $xml = simplexml_load_string($response);
 
-            print_r($response);
-
             $rrpCode = (int) $xml->Domains->Domain->RRPCode;
             $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
             $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
