@@ -1,5 +1,9 @@
 <?php
 
+echo json_encode(['status' => 'index.php reached']);
+exit;
+
+
 session_start();
 
 if (!isset($_SESSION['user'])){
