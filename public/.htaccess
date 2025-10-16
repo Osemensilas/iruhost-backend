@@ -11,7 +11,11 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [L]
 </IfModule>
 
-# Optional: prevent caching for CORS testing
+# --- CORS Fix for LiteSpeed ---
 <IfModule mod_headers.c>
-    Header always set Access-Control-Allow-Origin "*"
+    # Remove any wildcard or default CORS headers injected by LiteSpeed or Apache
+    Header always unset Access-Control-Allow-Origin
+    Header always unset Access-Control-Allow-Methods
+    Header always unset Access-Control-Allow-Headers
+    Header always unset Access-Control-Allow-Credentials
 </IfModule>
