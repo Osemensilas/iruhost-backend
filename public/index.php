@@ -14,8 +14,14 @@ if (!isset($_SESSION['user'])){
 // public/index.php
 header('Content-Type: application/json');
 $allowedOrigins = ['http://localhost:3000', 'https://iruhost.com', 'https://www.iruhost.com', 'https://iruap-studio.vercel.app'];
-if (in_array($_SERVER['HTTP_ORIGIN'] ?? '', $allowedOrigins)) {
-    header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+
+if (in_array($origin, $allowedOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    // Optional: log rejected origin for debugging
+    error_log("CORS blocked origin: " . $origin);
 }
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
