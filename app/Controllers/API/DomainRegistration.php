@@ -74,7 +74,9 @@ class DomainRegistration{
 
         $xml = simplexml_load_string($response);
 
-        print_r($response);
+        print_r($xml);
+
+        $priAPi = "https://api.namecheap.com/xml.response?ApiUser=USERNAME&ApiKey=API_KEY&UserName=USERNAME&Command=namecheap.users.getPricing&ClientIp=147.135.222.233&ProductType=DOMAIN&ProductCategory=DOMAINS";
     }
 
     public function singleSearch() {
