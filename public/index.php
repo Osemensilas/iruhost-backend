@@ -22,7 +22,9 @@ $allowedOrigins = [
     'https://iruhost.com',
     'https://www.iruhost.com',
     'https://iruap-studio.vercel.app',
-    'https://iruhost-dashboard.vercel.app/'
+    'https://iruhost-dashboard.vercel.app',
+    'https://www.dashboard.iruhost.com',
+    'https://dashboard.iruhost.com'
 ];
 
 // Get the Origin header
