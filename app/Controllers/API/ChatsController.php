@@ -103,8 +103,8 @@ class ChatsController{
         try{
             $recieverId = 'admin';
 
-            $stmt = $this->pdo->prepare("INSERT INTO `chats`(`user_id`, `reciever_id`, `message`, `image`) VALUES (?,?,?,?)");
-            $stmt->execute([$this->userId, $recieverId, $message, $image]);
+            $stmt = $this->pdo->prepare("INSERT INTO `chats`(`user_id`, `reciever_id`, `message`, `status`, `image`) VALUES (?,?,?,?,?)");
+            $stmt->execute([$this->userId, $recieverId, $message, 'new', $image]);
 
             echo json_encode([
                 'status'  => 'success',
