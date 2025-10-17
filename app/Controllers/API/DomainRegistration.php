@@ -14,7 +14,7 @@ class DomainRegistration{
         $this->enomApiToken = "WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R";
         $this->namecheapUser = "osemensilas";
         $this->ip = "147.135.222.233";
-        $this->nameCheapToken = "19736d38c0124e5da14083e36d9b141e";
+        $this->nameCheapToken = "81f516ba52bc431595d4356a7fa3758d";
     }
     public function domainSearch(){
 
@@ -64,7 +64,7 @@ class DomainRegistration{
         //     ]);
         // }
 
-        $api = "https://api.namecheap.com/xml.response?ApiUser=apiexample&ApiKey=$this->nameCheapToken&UserName=$this->namecheapUser&Command=namecheap.domains.check&ClientIp=$this->ip&DomainList=$data";
+        $api = "https://api.namecheap.com/xml.response?ApiUser=$this->namecheapUser&ApiKey=$this->nameCheapToken&UserName=$this->namecheapUser&Command=namecheap.domains.check&ClientIp=$this->ip&DomainList=$data";
     
         echo $api;
         
