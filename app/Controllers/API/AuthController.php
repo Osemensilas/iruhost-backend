@@ -211,6 +211,17 @@ class AuthController{
         ]);
     }
 
+    public function forgetPassword(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+        
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        print_r($data);
+    }
+
     private function checkCart($userSession){
         $userId = $_SESSION['user']['user_id'];
         $guestId = $_SESSION['guest']['id'] ?? null;

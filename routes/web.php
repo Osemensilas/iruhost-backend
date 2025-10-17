@@ -22,6 +22,7 @@ $router->post('/api/get-websites-all', [SessionController::class, 'webListAll'])
 $router->post('/api/get-single-website', [SessionController::class, 'getSingleWeb']);
 $router->post('/api/register', [AuthController::class, 'register']);
 $router->post('/api/login', [AuthController::class, 'login']);
+$router->post('/api/forget-password', [AuthController::class, 'forgetPassword']);
 $router->post('/api/admin-login', [AuthController::class, 'adminLogin']);
 $router->post('/api/update-naira', [AuthController::class, 'currency']);
 $router->get('/api/get-naira', [AuthController::class, 'getNaira']);

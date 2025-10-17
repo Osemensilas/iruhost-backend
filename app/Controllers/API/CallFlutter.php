@@ -260,10 +260,10 @@ class CallFlutter {
 
             $rows = $stmt->fetch();
 
-            $username = "iru_" . trim(substr($rows['name'], 0, 3));
+            $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', $rows['name']), 0, 5)) . rand(10, 99);
 
-            function generateRandomPassword($length = 8) {
-                $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            function generateRandomPassword($length = 16) {
+                $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
                 $password = '';
                 $maxIndex = strlen($characters) - 1;
 
@@ -281,6 +281,7 @@ class CallFlutter {
                 . "&username={$username}"
                 . "&domain={$domain}"
                 . "&password=" . urlencode($password)
+                . "&contactemail=" . urlencode($rows['email'])
                 . "&plan={$hostingName}";
 
             // ===============================
