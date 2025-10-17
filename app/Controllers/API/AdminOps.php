@@ -136,8 +136,8 @@ class AdminOps{
 
         $clientId = $_GET['user'] ?? null;
 
-        $stmt = $this->pdo->prepare("SELECT * FROM `chats` WHERE user_id = ?");
-        $stmt->execute([$clientId]);
+        $stmt = $this->pdo->prepare("SELECT * FROM `chats` WHERE user_id = ? OR reciever_id = ? ORDER BY id");
+        $stmt->execute([$clientId, $clientId]);
 
         if ($stmt->rowCount() > 0){
             $userChat = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -159,6 +159,17 @@ class AdminOps{
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        print_r($data);
+        $recieverId = $data['reciever'];
+        $message = $data["msg"];
+
+        $stmt = $this->pdo->prepare("INSERT INTO `chats`(`user_id`, `reciever_id`, `message`, `status`, `image`) VALUES (?,?,?,?,?)");
+        $result = $stmt->execute(['admin', $recieverId, $message, 'new', null]);
+
+        if ($result){
+            echo json_encode([
+                'status' => 'success',
+                'messgae' => 'message sent'
+            ]);
+        }
     }
 }
