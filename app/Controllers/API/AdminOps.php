@@ -142,7 +142,7 @@ class AdminOps{
         if ($stmt->rowCount() > 0){
             $userChat = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            print_r($userChat);
+            echo json_encode($userChat);
         }
     }
 }
