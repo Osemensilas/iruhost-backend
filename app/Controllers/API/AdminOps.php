@@ -109,14 +109,17 @@ class AdminOps{
 
                 if ($stmt->rowCount() > 0){
                     $user = $stmt->fetch();
-                }
 
-                echo json_encode([
-                    'status' => 'Hello World',
-                    // 'chats' => $row,
-                    // 'name' => $user['name']
-                ]);
+                    $userChats[] = [
+                        'chat' => $row,
+                        'name' => $user['name']
+                    ]; 
+                }
             }
+            echo json_encode([
+                'status' => 'success',
+                'result' => $userChats
+            ]);
         }
     }
 }
