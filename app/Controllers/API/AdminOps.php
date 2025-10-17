@@ -112,9 +112,9 @@ class AdminOps{
                 }
 
                 echo json_encode([
-                    'status' => 'success',
-                    'chats' => $row,
-                    'name' => $user['name']
+                    'status' => 'Hello World',
+                    // 'chats' => $row,
+                    // 'name' => $user['name']
                 ]);
             }
         }
