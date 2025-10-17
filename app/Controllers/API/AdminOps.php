@@ -163,7 +163,7 @@ class AdminOps{
         $message = $data["msg"];
 
         $stmt = $this->pdo->prepare("INSERT INTO `chats`(`user_id`, `reciever_id`, `message`, `status`, `image`) VALUES (?,?,?,?,?)");
-        $result = $stmt->execute(['admin', $recieverId, $message, 'new', null]);
+        $result = $stmt->execute(['admin', $recieverId, $message, 'new', '']);
 
         if ($result){
             echo json_encode([
