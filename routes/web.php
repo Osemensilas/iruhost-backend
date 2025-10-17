@@ -72,6 +72,7 @@ $router->get('/api/get-web-sales', [AdminDashboard::class, 'getTotalWebSalesNum'
 $router->post('/api/add-blog', [AdminOps::class, 'addBlogs']);
 $router->get('/api/admin-get-chats', [AdminOps::class, 'getChats']);
 $router->get('/api/get-admin-chat', [AdminOps::class, 'getChat']);
+$router->post('/api/send-admin-chat', [AdminOps::class, 'sendChat']);
 $router->get('/api/get-blogs', [StaticController::class, 'getBlogs']);
 $router->get('/api/get-recent-blogs', [StaticController::class, 'recentBlogs']);
 $router->get('/api/get-todays-blogs', [StaticController::class, 'todayBlogs']);
