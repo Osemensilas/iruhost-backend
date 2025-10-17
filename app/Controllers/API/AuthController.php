@@ -216,10 +216,35 @@ class AuthController{
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
         }
+
+        $pdo = DB::connection();
         
         $data = json_decode(file_get_contents("php://input"), true);
 
-        print_r($data);
+        $email = $data['email'];
+
+        if (!filter_var( $email, FILTER_VALIDATE_EMAIL)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid email address'
+            ]);
+            return;
+        }
+
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+
+        if (!$stmt->rowCount() > 0){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'User do not exist'
+            ]);
+            return;
+        }
+
+        $randomCode = rand(100000, 999999);
+
+        echo $randomCode;
     }
 
     private function checkCart($userSession){

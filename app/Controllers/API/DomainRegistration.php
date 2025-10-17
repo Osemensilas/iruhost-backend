@@ -395,8 +395,4 @@ class DomainRegistration{
             'value' => $results
         ]);
     }
-
-    public function generalDNS(){
-        $url = "https://resellert.enom.com/interface.asp?command=registernameserver&uid=$this->enomUserId&pw=$this->enomApiToken&add=true&nsname=dns1.resellerdocs.com&ip=127.0.0.1&responsetype=xml";
-    }
 }
