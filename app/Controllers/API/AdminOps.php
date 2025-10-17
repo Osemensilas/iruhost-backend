@@ -134,14 +134,15 @@ class AdminOps{
             return;
         }
 
-        $data = json_decode(file_get_contents("php://input"), true);
-        $clientId = $data["user"];
+        $clientId = $_GET['user'] ?? null;
 
         $stmt = $this->pdo->prepare("SELECT * FROM `chats` WHERE user_id = ?");
         $stmt->execute([$clientId]);
 
         if ($stmt->rowCount() > 0){
             $userChat = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            print_r($userChat);
         }
     }
 }
