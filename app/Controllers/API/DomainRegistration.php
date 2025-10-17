@@ -12,7 +12,7 @@ class DomainRegistration{
     public function __construct(){
         $this->enomUserId = "osemen";
         $this->enomApiToken = "WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R";
-        $this->namecheapUser = "osemensilas";
+        $this->namecheapUser = "Osemensilas";
         $this->ip = "147.135.222.233";
         $this->nameCheapToken = "96cf583c6d3b46d288898dae72ea3116";
     }
