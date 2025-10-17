@@ -66,6 +66,8 @@ class DomainRegistration{
 
         $api = "https://api.namecheap.com/xml.response?ApiUser=apiexample&ApiKey=$this->nameCheapToken&UserName=$this->namecheapUser&Command=namecheap.domains.check&ClientIp=$this->ip&DomainList=$data";
     
+        echo $api;
+        
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $api);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -73,6 +75,8 @@ class DomainRegistration{
         curl_close($ch);
 
         $xml = simplexml_load_string($response);
+
+        print_r($response);
     }
 
     public function singleSearch() {
