@@ -244,7 +244,49 @@ class AuthController{
 
         $randomCode = rand(100000, 999999);
 
-        echo $randomCode;
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->isSMTP();
+            $mail->Host       = $_ENV['MAIL_HOST']; 
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $_ENV['MAIL_USERNAME']; 
+            $mail->Password   = $_ENV['MAIL_PASSWORD']; 
+            $mail->SMTPSecure = $_ENV['MAIL_ENCRYPTION']; 
+            $mail->Port       = $_ENV['MAIL_PORT']; 
+
+            // Email Headers
+            $mail->setFrom('noreply@iruhost.com', 'IruHost');
+            $mail->addAddress($email); 
+            $mail->Subject = 'New Order Notification';
+            $mail->Body = "
+                <h2>Password Reset</h2>
+                <p>Use this code to reset your password.</p>
+                <h3></h3>
+                <ul>
+                    <li><strong>Domain:</strong> {$randomCode}</li>
+                </ul>
+                <p><strong>Important:</strong> Please ignore if you did not initiate this.</p>
+            ";
+
+            // Send Mail
+            if ($mail->send()) {
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Message Sent Successfullly'
+                ]);
+            } else {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Message not sent. Check connection'
+                ]);
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => "Email failed: {$mail->ErrorInfo}"
+            ]);
+        }
     }
 
     private function checkCart($userSession){

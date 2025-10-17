@@ -4,15 +4,17 @@ namespace App\Controllers\API;
 
 class DomainRegistration{
 
-    private $myKey;
-    private $url;
+    private $namecheapUser;
+    private $ip;
+    private $nameCheapToken;
     protected $enomUserId;
     protected $enomApiToken;
     public function __construct(){
-        $this->myKey = "3079601359d46e924bfbab85"; 
-        $this->url = "https://www.namesilo.com";
         $this->enomUserId = "osemen";
         $this->enomApiToken = "WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R";
+        $this->namecheapUser = "osemensilas";
+        $this->ip = "147.135.222.233";
+        $this->nameCheapToken = "19736d38c0124e5da14083e36d9b141e";
     }
     public function domainSearch(){
 
@@ -32,35 +34,45 @@ class DomainRegistration{
             return;
         }
 
-        $tdls = [substr($data, strpos($data, '.') + 1), 'com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
-        $sld = substr($data, 0, strpos($data, '.'));
-        $myCharge = 3;
+        // $tdls = [substr($data, strpos($data, '.') + 1), 'com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
+        // $sld = substr($data, 0, strpos($data, '.'));
+        // $myCharge = 3;
 
-        foreach($tdls as $tdl){
+        // foreach($tdls as $tdl){
         
-            $api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
+        //     //$api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
 
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $api);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            $response = curl_exec($ch);
-            curl_close($ch);
+        //     $ch = curl_init();
+        //     curl_setopt($ch, CURLOPT_URL, $api);
+        //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        //     $response = curl_exec($ch);
+        //     curl_close($ch);
 
-            $xml = simplexml_load_string($response);
+        //     $xml = simplexml_load_string($response);
 
-            $rrpCode = (int) $xml->Domains->Domain->RRPCode;
-            $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
-            $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
-            $domain = (string) $xml->Domains->Domain->Name;
+        //     $rrpCode = (int) $xml->Domains->Domain->RRPCode;
+        //     $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
+        //     $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
+        //     $domain = (string) $xml->Domains->Domain->Name;
 
-             echo json_encode([
-                'status' => 'success',
-                'rrpCode' => $rrpCode,
-                'regPrice' => $regPrice,
-                'renew' => $renewPrice,
-                'domain' => $domain
-            ]);
-        }
+        //      echo json_encode([
+        //         'status' => 'success',
+        //         'rrpCode' => $rrpCode,
+        //         'regPrice' => $regPrice,
+        //         'renew' => $renewPrice,
+        //         'domain' => $domain
+        //     ]);
+        // }
+
+        $api = "https://api.namecheap.com/xml.response?ApiUser=apiexample&ApiKey=$this->nameCheapToken&UserName=$this->namecheapUser&Command=namecheap.domains.check&ClientIp=$this->ip&DomainList=$data";
+    
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $api);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $xml = simplexml_load_string($response);
     }
 
     public function singleSearch() {
