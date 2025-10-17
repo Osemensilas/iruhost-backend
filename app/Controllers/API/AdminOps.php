@@ -136,8 +136,6 @@ class AdminOps{
 
         $clientId = $_GET['user'] ?? null;
 
-        echo $clientId;
-
         $stmt = $this->pdo->prepare("SELECT * FROM `chats` WHERE user_id = ?");
         $stmt->execute([$clientId]);
 
