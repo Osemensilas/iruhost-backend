@@ -128,6 +128,8 @@ class ChatsController{
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            print_r($rows);
+
             echo json_encode([
                 'status' => 'success',
                 'message' => $rows
