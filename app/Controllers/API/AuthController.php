@@ -260,6 +260,7 @@ class AuthController{
             $mail->Port       = 465;
 
             // Email Headers
+            $mail->isHTML(true);
             $mail->setFrom('contact@iruhost.com', 'IruHost');
             $mail->addAddress($email); 
             $mail->Subject = 'Password Reset';
