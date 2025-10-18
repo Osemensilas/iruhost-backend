@@ -265,13 +265,12 @@ class AuthController{
             $mail->addAddress($email); 
             $mail->Subject = 'Password Reset';
             $mail->Body = "
-                <h2>Password Reset</h2>
+            <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
+                <h2 style='color: #000000; paddin'>Password Reset</h2>
                 <p>Use this code to reset your password.</p>
-                <h3></h3>
-                <ul>
-                    <li><strong>Domain:</strong> {$randomCode}</li>
-                </ul>
+                <p style='font-size: 24px; font-weight: bold;'><strong>Domain:</strong> {$randomCode}</p>
                 <p><strong>Important:</strong> Please ignore if you did not initiate this.</p>
+            </div>
             ";
 
             // Send Mail
