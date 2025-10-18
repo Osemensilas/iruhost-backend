@@ -74,6 +74,7 @@ $router->get('/api/admin-get-chats', [AdminOps::class, 'getChats']);
 $router->get('/api/admin-get-visitor-chats', [AdminOps::class, 'getVisitorChats']);
 $router->get('/api/get-admin-chat', [AdminOps::class, 'getChat']);
 $router->post('/api/send-admin-chat', [AdminOps::class, 'sendChat']);
+$router->post('/api/update-admin-chat', [AdminOps::class, 'updateChats']);
 $router->get('/api/get-blogs', [StaticController::class, 'getBlogs']);
 $router->get('/api/get-recent-blogs', [StaticController::class, 'recentBlogs']);
 $router->get('/api/get-todays-blogs', [StaticController::class, 'todayBlogs']);

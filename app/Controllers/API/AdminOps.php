@@ -219,4 +219,29 @@ class AdminOps{
             ]);
         }
     }
+
+    public function updateChats() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $user = $data["user"];
+
+        $stmt = $this->pdo->prepare("UPDATE chats SET status = ? WHERE user_id = ?");
+        $result = $stmt->execute(['', $user]);
+
+        if ($result){
+            echo json_encode([
+                "status" => "Updated"
+            ]);
+        }
+    }
 }
