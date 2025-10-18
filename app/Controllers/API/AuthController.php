@@ -277,27 +277,29 @@ class AuthController{
                 $stmt = $this->pdo->prepare("SELECT * FROM `forget_password` WHERE email = ?");
                 $stmt->execute([$email]);
 
-                if ($stmt->rowCount() > 0){
-                    $stmt = $this->pdo->prepare("UPDATE forget_password SET code = ? WHERE email = ?");
-                    $result = $stmt->execute([$randomCode, $email]);
+                echo $stmt->rowCount();
 
-                    if ($result){
-                        echo json_encode([
-                            'status' => 'success',
-                            'message' => 'Message Sent Successfullly'
-                        ]);
-                    }
-                }else{
-                    $stmt = $this->pdo->prepare("INSERT INTO `forget_password`(`email`, `code`) VALUES (?,?)");
-                    $result = $stmt->execute([$randomCode, $email]);
+                // if ($stmt->rowCount() > 0){
+                //     $stmt = $this->pdo->prepare("UPDATE forget_password SET code = ? WHERE email = ?");
+                //     $result = $stmt->execute([$randomCode, $email]);
 
-                    if ($result){
-                        echo json_encode([
-                            'status' => 'success',
-                            'message' => 'Message Sent Successfullly'
-                        ]);
-                    }
-                }
+                //     if ($result){
+                //         echo json_encode([
+                //             'status' => 'success',
+                //             'message' => 'Message Sent Successfullly'
+                //         ]);
+                //     }
+                // }else{
+                //     $stmt = $this->pdo->prepare("INSERT INTO `forget_password`(`email`, `code`) VALUES (?,?)");
+                //     $result = $stmt->execute([$randomCode, $email]);
+
+                //     if ($result){
+                //         echo json_encode([
+                //             'status' => 'success',
+                //             'message' => 'Message Sent Successfullly'
+                //         ]);
+                //     }
+                // }
             } else {
                 echo json_encode([
                     'status' => 'error',
