@@ -2,8 +2,10 @@
 
 namespace App\Controllers\API;
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 use App\Core\DB;
-use Exception;
 
 class AuthController{
 
@@ -250,17 +252,17 @@ class AuthController{
 
         try {
             $mail->isSMTP();
-            $mail->Host       = $_ENV['MAIL_HOST']; 
+            $mail->Host       = 'mail.iruhost.com'; 
             $mail->SMTPAuth   = true;
-            $mail->Username   = $_ENV['MAIL_USERNAME']; 
-            $mail->Password   = $_ENV['MAIL_PASSWORD']; 
-            $mail->SMTPSecure = $_ENV['MAIL_ENCRYPTION']; 
-            $mail->Port       = $_ENV['MAIL_PORT']; 
+            $mail->Username   = 'contact@iruhost.com'; 
+            $mail->Password   = 'Bank$101Onion'; 
+            $mail->SMTPSecure = 'ssl'; 
+            $mail->Port       = 465; 
 
             // Email Headers
-            $mail->setFrom('noreply@iruhost.com', 'IruHost');
+            $mail->setFrom('contact@iruhost.com', 'IruHost');
             $mail->addAddress($email); 
-            $mail->Subject = 'New Order Notification';
+            $mail->Subject = 'Password Reset';
             $mail->Body = "
                 <h2>Password Reset</h2>
                 <p>Use this code to reset your password.</p>
