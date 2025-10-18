@@ -159,7 +159,7 @@ class AdminOps{
 
                     $userChats[] = [
                         'chat' => $row,
-                        'name' => $user['name']
+                        'name' => $user['fullname']
                     ]; 
                 }
             }
