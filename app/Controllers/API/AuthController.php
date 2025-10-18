@@ -252,12 +252,12 @@ class AuthController{
 
         try {
             $mail->isSMTP();
-            $mail->Host       = 'mail.iruhost.com'; 
+            $mail->Host       = 'mail.enom.com'; 
             $mail->SMTPAuth   = true;
             $mail->Username   = 'contact@iruhost.com'; 
             $mail->Password   = 'Bank$101Onion'; 
             $mail->SMTPSecure = 'ssl'; 
-            $mail->Port       = 465; 
+            $mail->Port       = 465;
 
             // Email Headers
             $mail->setFrom('contact@iruhost.com', 'IruHost');
