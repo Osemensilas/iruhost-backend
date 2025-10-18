@@ -220,8 +220,6 @@ class AuthController{
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
         }
-
-        $pdo = DB::connection();
         
         $data = json_decode(file_get_contents("php://input"), true);
 
@@ -235,7 +233,7 @@ class AuthController{
             return;
         }
 
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
 
         if (!$stmt->rowCount() > 0){
