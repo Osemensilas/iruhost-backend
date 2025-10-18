@@ -324,9 +324,67 @@ class AuthController{
         $password = $data['formData']['password'];
         $confirmPassword = $data['formData']['confirmPassword'];
 
-        print_r($data);
+        if($password === "" || $confirmPassword === "" || $email === ""){
+            echo json_encode(['status' => 'error', 'message' => 'All field rquired']);
+            return;
+        }
 
-        echo $password;
+        if (strlen($password) < 8){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Password should be at least 8 characters'
+            ]);
+            return;
+        }
+
+        if (!preg_match('/[A-Z]/', $password)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Password must contain at least one uppercase'
+            ]);
+            return;
+        }
+        if (!preg_match('/[a-z]/', $password)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Password must contain at least one lowercase'
+            ]);
+            return;
+        }
+        if (!preg_match('/[0-9]/', $password)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Password must contain at least one number'
+            ]);
+            return;
+        }
+        if (!preg_match('/[\W]/', $password)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Password must contain at least one special character'
+            ]);
+            return;
+        }
+
+        if ($confirmPassword != $password){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Passwords do not match'
+            ]);
+            return;
+        }
+
+        $enctPassword = password_hash($password, PASSWORD_BCRYPT);
+
+        $stmt = $this->pdo->prepare("UPDATE users SET password = ? WHERE email = ?");
+        $result = $stmt->execute([$enctPassword, $email]);
+
+        if ($result){
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Passwords updated'
+            ]);
+        }
     }
 
     public function passResetCode(){
