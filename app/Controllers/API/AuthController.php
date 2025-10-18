@@ -128,6 +128,7 @@ class AuthController{
 
             $userSession = $_SESSION['user'];
             $this->checkCart($userSession);
+            $this->checkChat($userSession);
 
             session_regenerate_id(true);
 
@@ -204,6 +205,7 @@ class AuthController{
 
         session_regenerate_id(true);
         $this->checkCart($userSession);
+        $this->checkChat($userSession);
 
         echo json_encode([
             'status' => 'success',
@@ -298,6 +300,19 @@ class AuthController{
 
         if ($stmt->rowCount() > 0){
             $stmt = $this->pdo->prepare("UPDATE cart SET user_id = ? WHERE user_id = ?");
+            $stmt->execute([$userId, $guestId]);
+        }
+    }
+
+    private function checkChat($userSession){
+        $userId = $_SESSION['user']['user_id'];
+        $guestId = $_SESSION['guest']['id'] ?? null;
+
+        $stmt = $this->pdo->prepare("SELECT * FROM chats WHERE user_id = ?");
+        $stmt->execute([$guestId]);
+
+        if ($stmt->rowCount() > 0){
+            $stmt = $this->pdo->prepare("UPDATE chats SET user_id = ? WHERE user_id = ?");
             $stmt->execute([$userId, $guestId]);
         }
     }
