@@ -312,6 +312,21 @@ class AuthController{
         }
     }
 
+    public function updatePassword() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+        
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $email = $data['email'];
+        $password = $data['password'];
+        $confirmPassword = $data['confirmPassword'];
+
+        print_r($data);
+    }
+
     public function passResetCode(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);

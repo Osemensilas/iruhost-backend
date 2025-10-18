@@ -24,6 +24,7 @@ $router->post('/api/register', [AuthController::class, 'register']);
 $router->post('/api/login', [AuthController::class, 'login']);
 $router->post('/api/forget-password', [AuthController::class, 'forgetPassword']);
 $router->post('/api/verify-reset-code', [AuthController::class, 'passResetCode']);
+$router->post('/api/update-password', [AuthController::class, 'updatePassword']);
 $router->post('/api/admin-login', [AuthController::class, 'adminLogin']);
 $router->post('/api/update-naira', [AuthController::class, 'currency']);
 $router->get('/api/get-naira', [AuthController::class, 'getNaira']);
