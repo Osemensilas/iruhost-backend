@@ -276,7 +276,7 @@ class AuthController{
             // Send Mail
             if ($mail->send()) {
 
-                $stmt = $pdo->prepare("SELECT * FROM forget_password WHERE email = ?");
+                $stmt = $pdo->prepare("SELECT * FROM `forget_password` WHERE email = ?");
                 $stmt->execute([$email]);
 
                 if ($stmt->rowCount() > 0){
