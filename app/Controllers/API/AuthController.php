@@ -314,6 +314,51 @@ class AuthController{
         }
     }
 
+    public function passResetCode(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $pdo = DB::connection();
+        
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $email = $data['email'];
+        $code = $data['code'];
+
+        if ($code === '' || $email === ''){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All field required'
+            ]);
+            return;
+        }
+
+        if (!filter_var( $email, FILTER_VALIDATE_EMAIL)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid email address'
+            ]);
+            return;
+        }
+
+        $stmt = $pdo->prepare("SELECT * FROM forget_password WHERE email = ? AND code = ?");
+        $stmt->execute([$email, $code]);
+
+        if ($stmt->rowCount() > 0){
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'code correct'
+            ]);
+        }else{
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid reset code'
+            ]);
+        }
+    }
+
     private function checkCart($userSession){
         $userId = $_SESSION['user']['user_id'];
         $guestId = $_SESSION['guest']['id'] ?? null;
