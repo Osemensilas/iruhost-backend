@@ -277,7 +277,7 @@ class AuthController{
                 $stmt = $this->pdo->prepare("SELECT * FROM `forget_password` WHERE email = ?");
                 $stmt->execute([$email]);
 
-                echo $stmt->rowCount();
+                echo $stmt->rowCount() . " " . $email;
 
                 if ($stmt->rowCount() > 0){
                     $stmt = $this->pdo->prepare("UPDATE forget_password SET code = ? WHERE email = ?");
