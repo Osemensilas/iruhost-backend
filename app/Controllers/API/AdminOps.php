@@ -123,6 +123,53 @@ class AdminOps{
         }
     }
 
+    public function getVisitorChats(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT c.*
+            FROM chats c
+            INNER JOIN (
+                SELECT user_id, MAX(id) AS last_id
+                FROM chats
+                WHERE reciever_id = 'admin'
+                GROUP BY user_id
+            ) latest ON c.id = latest.last_id
+            ORDER BY c.id DESC");
+        $stmt->execute();
+        $rows = '';
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach($rows as $row){
+ 
+                $stmt = $this->pdo->prepare("SELECT * FROM chats_reg WHERE user_id = ?");
+                $stmt->execute([$row['user_id']]);
+
+                if ($stmt->rowCount() > 0){
+                    $user = $stmt->fetch();
+
+                    $userChats[] = [
+                        'chat' => $row,
+                        'name' => $user['name']
+                    ]; 
+                }
+            }
+            echo json_encode([
+                'status' => 'success',
+                'result' => $userChats
+            ]);
+        }
+    }
+
     public function getChat(){
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
