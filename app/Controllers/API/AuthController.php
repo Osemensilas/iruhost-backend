@@ -320,7 +320,7 @@ class AuthController{
         
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $email = $data['email'];
+        $email1 = $data['email'];
         $password = $data['password'];
         $confirmPassword = $data['confirmPassword'];
 
