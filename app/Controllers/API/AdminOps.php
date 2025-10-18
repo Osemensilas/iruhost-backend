@@ -235,6 +235,8 @@ class AdminOps{
 
         $user = $data["user"];
 
+        echo $user;
+
         $stmt = $this->pdo->prepare("UPDATE chats SET status = ? WHERE user_id = ?");
         $result = $stmt->execute(['', $user]);
 
