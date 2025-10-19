@@ -307,19 +307,46 @@ class CallFlutter {
         $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
         $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
 
-        if ($result){
-            $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
-            $stmt->execute([$cartId, $this->userId]);
-
+        if (!$result){
             return [
-                'status' => 'success',
-                'message' => 'Deleted from cart'
+                'status' => 'error',
+                'message' => 'Error inserting to database'
             ];
         }
 
+        $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+        $delete = $stmtDel->execute([$cartId, $this->userId]);
+
+        if (!$delete){
+            return [
+                'status' => 'error',
+                'message' => 'Error deleting from cart'
+            ];
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            return [
+                'status' => 'error',
+                'message' => 'User not found'
+            ];
+        }
+
+        // Generate unique cPanel username (max 16 characters)
+        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', $user['name']), 0, 8)) . rand(10, 99);
+        
+        // Generate secure password
+        $password = $this->generateSecurePassword();
+
+        // WHM API credentials
+        $whm_host = "iruhost.com";
+
         return [
-            'status' => 'error',
-            'message' => 'Unknown error occurred'
+            'status' => 'success',
+            'message' => "username: $username, password: $password, host: $whm_host"
         ];
     }
 
