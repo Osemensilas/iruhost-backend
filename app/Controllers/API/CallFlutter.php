@@ -378,6 +378,8 @@ class CallFlutter {
             // Decode the response from JSON
             $response = json_decode($result, true);
 
+            print_r($response);
+
             if ($response === null) {
                 return [
                     'status' => 'error',
