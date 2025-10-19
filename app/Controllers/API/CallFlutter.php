@@ -325,7 +325,7 @@ class CallFlutter {
         }
 
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
-        $stmt->execute([$userId]);
+        $stmt->execute([$this->userId]);
         $user = $stmt->fetch();
 
         if (!$user) {
