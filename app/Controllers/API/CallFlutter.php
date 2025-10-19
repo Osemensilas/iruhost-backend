@@ -87,11 +87,15 @@ class CallFlutter {
                     $rrpCode = (string) $xml->RRPCode;
 
                     if($rrpCode === "200"){
-                        $this->regDomain($productName, $billing, $cartId, $domain);
+                        $domainResponse = $this->regDomain($productName, $billing, $cartId, $domain);
+                        $domain_status = $domainResponse['status'] ?? 'unknown';
+                        $domain_message = $domainResponse['message'] ?? 'unknown';
                     }
                     
                     if ($rrpCode === "1300"){
-                        $this->regDomain($productName, $billing, $cartId, $domain);
+                        $domainResponse = $this->regDomain($productName, $billing, $cartId, $domain);
+                        $domain_status = $domainResponse['status'] ?? 'unknown';
+                        $domain_message = $domainResponse['message'] ?? 'unknown';
                     }
 
                     // if ($rrpCode !== "200" || $rrpCode !== "1300"){
@@ -105,7 +109,9 @@ class CallFlutter {
                         $billing = $row['billing'];
                         $cartId = $row['cart_id'];
                         $domain = $row['domain'];
-                        $this->regSsl($productName, $billing, $cartId, $domain);
+                        $sslResponse = $this->regSsl($productName, $billing, $cartId, $domain);
+                        $ssl_status = $sslResponse['status'] ?? 'unknown';
+                        $ssl_message = $sslResponse['message'] ?? 'unknown';
                     }else{
                         if ($row['product_name'] === 'Starter' || $row['product_name'] === 'Growth' || $row['product_name'] === 'Pro' || $row['product_name'] === 'Enterprise'){
                             $productName = $row['product_name'];
@@ -123,20 +129,26 @@ class CallFlutter {
                                 $expiryDate = date('Y-m-d H:i:s', strtotime('+1 month'));
                             }
 
-                            $this->regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain);
+                            $hostingResponse = $this->regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain);
+                            $hosting_status = $hostingResponse['status'] ?? 'unknown';
+                            $hosting_message = $hostingResponse['message'] ?? 'unknown';
                         } else{
                             if ($row['product'] === 'Email Registration'){
                                 $productName = $row['product_name'];
                                 $billing = $row['billing'];
                                 $cartId = $row['cart_id'];
                                 $domain = $row['domain'];
-                                $this->regEmail($productName, $billing, $cartId, $domain);
+                                $emailResponse = $this->regEmail($productName, $billing, $cartId, $domain);
+                                $email_status = $emailResponse['status'] ?? 'unknown';
+                                $email_message = $emailResponse['message'] ?? 'unknown';
                             }else{
                                 if ($row['product'] === 'Web application'){
                                     $productName = $row['product_name'];
                                     $cartId = $row['cart_id'];
                                     $domain = $row['domain'];
                                     $this->webApp($productName, $cartId, $domain);
+                                    $web_status = $webResponse['status'] ?? 'unknown';
+                                    $web_message = $webResponse['message'] ?? 'unknown';
                                 }else{
                                     if ($row['product'] === 'Domain Transfer'){
                                         $productName = $row['product_name'];
@@ -153,6 +165,8 @@ class CallFlutter {
                                         curl_close($ch);
 
                                         $this->regDomain($productName, $billing, $cartId, $authCode);
+                                        $domain_status = $domainResponse['status'] ?? 'unknown';
+                                        $domain_message = $domainResponse['message'] ?? 'unknown';
                                     }
                                 }
                             }
@@ -165,6 +179,16 @@ class CallFlutter {
         echo json_encode([
             'status' => 'successful',
             'message' => 'Product added successfully',
+            'domain_status' => $domain_status,
+            'hosting_status' => $hosting_status,
+            'ssl_status' => $ssl_status,
+            'email_status' => $email_status,
+            'web_status' => $web_status,
+            'domain_message' => $domain_message,
+            'hosting_message' => $hosting_message,
+            'ssl_message' => $ssl_message,
+            'email_message' => $email_message,
+            'web_message' => $web_message
         ]);
     }
 
@@ -344,21 +368,21 @@ class CallFlutter {
 
                     // Send Mail
                     if ($mail->send()) {
-                        echo json_encode([
+                        return [
                             'status' => 'success',
                             'message' => 'Message sent successfully'
-                        ]);
+                        ];
                     } else {
-                        echo json_encode([
+                        return [
                             'status' => 'error',
                             'message' => 'Message not sent. Check connection'
-                        ]);
+                        ];
                     }
                 } catch (Exception $e) {
-                    echo json_encode([
+                    return [
                         'status' => 'error',
                         'message' => "Email failed: {$mail->ErrorInfo}"
-                    ]);
+                    ];
                 }
             } else {
                 echo json_encode([
