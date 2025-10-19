@@ -207,6 +207,9 @@ class CallFlutter {
         $url = "/manage-domain?domain=$productName";
         $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
 
+        $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+        $stmt->execute([$cartId, $this->userId]);
+
         $tdl = substr($domain, strpos($domain, '.') + 1);
         $sld = substr($domain, 0, strpos($domain, '.'));
 
@@ -227,9 +230,6 @@ class CallFlutter {
             $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
 
             if ($result){
-                $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
-                $stmt->execute([$cartId, $this->userId]);
-
                 return [
                     'status' => 'success',
                     'message' => 'Domain Created'
