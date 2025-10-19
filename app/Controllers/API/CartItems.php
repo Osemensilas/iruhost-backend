@@ -183,6 +183,7 @@ class CartItems {
                     }
                 }
                 $totalPrice += round($row['amount'], 2);
+                $vat = 0.075 * $totalPrice;
             }
         }
         echo json_encode([
@@ -193,6 +194,7 @@ class CartItems {
             'totalHostingPrice' => round($totalHostingPrice, 2),
             'totalEmailPrice' => round($totalEmailPrice, 2),
             'totalWebAppPrice' => round($totalWebAppPrice, 2),
+            'vat' => round($vat, 2)
         ]);
     }
 

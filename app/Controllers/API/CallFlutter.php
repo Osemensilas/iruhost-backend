@@ -4,6 +4,9 @@ namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 class CallFlutter {
 
     protected $pdo;
@@ -310,13 +313,59 @@ class CallFlutter {
             $response = json_decode($result, true);
 
             if (isset($response['metadata']['result']) && $response['metadata']['result'] == 1) {
-                // echo "✅ Account created successfully for {$username}\n";
-                // echo "🌐 Domain: {$domain}\n";
-                // echo "🔑 Password: {$password}\n";
+                
+                $mail = new PHPMailer(true);
+
+                try {
+                    $mail->isSMTP();
+                    $mail->Host       = 'mail.enom.com'; 
+                    $mail->SMTPAuth   = true;
+                    $mail->Username   = 'contact@iruhost.com'; 
+                    $mail->Password   = 'Bank$101Onion'; 
+                    $mail->SMTPSecure = 'ssl'; 
+                    $mail->Port       = 465;
+
+                    // Email Headers
+                    $mail->isHTML(true);
+                    $mail->setFrom('contact@iruhost.com', 'IruHost');
+                    $mail->addAddress($rows['email']); 
+                    $mail->Subject = 'Password Reset';
+                    $mail->Body = "
+                    <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
+                        <p>Dear Osemen Oseobonoite (Iruap Tech Studio Limited),</p>
+                        <h2></h2>
+                        <p>The cpanel account for {$domain} has been set up. The username and password below are for both cPanel to manage the website at {$domain}.</p>
+                        <h2>cPanel Account Information</h2>
+                        <p style='font-size: 24px; font-weight: bold;'><strong>Username:</strong> {$username}</p>
+                        <p style='font-size: 24px; font-weight: bold;'><strong>Password:</strong> {$password}</p>
+                        <a href='https://www.{$domain}:2083'>https://www.{$domain}:2083</a>
+                    </div>
+                    ";
+
+                    // Send Mail
+                    if ($mail->send()) {
+                        echo json_encode([
+                            'status' => 'success',
+                            'message' => 'Message sent successfully'
+                        ]);
+                    } else {
+                        echo json_encode([
+                            'status' => 'error',
+                            'message' => 'Message not sent. Check connection'
+                        ]);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => "Email failed: {$mail->ErrorInfo}"
+                    ]);
+                }
             } else {
-                // echo "❌ Failed to create account.\n";
-                // echo "Reason: " . $response['metadata']['reason'] . "\n";
-                // echo "Raw Response: " . $result;
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Failed to create account',
+                    'reason' => $response['metadata']['reason']
+                ]);
             }
 
         }
