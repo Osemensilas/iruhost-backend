@@ -348,32 +348,63 @@ class CallFlutter {
         $whm_token = $this->cpanelApiToken;
 
         // Create cPanel account via WHM API
-        $url = "https://{$whm_host}:2087/json-api/createacct";
-        $params = [
-            'api.version' => 1,
-            'username'    => $username,
-            'password'    => $password,
-            'domain'      => $domain,
-            'plan'        => iruhostc_ . strtolower($productName),
-            'contactemail'=> $userRow['email'] ?? null
+        $api_endpoint = "https://{$whm_host}:2087/json-api/createacct?api.version=1";
+
+        // Account details
+        $account_data = [
+            'username' => $username,
+            'domain' => $domain,
+            'password' => $password,
+            'plan' => 'iruhostc_' . $productName,
+            'contactemail' => $userRow['email'],
+            // Add other parameters as needed, e.g., 'ip', 'reseller', 'nameserver_type', etc.
         ];
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($params));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: whm {$whm_username}:{$whm_token}"
-        ]);
-        $response = curl_exec($ch);
-        $error = curl_error($ch);
-        curl_close($ch);
+        // Build the query string
+        $query_string = http_build_query($account_data);
+        $full_api_url = $api_endpoint . '&' . $query_string;
 
+        // Initialize cURL
+        $curl = curl_init();
 
-        return [
-            'status' => 'success',
-            'message' => $response
-        ];
+        // Set cURL options
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0); // Not recommended for production without proper SSL setup
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0); // Not recommended for production
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, ["Authorization: whm {$whm_username}:{$whm_api_token}"]);
+        curl_setopt($curl, CURLOPT_URL, $full_api_url);
+
+        $result = curl_exec($curl);
+
+        // Check for cURL errors
+        if ($result === false) {
+            error_log("cURL error: " . curl_error($curl));
+        }
+
+        // Close cURL
+        curl_close($curl);
+
+        // Process the API response
+        if ($result) {
+            $decoded_result = json_decode($result, true);
+            // Handle success or error based on the API response
+            if (isset($decoded_result['metadata']['result']) && $decoded_result['metadata']['result'] == 1) {
+                return [
+                    'status' => 'success',
+                    'message' => $response
+                ];
+            } else {
+                return [
+                    'status' => 'success',
+                    'message' => $decoded_result['metadata']['reason'] ?? 'Unknown error'
+                ];
+            }
+        } else {
+            return [
+                'status' => 'success',
+                'message' => 'Failed to get API response.'
+            ];
+        }
     }
 
     private function generateSecurePassword($length = 12){
