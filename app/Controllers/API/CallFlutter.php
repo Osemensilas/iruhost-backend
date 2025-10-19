@@ -129,8 +129,8 @@ class CallFlutter {
                                     $productName = $row['product_name'];
                                     $cartId = $row['cart_id'];
                                     $domain = $row['domain'];
-                                    $this->webApp($productName, $cartId, $domain);
-                                    $webResponse = $web_status = $webResponse['status'] ?? 'unknown';
+                                    $web_status = $this->webApp($productName, $cartId, $domain);
+                                    $webResponse = $webResponse['status'] ?? 'unknown';
                                     $web_message = $webResponse['message'] ?? 'unknown';
                                 }else{
                                     if ($row['product'] === 'Domain Transfer'){
