@@ -37,6 +37,10 @@ class CallFlutter {
             return;
         }
 
+        if (!isset($_SESSION['user']['user_id'])) {
+            throw new Exception("User not authenticated");
+        }
+
         $data = json_decode(file_get_contents("php://input"), true);
 
         $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ?");
@@ -129,8 +133,8 @@ class CallFlutter {
                                     $productName = $row['product_name'];
                                     $cartId = $row['cart_id'];
                                     $domain = $row['domain'];
-                                    $web_status = $this->webApp($productName, $cartId, $domain);
-                                    $webResponse = $webResponse['status'] ?? 'unknown';
+                                    $webResponse = $this->webApp($productName, $cartId, $domain);
+                                    $web_status = $webResponse['status'] ?? 'unknown';
                                     $web_message = $webResponse['message'] ?? 'unknown';
                                 }else{
                                     if ($row['product'] === 'Domain Transfer'){
@@ -147,7 +151,7 @@ class CallFlutter {
                                         $response = curl_exec($ch);
                                         curl_close($ch);
 
-                                        $this->regDomain($productName, $billing, $cartId, $authCode);
+                                        $domainResponse = $this->regDomain($productName, $billing, $cartId, $authCode);
                                         $domain_status = $domainResponse['status'] ?? 'unknown';
                                         $domain_message = $domainResponse['message'] ?? 'unknown';
                                     }
@@ -232,20 +236,16 @@ class CallFlutter {
                 ];
             }
         }else{
-            if($rrpCode === 200){
-                return [
-                    'status' => 'error',
-                    'message' => 'Domain not created'
-                ];    
-            }
-                    
-            if ($rrpCode === 1300){
-                return [
-                    'status' => 'error',
-                    'message' => 'Domain not created'
-                ];
-            }
+            return [
+                'status' => 'error',
+                'message' => 'Domain not created'
+            ]; 
         }
+
+        return [
+            'status' => 'error',
+            'message' => 'Unknown error occurred'
+        ];
     }
 
     private function regSsl($productName, $billing, $cartId, $domain){
@@ -267,6 +267,11 @@ class CallFlutter {
                 'message' => 'SSL Created'
             ];
         }
+
+        return [
+            'status' => 'error',
+            'message' => 'Unknown error occurred'
+        ];
     }
 
     private function regEmail($productName, $billing, $cartId, $domain){
@@ -288,6 +293,11 @@ class CallFlutter {
                 'message' => 'Email Created'
             ];
         }
+
+        return [
+            'status' => 'error',
+            'message' => 'Unknown error occurred'
+        ];
     }
 
     private function regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain){
@@ -358,12 +368,22 @@ class CallFlutter {
             // ===============================
             $result = curl_exec($ch);
             if ($result === false) {
-                die("cURL Error: " . curl_error($ch));
+                return [
+                    'status' => 'error',
+                    'message' => 'WHM API call failed: ' . curl_error($ch)
+                ];
             }
             curl_close($ch);
 
             // Decode the response from JSON
             $response = json_decode($result, true);
+
+            if ($response === null) {
+                return [
+                    'status' => 'error',
+                    'message' => $result
+                ];
+            }
 
             if (isset($response['metadata']['result']) && $response['metadata']['result'] == 1) {
                 
@@ -382,11 +402,11 @@ class CallFlutter {
                     $mail->isHTML(true);
                     $mail->setFrom('contact@iruhost.com', 'IruHost');
                     $mail->addAddress($rows['email']); 
-                    $mail->Subject = 'Password Reset';
+                    $mail->Subject = 'cPanel Account Information';
                     $mail->Body = "
                     <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
-                        <p>Dear Osemen Oseobonoite (Iruap Tech Studio Limited),</p>
-                        <h2></h2>
+                        <p>Dear {$rows['name']},</p>
+                        <h2>Account Information</h2>
                         <p>The cpanel account for {$domain} has been set up. The username and password below are for both cPanel to manage the website at {$domain}.</p>
                         <h2>cPanel Account Information</h2>
                         <p style='font-size: 24px; font-weight: bold;'><strong>Username:</strong> {$username}</p>
@@ -422,6 +442,11 @@ class CallFlutter {
             }
 
         }
+
+        return [
+            'status' => 'error',
+            'message' => 'Unknown error occurred'
+        ];
     }
 
     private function webApp($productName, $cartId, $domain){
@@ -444,6 +469,11 @@ class CallFlutter {
                 'message' => 'Web Created'
             ];
         }
+
+        return [
+            'status' => 'error',
+            'message' => 'Unknown error occurred'
+        ];
     }
 
     private function topUp($amount){
