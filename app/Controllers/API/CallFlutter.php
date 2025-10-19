@@ -48,8 +48,9 @@ class CallFlutter {
         $totalPrice = 0;
         $content = '';
 
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         if ($stmt->rowCount() > 0){
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach($rows as $row){
                 $totalPrice += round($row['amount'], 2);
@@ -64,8 +65,8 @@ class CallFlutter {
         $amount = $totalPrice;
         $details = "Payment for $content";
 
-        $stmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?)");
-        $stmt->execute([$userId, $paymentId, $ref, $amount, $details, $status]);
+        $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?)");
+        $transactionStmt->execute([$userId, $paymentId, $ref, $amount, $details, $status]);
 
         $domain_status = $hosting_status = $ssl_status = $email_status = $web_status = 'not processed';
         $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
