@@ -343,10 +343,15 @@ class CallFlutter {
 
         // WHM API credentials
         $whm_host = "iruhost.com";
+        $whm_username = $this->cpanelUsername;
+        $whm_token = $this->cpanelApiToken;
+
+        // Create cPanel account via WHM API
+        $apiUrl = "https://{$whm_host}:2087/json-api/createacct";
 
         return [
             'status' => 'success',
-            'message' => "username: $username, password: $password, host: $whm_host"
+            'message' => "username: $username, password: $password, host: $whm_host, cpanel: $whm_username, token: $whm_token"
         ];
     }
 
