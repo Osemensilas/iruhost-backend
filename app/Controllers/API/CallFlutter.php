@@ -1,5 +1,9 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
 namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
@@ -26,7 +30,7 @@ class CallFlutter {
             echo json_encode(['status' => 'error', 'message' => 'User not authenticated']);
             exit;
         }
-        
+
         $this->pdo = DB::connection();
         $this->secretKey = "FLWSECK_TEST-76fca9105670eb0ded6852bc4785f25b-X";
         $this->userId = $_SESSION['user']['user_id'];
