@@ -63,6 +63,9 @@ class CallFlutter {
         $stmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?)");
         $stmt->execute([$userId, $paymentId, $ref, $amount, $details, $status]);
 
+        $domain_status = $hosting_status = $ssl_status = $email_status = $web_status = 'not processed';
+        $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
+
         if ($stmt->rowCount() > 0){
             foreach($rows as $row){
                 if ($row['product'] === 'Domain Registration'){
@@ -71,32 +74,12 @@ class CallFlutter {
                     $cartId = $row['cart_id'];
                     $domain = $row['domain'];
 
-                    $tdl = substr($domain, strpos($domain, '.') + 1);
-                    $sld = substr($domain, 0, strpos($domain, '.'));
 
-                    $url = "https://reseller.enom.com/interface.asp?command=Purchase&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tdl&responsetype=xml";
+                    $domainResponse = $this->regDomain($productName, $billing, $cartId, $domain);
+                    $domain_status = $domainResponse['status'] ?? 'unknown';
+                    $domain_message = $domainResponse['message'] ?? 'unknown';
+
                     
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    $response = curl_exec($ch);
-                    curl_close($ch);
-
-                    $xml = simplexml_load_string($response);
-
-                    $rrpCode = (string) $xml->RRPCode;
-
-                    if($rrpCode === "200"){
-                        $domainResponse = $this->regDomain($productName, $billing, $cartId, $domain);
-                        $domain_status = $domainResponse['status'] ?? 'unknown';
-                        $domain_message = $domainResponse['message'] ?? 'unknown';
-                    }
-                    
-                    if ($rrpCode === "1300"){
-                        $domainResponse = $this->regDomain($productName, $billing, $cartId, $domain);
-                        $domain_status = $domainResponse['status'] ?? 'unknown';
-                        $domain_message = $domainResponse['message'] ?? 'unknown';
-                    }
 
                     // if ($rrpCode !== "200" || $rrpCode !== "1300"){
                     //     $domain = 'Unsuccessful';
@@ -220,12 +203,48 @@ class CallFlutter {
         $url = "/manage-domain?domain=$productName";
         $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
+        $tdl = substr($domain, strpos($domain, '.') + 1);
+        $sld = substr($domain, 0, strpos($domain, '.'));
 
-        if ($result){
-            $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
-            $stmt->execute([$cartId, $this->userId]);
+        $url = "https://reseller.enom.com/interface.asp?command=Purchase&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tdl&responsetype=xml";
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $xml = simplexml_load_string($response);
+
+        $rrpCode = (int) $xml->RRPCode;
+
+        if ($rrpCode === 210){
+            $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+            $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
+
+            if ($result){
+                $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+                $stmt->execute([$cartId, $this->userId]);
+
+                return [
+                    'status' => 'success',
+                    'message' => 'Domain Created'
+                ];
+            }
+        }else{
+            if($rrpCode === 200){
+                return [
+                    'status' => 'error',
+                    'message' => 'Domain not created'
+                ];    
+            }
+                    
+            if ($rrpCode === 1300){
+                return [
+                    'status' => 'error',
+                    'message' => 'Domain not created'
+                ];
+            }
         }
     }
 
@@ -242,6 +261,11 @@ class CallFlutter {
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
             $stmt->execute([$cartId, $this->userId]);
+            
+            return [
+                'status' => 'success',
+                'message' => 'SSL Created'
+            ];
         }
     }
 
@@ -258,6 +282,11 @@ class CallFlutter {
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
             $stmt->execute([$cartId, $this->userId]);
+
+            return [
+                'status' => 'success',
+                'message' => 'Email Created'
+            ];
         }
     }
 
@@ -409,6 +438,11 @@ class CallFlutter {
         if ($result){
             $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
             $stmt->execute([$cartId, $this->userId]);
+
+            return [
+                'status' => 'success',
+                'message' => 'Web Created'
+            ];
         }
     }
 
