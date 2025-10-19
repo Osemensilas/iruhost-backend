@@ -130,7 +130,7 @@ class CallFlutter {
                                     $cartId = $row['cart_id'];
                                     $domain = $row['domain'];
                                     $this->webApp($productName, $cartId, $domain);
-                                    $web_status = $webResponse['status'] ?? 'unknown';
+                                    $webResponse = $web_status = $webResponse['status'] ?? 'unknown';
                                     $web_message = $webResponse['message'] ?? 'unknown';
                                 }else{
                                     if ($row['product'] === 'Domain Transfer'){
@@ -414,11 +414,11 @@ class CallFlutter {
                     ];
                 }
             } else {
-                echo json_encode([
+                return [
                     'status' => 'error',
-                    'message' => 'Failed to create account',
-                    'reason' => $response['metadata']['reason']
-                ]);
+                    'message' => 'Failed to create hosting account',
+                    'reason' => $response['metadata']['reason'] ?? 'Unknown error'
+                ];
             }
 
         }
