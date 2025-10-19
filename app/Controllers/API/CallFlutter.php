@@ -348,11 +348,31 @@ class CallFlutter {
         $whm_token = $this->cpanelApiToken;
 
         // Create cPanel account via WHM API
-        $apiUrl = "https://{$whm_host}:2087/json-api/createacct";
+        $url = "https://{$whm_host}:2087/json-api/createacct";
+        $params = [
+            'api.version' => 1,
+            'username'    => $username,
+            'password'    => $password,
+            'domain'      => $domain,
+            'plan'        => iruhostc_ . strtolower($productName),
+            'contactemail'=> $userRow['email'] ?? null
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($params));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: whm {$whm_username}:{$whm_token}"
+        ]);
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
+
 
         return [
             'status' => 'success',
-            'message' => "username: $username, password: $password, host: $whm_host, cpanel: $whm_username, token: $whm_token"
+            'message' => $response
         ];
     }
 
