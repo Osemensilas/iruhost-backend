@@ -20,6 +20,13 @@ class CallFlutter {
     protected $cpanelApiToken;
 
     public function __construct(){
+
+        if (!isset($_SESSION['user']['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['status' => 'error', 'message' => 'User not authenticated']);
+            exit;
+        }
+        
         $this->pdo = DB::connection();
         $this->secretKey = "FLWSECK_TEST-76fca9105670eb0ded6852bc4785f25b-X";
         $this->userId = $_SESSION['user']['user_id'];
@@ -38,10 +45,6 @@ class CallFlutter {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
-        }
-
-        if (!isset($_SESSION['user']['user_id'])) {
-            throw new Exception("User not authenticated");
         }
 
         $data = json_decode(file_get_contents("php://input"), true);
