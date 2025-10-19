@@ -324,11 +324,11 @@ class CallFlutter {
             ];
         }
 
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
-        $stmt->execute([$this->userId]);
-        $user = $stmt->fetch();
+        $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+        $stmtUser->execute([$this->userId]);
+        $userRow = $stmtUser->fetch();
 
-        if (!$user) {
+        if (!$userRow) {
             return [
                 'status' => 'error',
                 'message' => 'User not found'
@@ -336,7 +336,7 @@ class CallFlutter {
         }
 
         // Generate unique cPanel username (max 16 characters)
-        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', $user['name']), 0, 8)) . rand(10, 99);
+        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', $userRow['name']), 0, 8)) . rand(10, 99);
         
         // Generate secure password
         $password = $this->generateSecurePassword();
