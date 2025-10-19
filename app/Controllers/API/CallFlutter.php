@@ -21,12 +21,6 @@ class CallFlutter {
 
     public function __construct(){
 
-        if (!isset($_SESSION['user']['user_id'])) {
-            http_response_code(401);
-            echo json_encode(['status' => 'error', 'message' => 'User not authenticated']);
-            exit;
-        }
-
         $this->pdo = DB::connection();
         $this->secretKey = "FLWSECK_TEST-76fca9105670eb0ded6852bc4785f25b-X";
         $this->userId = $_SESSION['user']['user_id'];
@@ -39,9 +33,6 @@ class CallFlutter {
     }
 
     public function paymentSuccessful(){
-
-        try {
-            //code...
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
@@ -184,15 +175,6 @@ class CallFlutter {
             'email_message' => $email_message,
             'web_message' => $web_message
         ]);
-        } catch (\Throwable $e) {
-            http_response_code(500);
-            echo json_encode([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile()
-            ]);
-        }
     }
 
     public function topupSuccessful(){
