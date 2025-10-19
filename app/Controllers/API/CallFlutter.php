@@ -32,6 +32,9 @@ class CallFlutter {
     }
 
     public function paymentSuccessful(){
+
+        try {
+            //code...
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
@@ -178,6 +181,15 @@ class CallFlutter {
             'email_message' => $email_message,
             'web_message' => $web_message
         ]);
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+        }
     }
 
     public function topupSuccessful(){
