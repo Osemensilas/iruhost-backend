@@ -339,6 +339,7 @@ class CallFlutter {
         $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', $userRow['name']), 0, 8)) . rand(10, 99);
         
         // Generate secure password
+        
         $password = $this->generateSecurePassword();
 
         // WHM API credentials
@@ -354,6 +355,35 @@ class CallFlutter {
             'message' => "username: $username, password: $password, host: $whm_host, cpanel: $whm_username, token: $whm_token"
         ];
     }
+
+    private function generateSecurePassword($length = 12){
+        // Define character sets
+        $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        $numbers   = '0123456789';
+        $symbols   = '!@#$%^&*()-_=+<>?';
+
+        // Combine all character sets
+        $allChars = $uppercase . $lowercase . $numbers . $symbols;
+
+        // Ensure password contains at least one of each type
+        $password = '';
+        $password .= $uppercase[random_int(0, strlen($uppercase) - 1)];
+        $password .= $lowercase[random_int(0, strlen($lowercase) - 1)];
+        $password .= $numbers[random_int(0, strlen($numbers) - 1)];
+        $password .= $symbols[random_int(0, strlen($symbols) - 1)];
+
+        // Fill the rest of the password length with random characters
+        for ($i = strlen($password); $i < $length; $i++) {
+            $password .= $allChars[random_int(0, strlen($allChars) - 1)];
+        }
+
+        // Shuffle to avoid predictable placement
+        $password = str_shuffle($password);
+
+        return $password;
+    }
+
 
     private function webApp($productName, $cartId, $domain){
         $productId = uniqid('prod_');
