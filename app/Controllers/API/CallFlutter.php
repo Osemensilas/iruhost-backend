@@ -357,7 +357,6 @@ class CallFlutter {
             'password' => $password,
             'plan' => 'iruhostc_' . $productName,
             'contactemail' => $userRow['email'],
-            // Add other parameters as needed, e.g., 'ip', 'reseller', 'nameserver_type', etc.
         ];
 
         // Build the query string
@@ -368,10 +367,10 @@ class CallFlutter {
         $curl = curl_init();
 
         // Set cURL options
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0); // Not recommended for production without proper SSL setup
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0); // Not recommended for production
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0); 
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0); 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, ["Authorization: whm {$whm_username}:{$whm_api_token}"]);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, ["Authorization: whm {$whm_username}:{$whm_token}"]);
         curl_setopt($curl, CURLOPT_URL, $full_api_url);
 
         $result = curl_exec($curl);
@@ -391,7 +390,7 @@ class CallFlutter {
             if (isset($decoded_result['metadata']['result']) && $decoded_result['metadata']['result'] == 1) {
                 return [
                     'status' => 'success',
-                    'message' => $response
+                    'message' => $result
                 ];
             } else {
                 return [

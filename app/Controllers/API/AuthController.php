@@ -134,7 +134,7 @@ class AuthController{
 
             session_regenerate_id(true);
 
-            $balance = '';
+            $balance = 0;
             $userId = $_SESSION['user']['user_id'];
             
             $stmt = $this->pdo->prepare("INSERT INTO `account_balance`(`user_id`, `balance`) VALUES (?,?)");
