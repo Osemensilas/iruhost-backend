@@ -3,6 +3,7 @@
 namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
+use Dotenv\Dotenv;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -19,7 +20,13 @@ class CallFlutter {
     protected $cpanelUsername;
     protected $cpanelApiToken;
 
+    protected $encryptionKey;
+    protected $encryptionIV;
+
     public function __construct(){
+
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv->load();
 
         $this->pdo = DB::connection();
         $this->secretKey = "FLWSECK_TEST-76fca9105670eb0ded6852bc4785f25b-X";
@@ -30,6 +37,9 @@ class CallFlutter {
         $this->enomApiToken = "WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R";
         $this->cpanelUsername = "iruhostc";
         $this->cpanelApiToken = "6YK32KTFBWMNM5UFBT1D5OBEZ4S65SV8";
+        $this->encryptionKey = hash('sha256', getenv('ENCRYPTION_KEY'));
+        $this->encryptionIV = substr(hash('sha256', getenv('ENCRYPTION_IV')), 0, 16);
+
     }
 
     public function paymentSuccessful(){
@@ -371,7 +381,7 @@ class CallFlutter {
         
         $password = $this->generateSecurePassword();
 
-        //$encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
+        $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
 
 
         // WHM API credentials
@@ -427,8 +437,9 @@ class CallFlutter {
             $decoded_result = json_decode($result, true);
 
             if (isset($decoded_result['metadata']['result']) && $decoded_result['metadata']['result'] == 1) {
-                $stmt = $this->pdo->prepare("UPDATE products SET cp_username = ?, cp_password = ? WHERE product_id = ?");
-                $stmt->execute([$username, $password, $productId]);
+                
+                $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
+                $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
 
                 return [
                     'status' => 'success',
