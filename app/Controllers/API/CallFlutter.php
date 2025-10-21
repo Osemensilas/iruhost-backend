@@ -386,11 +386,12 @@ class CallFlutter {
 
         // WHM API credentials
         $whm_host = "serverr.webhostingbliss.com";
+        $whm_port = 2087;
         $whm_username = $this->cpanelUsername;
         $whm_token = $this->cpanelApiToken;
 
         // Create cPanel account via WHM API
-        $api_endpoint = "https://{$whm_host}:2087/json-api/createacct?api.version=1";
+        $api_endpoint = "https://{$whm_host}:{$whm_port}/json-api/createacct?api.version=1";
 
         // Account details
         $account_data = [
@@ -401,21 +402,21 @@ class CallFlutter {
             'contactemail' => $userRow['email'],
         ];
 
-        // Build the query string
-        $query_string = http_build_query($account_data);
-        $full_api_url = $api_endpoint . '&' . $query_string;
-
         // Initialize cURL
-        $curl = curl_init();
+        $curl = curl_init($api_endpoint);
 
         // Set cURL options
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0); 
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0); 
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, ["Authorization: whm {$whm_username}:{$whm_token}"]);
-        curl_setopt($curl, CURLOPT_URL, $full_api_url);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+        curl_setopt_array($curl, [
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ["Authorization: whm {$whm_username}:{$whm_token}"],
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => http_build_query($account_data),
+            CURLOPT_TIMEOUT => 60,
+        ]);
 
+        // Execute request
         $result = curl_exec($curl);
 
         // Check for cURL errors
