@@ -274,7 +274,7 @@ class AdminOps{
 
         // --- Path setup ---
         $phpPath = '/usr/local/bin/php'; // cPanel PHP CLI path (usually this works)
-        $migrateScript = __DIR__ . '/../../command/migrate.php';
+        $migrateScript = __DIR__ . '/../../commands/migrate.php';
         $logDir = realpath(__DIR__ . '/../../storage');
 
         error_log("Checking migrate script path: $migrateScript");
