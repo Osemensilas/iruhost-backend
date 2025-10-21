@@ -579,7 +579,7 @@ class AuthController{
 
             echo json_encode([
                 'status' => 'success',
-                'value' => $row['value']
+                'value' => $row['naira']
             ]);
         }
     }
