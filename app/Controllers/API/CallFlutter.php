@@ -385,7 +385,7 @@ class CallFlutter {
 
 
         // WHM API credentials
-        $whm_host = "147.135.222.233";
+        $whm_host = "serverr.webhostingbliss.com";
         $whm_username = $this->cpanelUsername;
         $whm_token = $this->cpanelApiToken;
 
@@ -414,7 +414,7 @@ class CallFlutter {
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ["Authorization: whm {$whm_username}:{$whm_token}"]);
         curl_setopt($curl, CURLOPT_URL, $full_api_url);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 10);
 
         $result = curl_exec($curl);
 
