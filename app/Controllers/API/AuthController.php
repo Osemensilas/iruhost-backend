@@ -536,9 +536,7 @@ class AuthController{
 
             $row = $stmt->fetch();
 
-            print_r($row);
-
-            $stmt = $this->pdo->prepare("UPDATE `currency` SET `value`=? WHERE currency = ?");
+            $stmt = $this->pdo->prepare("UPDATE `naira` SET `value`=? WHERE currency = ?");
             $stmt->execute([$amount, $currency]);
 
 

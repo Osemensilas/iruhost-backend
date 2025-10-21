@@ -9,7 +9,6 @@ class LogoutController{
                 echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
                 return;
             }
-
             session_unset();
             session_destroy();
             echo json_encode(['status' => 'success', 'message' => 'Logged out']);
