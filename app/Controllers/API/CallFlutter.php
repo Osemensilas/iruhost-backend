@@ -99,7 +99,7 @@ class CallFlutter {
                         $ssl_message = $sslResponse['message'] ?? 'unknown';
                     }else{
                         if ($row['product_name'] === 'Starter' || $row['product_name'] === 'Growth' || $row['product_name'] === 'Pro' || $row['product_name'] === 'Enterprise'){
-                            $productName = $row['product_name'];
+                            $productName = strtolower($row['product_name']);
                             $billing = $row['billing'];
                             $cartId = $row['cart_id'];
                             $domain = $row['domain'];
@@ -205,13 +205,30 @@ class CallFlutter {
         $url = "/manage-domain?domain=$productName";
         $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
 
+        if (strpos($domain, '.') === false) {
+            return [
+                'status' => 'error',
+                'message' => 'Invalid domain format'
+            ];
+        }
+
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
+
+        if (!$result){
+            return [
+                'status' => 'error',
+                'message' => 'Domain not added to product rows'
+            ];
+        }
+
         $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
         $stmt->execute([$cartId, $this->userId]);
 
-        $tdl = substr($domain, strpos($domain, '.') + 1);
+        $tld = substr($domain, strpos($domain, '.') + 1);
         $sld = substr($domain, 0, strpos($domain, '.'));
 
-        $url = "https://reseller.enom.com/interface.asp?command=Purchase&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tdl&responsetype=xml";
+        $url = "https://reseller.enom.com/interface.asp?command=Purchase&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tld&responsetype=xml";
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -219,30 +236,35 @@ class CallFlutter {
         $response = curl_exec($ch);
         curl_close($ch);
 
-        $xml = simplexml_load_string($response);
-
-        $rrpCode = (int) $xml->RRPCode;
-
-        if ($rrpCode === 210){
-            $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-            $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
-
-            if ($result){
-                return [
-                    'status' => 'success',
-                    'message' => 'Domain Created'
-                ];
-            }
-        }else{
+        if (!$response) {
             return [
                 'status' => 'error',
-                'message' => 'Domain not created'
-            ]; 
+                'message' => 'Failed to connect to eNom API'
+            ];
+        }
+
+        $xml = @simplexml_load_string($response);
+
+        if (!$xml) {
+            return [
+                'status' => 'error',
+                'message' => substr($response, 0, 300),
+            ];
+        }
+
+        $rrpCode = (int) $xml->RRPCode;
+        $rrpText = (string) $xml->RRPText;
+
+        if ($rrpCode !== 210) {
+            return [
+                'status' => 'error',
+                'message' => "eNom Error: $rrpText (Code: $rrpCode)"
+            ];
         }
 
         return [
-            'status' => 'error',
-            'message' => 'Unknown error occurred'
+            'status' => 'success',
+            'message' => 'Product added to cart and registered on enom'
         ];
     }
 
@@ -305,7 +327,7 @@ class CallFlutter {
         $hostingName = "iruhostc_$productName";
 
         $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
+        $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $url, $text, $expiryDate]);
 
         if (!$result){
             return [
@@ -337,13 +359,23 @@ class CallFlutter {
 
         // Generate unique cPanel username (max 16 characters)
         $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', $userRow['name']), 0, 8)) . rand(10, 99);
-        
+        $username = substr($username, 0, 16);
+
+        $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
+        $checkStmt->execute([$productName]);
+        if ($checkStmt->fetchColumn() > 0) {
+            $username .= rand(100, 999); // make it more unique
+        }
+
         // Generate secure password
         
         $password = $this->generateSecurePassword();
 
+        //$encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
+
+
         // WHM API credentials
-        $whm_host = "iruhost.com";
+        $whm_host = "147.135.222.233";
         $whm_username = $this->cpanelUsername;
         $whm_token = $this->cpanelApiToken;
 
@@ -355,7 +387,7 @@ class CallFlutter {
             'username' => $username,
             'domain' => $domain,
             'password' => $password,
-            'plan' => 'iruhostc_' . $productName,
+            'plan' => $hostingName,
             'contactemail' => $userRow['email'],
         ];
 
@@ -372,35 +404,47 @@ class CallFlutter {
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ["Authorization: whm {$whm_username}:{$whm_token}"]);
         curl_setopt($curl, CURLOPT_URL, $full_api_url);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 30);
 
         $result = curl_exec($curl);
 
         // Check for cURL errors
         if ($result === false) {
-            error_log("cURL error: " . curl_error($curl));
+            return [
+                'status' => 'error',
+                'message' => 'Unable to reach WHM server: ' . curl_error($curl)
+            ];
         }
 
         // Close cURL
         curl_close($curl);
 
+        file_put_contents(__DIR__ . '/whm_log.txt', date('Y-m-d H:i:s') . " - $result\n", FILE_APPEND);
+
+
         // Process the API response
         if ($result) {
             $decoded_result = json_decode($result, true);
-            // Handle success or error based on the API response
+
             if (isset($decoded_result['metadata']['result']) && $decoded_result['metadata']['result'] == 1) {
+                $stmt = $this->pdo->prepare("UPDATE products SET cp_username = ?, cp_password = ? WHERE product_id = ?");
+                $stmt->execute([$username, $password, $productId]);
+
                 return [
                     'status' => 'success',
-                    'message' => $result
+                    'message' => 'Hosting account created successfully'
                 ];
             } else {
+                // handle WHM-reported errors clearly
+                $reason = $decoded_result['metadata']['reason'] ?? 'Unknown error from WHM';
                 return [
-                    'status' => 'success',
-                    'message' => $decoded_result['metadata']['reason'] ?? 'Unknown error'
+                    'status' => 'error',
+                    'message' => "WHM Error: $reason"
                 ];
             }
         } else {
             return [
-                'status' => 'success',
+                'status' => 'error',
                 'message' => 'Failed to get API response.'
             ];
         }
