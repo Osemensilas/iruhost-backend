@@ -272,12 +272,10 @@ class AdminOps{
         //     return;
         // }
 
-        echo __DIR__;
-
         // --- Path setup ---
         $phpPath = '/usr/local/bin/php'; // cPanel PHP CLI path (usually this works)
         $migrateScript = __DIR__ . '/../../../commands/migrate.php';
-        $logDir = realpath(__DIR__ . '/../../../storage');
+        $logDir = __DIR__ . '/../../../storage';
 
         if (!file_exists($migrateScript)) {
             http_response_code(500);
@@ -293,7 +291,9 @@ class AdminOps{
         }
 
         // --- Execute the migrations ---
-        $output = shell_exec("$phpPath $migrateScript 2>&1");
+        ob_start(); // start capturing output
+        include $migrateScript;
+        $output = ob_get_clean(); // get everything the script printed
 
         // --- Log the result ---
         $logFile = $logDir . '/migrate.log';
