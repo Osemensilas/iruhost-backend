@@ -262,7 +262,7 @@ class AdminOps{
         }
 
         // --- Optional: IP restriction (for extra safety) ---
-        $allowedIps = ['147.135.222.233', '::1']; // Add your IP if needed
+        $allowedIps = ['102.91.4.130', '::1']; // Add your IP if needed
         if (!in_array($_SERVER['REMOTE_ADDR'], $allowedIps)) {
             http_response_code(403);
             echo json_encode([
