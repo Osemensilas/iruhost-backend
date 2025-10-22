@@ -19,7 +19,7 @@ class CallFlutter {
     protected $enomApiToken;
     protected $cpanelUsername;
     protected $cpanelApiToken;
-
+    protected $cpanelHostname;
     protected $encryptionKey;
     protected $encryptionIV;
 
@@ -37,6 +37,7 @@ class CallFlutter {
         $this->enomApiToken = getenv('ENOM_USER_API_TOKEN');
         $this->cpanelUsername = getenv('CPANEL_USERNAME');
         $this->cpanelApiToken = getenv('CPANEL_API_TOKEN');
+        $this->cpanelHostname = getenv('CPANEL_HOST');
         $this->encryptionKey = hash('sha256', getenv('ENCRYPTION_KEY'));
         $this->encryptionIV = substr(hash('sha256', getenv('ENCRYPTION_IV')), 0, 16);
 
@@ -385,7 +386,7 @@ class CallFlutter {
 
 
         // WHM API credentials
-        $whm_host = "serverr.webhostingbliss.com";
+        $whm_host = $this->cpanelHostname;
         $whm_port = 2087;
         $whm_username = $this->cpanelUsername;
         $whm_token = $this->cpanelApiToken;
@@ -435,10 +436,12 @@ class CallFlutter {
 
         // Process the API response
         if ($result) {
+
+            $decoded_result = json_decode($result, true);
            
             return [
                 'status' => 'success',
-                'message' => "Here is the result: $result"
+                'message' => "Here is the result: $decoded_result"
             ];
                 
         // $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
