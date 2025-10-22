@@ -441,13 +441,13 @@ class CallFlutter {
                 'message' => "Here is the result: $result"
             ];
                 
-                // $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
-                // $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
-
-                // return [
-                //     'status' => 'success',
-                //     'message' => 'Hosting account created successfully'
-                // ];
+        // $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
+        // $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
+            //Hoold on like you
+        // return [
+        //     'status' => 'success',
+        //     'message' => 'Hosting account created successfully'
+        // ];
             
         } else {
             return [
