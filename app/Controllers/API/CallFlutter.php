@@ -441,7 +441,7 @@ class CallFlutter {
            
             return [
                 'status' => 'success',
-                'message' => "Here is the result: $decoded_result"
+                'message' => "Here is the result: " . json_encode($decoded_result)
             ];
                 
         // $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
