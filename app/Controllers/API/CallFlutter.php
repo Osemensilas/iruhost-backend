@@ -435,25 +435,20 @@ class CallFlutter {
 
         // Process the API response
         if ($result) {
-            $decoded_result = json_decode($result, true);
-
-            if (isset($decoded_result['metadata']['result']) && $decoded_result['metadata']['result'] == 1) {
+           
+            return [
+                'status' => 'success',
+                'message' => "Here is the result: $result"
+            ];
                 
-                $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
-                $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
+                // $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
+                // $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
 
-                return [
-                    'status' => 'success',
-                    'message' => 'Hosting account created successfully'
-                ];
-            } else {
-                // handle WHM-reported errors clearly
-                $reason = $decoded_result['metadata']['reason'] ?? 'Unknown error from WHM';
-                return [
-                    'status' => 'error',
-                    'message' => "WHM Error: $reason"
-                ];
-            }
+                // return [
+                //     'status' => 'success',
+                //     'message' => 'Hosting account created successfully'
+                // ];
+            
         } else {
             return [
                 'status' => 'error',
