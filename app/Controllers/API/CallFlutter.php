@@ -437,20 +437,21 @@ class CallFlutter {
         if ($result) {
 
             $decoded_result = json_decode($result, true);
-           
-            return [
-                'status' => 'success',
-                'message' => "Here is the result: " . json_encode($decoded_result)
-            ];
+
+            if ($decoded_result['metadata']['reason'] != "Account Creation Ok"){
+                $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
+                $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
                 
-        // $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
-        // $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
-            //Hoold on like you
-        // return [
-        //     'status' => 'success',
-        //     'message' => 'Hosting account created successfully'
-        // ];
-            
+                return [
+                    'status' => 'success',
+                    'message' => 'Hosting account created successfully'
+                ];
+            }else{
+                return [
+                    'status' => 'success',
+                    'message' => "Here is the result: " . json_encode($decoded_result)
+                ];
+            }
         } else {
             return [
                 'status' => 'error',
