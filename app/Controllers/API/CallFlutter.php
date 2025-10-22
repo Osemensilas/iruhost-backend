@@ -41,6 +41,7 @@ class CallFlutter {
         $this->encryptionKey = hash('sha256', getenv('ENCRYPTION_KEY'));
         $this->encryptionIV = substr(hash('sha256', getenv('ENCRYPTION_IV')), 0, 16);
 
+        var_dump(getenv('CPANEL_HOST'));
     }
 
     public function paymentSuccessful(){
@@ -391,6 +392,9 @@ class CallFlutter {
         $whm_username = $this->cpanelUsername;
         $whm_token = $this->cpanelApiToken;
 
+        echo "Host: " . $whm_host . "\n";
+        echo "Endpoint: https://" . $whm_host . ":2087/json-api/version\n";
+
         // Create cPanel account via WHM API
         $api_endpoint = "https://{$whm_host}:{$whm_port}/json-api/createacct?api.version=1";
 
@@ -408,8 +412,8 @@ class CallFlutter {
 
         // Set cURL options
         curl_setopt_array($curl, [
-            CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => ["Authorization: whm {$whm_username}:{$whm_token}"],
             CURLOPT_POST => true,
