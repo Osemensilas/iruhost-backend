@@ -438,7 +438,21 @@ class CallFlutter {
 
             $decoded_result = json_decode($result, true);
 
-            if ($decoded_result['metadata']['reason'] != "Account Creation Ok"){
+            // Access WHM metadata
+            $reason = $decoded_result['metadata']['reason'] ?? '';
+            $raw_output = $decoded_result['metadata']['output']['raw'] ?? '';
+
+            // Extract key values from raw output (regex)
+            preg_match('/UserName:\s*(\S+)/', $raw_output, $usernameMatch);
+            preg_match('/PassWord:\s*\(([^)]+)\)/', $raw_output, $passwordMatch);
+            preg_match('/Domain:\s*(\S+)/', $raw_output, $domainMatch);
+
+            $username_created = $usernameMatch[1] ?? '';
+            $password_created = $passwordMatch[1] ?? '';
+            $domain_created   = $domainMatch[1] ?? '';
+            $ip_address       = $decoded_result['data']['ip'] ?? '';
+
+            if (stripos($reason, 'Account Creation Ok') !== false){
                 $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?,?)");
                 $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
                 
