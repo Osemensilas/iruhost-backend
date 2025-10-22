@@ -410,7 +410,7 @@ class CallFlutter {
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["Authorization: whm {iruhostc}:{Y7CYGX5H6H9PKKKVEN7CCE5XEHER1OY0}"],
+            CURLOPT_HTTPHEADER => ["Authorization: whm iruhostc:Y7CYGX5H6H9PKKKVEN7CCE5XEHER1OY0"],
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => http_build_query($account_data),
             CURLOPT_TIMEOUT => 60,
