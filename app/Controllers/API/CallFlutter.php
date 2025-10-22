@@ -29,14 +29,14 @@ class CallFlutter {
         $dotenv->load();
 
         $this->pdo = DB::connection();
-        $this->secretKey = "FLWSECK_TEST-76fca9105670eb0ded6852bc4785f25b-X";
+        $this->secretKey = getenv('FLUTTERWAVE_SECRETE_KEY');
         $this->userId = $_SESSION['user']['user_id'];
         $this->clientId = "200642152";
         $this->nameSiloKey = "514f12a14ed69fe33b7072ed8"; 
-        $this->enomUserId = "osemen";
-        $this->enomApiToken = "WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R";
-        $this->cpanelUsername = "iruhostc";
-        $this->cpanelApiToken = "6YK32KTFBWMNM5UFBT1D5OBEZ4S65SV8";
+        $this->enomUserId = getenv('ENOM_USER_ID');
+        $this->enomApiToken = getenv('ENOM_USER_API_TOKEN');
+        $this->cpanelUsername = getenv('CPANEL_USERNAME');
+        $this->cpanelApiToken = getenv('CPANEL_API_TOKEN');
         $this->encryptionKey = hash('sha256', getenv('ENCRYPTION_KEY'));
         $this->encryptionIV = substr(hash('sha256', getenv('ENCRYPTION_IV')), 0, 16);
 
