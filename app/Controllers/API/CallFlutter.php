@@ -40,8 +40,6 @@ class CallFlutter {
         $this->cpanelHostname = getenv('CPANEL_HOST');
         $this->encryptionKey = hash('sha256', getenv('ENCRYPTION_KEY'));
         $this->encryptionIV = substr(hash('sha256', getenv('ENCRYPTION_IV')), 0, 16);
-
-        var_dump(getenv('CPANEL_HOST'));
     }
 
     public function paymentSuccessful(){
@@ -392,11 +390,8 @@ class CallFlutter {
         $whm_username = $this->cpanelUsername;
         $whm_token = $this->cpanelApiToken;
 
-        echo "Host: " . $whm_host . "\n";
-        echo "Endpoint: https://" . $whm_host . ":2087/json-api/version\n";
-
         // Create cPanel account via WHM API
-        $api_endpoint = "https://{$whm_host}:{$whm_port}/json-api/createacct?api.version=1";
+        $api_endpoint = "https://serverr.webhostingbliss.com:{$whm_port}/json-api/createacct?api.version=1";
 
         // Account details
         $account_data = [
