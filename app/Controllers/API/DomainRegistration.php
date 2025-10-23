@@ -11,8 +11,13 @@ class DomainRegistration{
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
         $dotenv->load();
 
-        $this->enomUserId = getenv('ENOM_USER_ID');;
-        $this->enomApiToken = getenv('ENOM_USER_API_TOKEN');
+        if (!isset($_ENV['ENOM_USER_ID'])) {
+            die("Dotenv failed to load. Path: " . __DIR__ . '/../../../');
+        }
+
+        $this->enomUserId = $_ENV['ENOM_USER_ID'] ?? null;
+        $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
+
     }
     public function domainSearch(){
 
