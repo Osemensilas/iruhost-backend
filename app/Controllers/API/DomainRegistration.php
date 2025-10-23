@@ -175,7 +175,7 @@ class DomainRegistration{
 
         //$xml = simplexml_load_string($response);
 
-        print_r("response");
+        print_r($this->enomUserId);
 
         // $data = [];
 
@@ -401,9 +401,5 @@ class DomainRegistration{
             'msg' => 'success',
             'value' => $results
         ]);
-    }
-
-    public function test(){
-        $url = "https://reseller.enom.com/interface.asp?command=GetPOPBundleList&uid=osemen&pw=WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R&responsetype=xml";
     }
 }
