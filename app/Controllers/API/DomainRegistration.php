@@ -197,9 +197,9 @@ class DomainRegistration{
             echo json_encode([
                 'status' => 'success',
                 'result' => $rows,
-                'dotcom' => $dotCom,
-                'dotOrg' => $dotOrg,
-                'dotNet' => $dotNet
+                'dotcom' => $dotCom['registration'],
+                'dotOrg' => $dotOrg['registration'],
+                'dotNet' => $dotNet['registration']
             ]);
         }
     }
