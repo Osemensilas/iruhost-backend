@@ -173,13 +173,32 @@ class DomainRegistration{
         $stmt = $this->pdo->prepare("SELECT * FROM tlds");
         $stmt->execute();
 
+        $dotCom = [];
+        $dotOrg = [];
+        $dotNet = [];
+
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($rows['tld'] === 'com'){
+                $dotCom = $rows;
+            }
+
+            if ($rows['tld'] === 'org'){
+                $dotOrg = $rows;
+            }
+
+            if ($rows['tld'] === 'net'){
+                $dotNet = $rows;
+            }
         }
 
         echo json_encode([
             'status' => 'success',
-            'result' => $rows
+            'result' => $rows,
+            'dotcom' => $dotCom,
+            'dotOrg' => $dotOrg,
+            'dotNet' => $dotNet
         ]);
     }
 
