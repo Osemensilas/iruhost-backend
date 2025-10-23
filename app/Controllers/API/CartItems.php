@@ -3,6 +3,7 @@
 namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
+use Dotenv\Dotenv;
 
 class CartItems {
 
@@ -11,9 +12,13 @@ class CartItems {
     private $publicKey;
 
     public function __construct(){
+
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv->load();
+
         $this->pdo = DB::connection();
         $this->userId = $_SESSION['user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
-        $this->publicKey = "FLWPUBK-79044d05b9b596e55c6937934dfe4b6c-X";
+        $this->publicKey = $_ENV['FLUTTERWAVE_PUBLIC_KEY'] ?? null;
     }
     public function cartItems() {
 

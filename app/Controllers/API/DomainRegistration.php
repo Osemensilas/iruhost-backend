@@ -4,8 +4,10 @@ namespace App\Controllers\API;
 use Dotenv\Dotenv;
 
 class DomainRegistration{
+    
     protected $enomUserId;
     protected $enomApiToken;
+
     public function __construct(){
 
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');

@@ -13,8 +13,6 @@ class CallFlutter {
     protected $pdo;
     protected $secretKey;
     protected $userId;
-    protected $clientId;
-    protected $nameSiloKey;
     protected $enomUserId;
     protected $enomApiToken;
     protected $cpanelUsername;
@@ -29,17 +27,15 @@ class CallFlutter {
         $dotenv->load();
 
         $this->pdo = DB::connection();
-        $this->secretKey = getenv('FLUTTERWAVE_SECRETE_KEY');
+        $this->secretKey = $_ENV['FLUTTERWAVE_SECRETE_KEY'] ?? null;
         $this->userId = $_SESSION['user']['user_id'];
-        $this->clientId = "200642152";
-        $this->nameSiloKey = "514f12a14ed69fe33b7072ed8"; 
-        $this->enomUserId = getenv('ENOM_USER_ID');
-        $this->enomApiToken = getenv('ENOM_USER_API_TOKEN');
-        $this->cpanelUsername = getenv('CPANEL_USERNAME');
-        $this->cpanelApiToken = getenv('CPANEL_API_TOKEN');
-        $this->cpanelHostname = getenv('CPANEL_HOST');
-        $this->encryptionKey = hash('sha256', getenv('ENCRYPTION_KEY'));
-        $this->encryptionIV = substr(hash('sha256', getenv('ENCRYPTION_IV')), 0, 16);
+        $this->enomUserId = $_ENV['ENOM_USER_ID'];
+        $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
+        $this->cpanelUsername = $_ENV['CPANEL_USERNAME'] ?? null;
+        $this->cpanelApiToken = $_ENV['CPANEL_API_TOKEN'] ?? null;
+        $this->cpanelHostname = $_ENV['CPANEL_HOST'] ?? null;
+        $this->encryptionKey = hash('sha256', $_ENV['ENCRYPTION_KEY']);
+        $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
     }
 
     public function paymentSuccessful(){
@@ -151,7 +147,7 @@ class CallFlutter {
                                         $cartId = $row['cart_id'];
                                         $authCode = $row['domain'];
 
-                                        $url = "https://www.namesilo.com/api/transferDomain?version=1&type=xml&key=$this->nameSiloKey&domain=$productName&auth=$authCode&private=1&auto_renew=0";
+                                        $url = "";
                         
                                         $ch = curl_init();
                                         curl_setopt($ch, CURLOPT_URL, $url);
