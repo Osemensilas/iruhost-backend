@@ -261,17 +261,6 @@ class AdminOps{
             return;
         }
 
-        // --- Optional: IP restriction (for extra safety) ---
-        // $allowedIps = ['102.91.4.130', '::1']; // Add your IP if needed
-        // if (!in_array($_SERVER['REMOTE_ADDR'], $allowedIps)) {
-        //     http_response_code(403);
-        //     echo json_encode([
-        //         'status' => 'error',
-        //         'message' => 'Access denied from this IP'
-        //     ]);
-        //     return;
-        // }
-
         // --- Path setup ---
         $phpPath = '/usr/local/bin/php'; // cPanel PHP CLI path (usually this works)
         $migrateScript = __DIR__ . '/../../../commands/migrate.php';
@@ -304,6 +293,94 @@ class AdminOps{
             'status' => 'success',
             'message' => 'Migrations executed successfully',
             'output' => trim($output)
+        ]);
+    }
+
+    public function addTld(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $tld = $data['tld'];
+        $reg = $data['registration'];
+        $renew = $data['renewal'];
+        $transfer = $data['transfer'];
+
+        if (empty($tld) || empty($reg) || empty($renew) || empty($transfer)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All field required'
+            ]);
+            return;
+        }
+
+        if (!preg_match('/^[a-zA-Z]+$/', $tld)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'TLD should be only text'
+            ]);
+            return;
+        }
+
+        if (!preg_match('/^[0-0||.]+$/', $reg)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All price should be float'
+            ]);
+            return;
+        }
+
+        if (!preg_match('/^[0-0||.]+$/', $renew)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All price should be float'
+            ]);
+            return;
+        }
+
+        if (!preg_match('/^[0-0||.]+$/',  $transfer)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All price should be float'
+            ]);
+            return;
+        }
+
+        $stmtCheck = $this->pdo->prepare("SELECT * FROM tlds WHERE tld = ?");
+        $stmtCheck->execute([$tld]);
+
+        if ($stmtCheck->rowCount() > 0){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'TLD already exist'
+            ]);
+            return;
+        }
+
+        $tldId = uniqid('tld_');
+
+        $stmtInsert = $this->pdo->prepare("INSERT INTO `tlds`(`tld_id`, `tld`, `registration`, `renewal`, `transfer`) VALUES (?,?,?,?,?)");
+        $insertResult = $stmtInsert->execute([$tldId, $tld, $reg, $renew, $transfer]);
+
+        if (!$insertResult){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error occured'
+            ]);
+            return;
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'TLD added successfully'
         ]);
     }
 }
