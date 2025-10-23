@@ -180,26 +180,28 @@ class DomainRegistration{
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($rows['tld'] === 'com'){
-                $dotCom = $rows;
+            foreach ($rows as $row) {
+                switch ($row['tld']) {
+                    case 'com':
+                        $dotCom[] = $row;
+                        break;
+                    case 'org':
+                        $dotOrg[] = $row;
+                        break;
+                    case 'net':
+                        $dotNet[] = $row;
+                        break;
+                }
             }
 
-            if ($rows['tld'] === 'org'){
-                $dotOrg = $rows;
-            }
-
-            if ($rows['tld'] === 'net'){
-                $dotNet = $rows;
-            }
+            echo json_encode([
+                'status' => 'success',
+                'result' => $rows,
+                'dotcom' => $dotCom,
+                'dotOrg' => $dotOrg,
+                'dotNet' => $dotNet
+            ]);
         }
-
-        echo json_encode([
-            'status' => 'success',
-            'result' => $rows,
-            'dotcom' => $dotCom,
-            'dotOrg' => $dotOrg,
-            'dotNet' => $dotNet
-        ]);
     }
 
     public function updateDns(){
