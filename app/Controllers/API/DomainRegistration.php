@@ -165,7 +165,7 @@ class DomainRegistration{
             return;
         }
 
-        $api = "https://reseller.enom.com/interface.asp?command=gettldlist&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml";
+        $api = "https://reseller.enom.com/interface.asp?command=gettldlist&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $api);
