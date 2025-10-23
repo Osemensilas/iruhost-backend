@@ -2,11 +2,15 @@
 
 namespace App\Controllers\API;
 use Dotenv\Dotenv;
+use App\Core\DB;
+use PDO;
 
 class DomainRegistration{
 
     protected $enomUserId;
     protected $enomApiToken;
+
+    protected $pdo;
 
     public function __construct(){
 
@@ -19,6 +23,7 @@ class DomainRegistration{
 
         $this->enomUserId = $_ENV['ENOM_USER_ID'] ?? null;
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
+        $this->pdo = DB::connection();
 
     }
     public function domainSearch(){
@@ -165,75 +170,17 @@ class DomainRegistration{
             return;
         }
 
-        $api = "https://reseller.enom.com/interface.asp?command=gettldlist&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
+        $stmt = $this->pdo->prepare("SELECT * FROM tlds");
+        $stmt->execute();
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $api);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        if (!$response) {
-            echo json_encode(['status' => 'error', 'message' => 'No response from Enom API']);
-            return;
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        $xml = @simplexml_load_string($response);
-        if (!$xml || !isset($xml->tldlist)) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid XML structure from Enom']);
-            return;
-        }
-
-        $tlds = [];
-        foreach ($xml->tldlist->tld as $tld) {
-            $tlds[] = (string) $tld->tld;
-        }
-
-        print_r($tlds);
-
-        // $data = [];
-
-        // $dotCom = $xml->reply->com;
-        // $dotOrg = $xml->reply->org;
-        // $dotNet = $xml->reply->net;
-
-        // if ($xml && isset($xml->reply)) {
-        //     foreach ($xml->reply->children() as $tld) {
-        //         $name = "." . $tld->getName();
-
-        //         // Try attributes first
-        //         $reg      = (string) $tld['registration'];
-        //         $renew    = (string) $tld['renew'];
-        //         $transfer = (string) $tld['transfer'];
-
-        //         // If attributes are empty, try child nodes
-        //         if ($reg === "" && isset($tld->registration)) {
-        //             $reg = (string) $tld->registration;
-        //         }
-        //         if ($renew === "" && isset($tld->renew)) {
-        //             $renew = (string) $tld->renew;
-        //         }
-        //         if ($transfer === "" && isset($tld->transfer)) {
-        //             $transfer = (string) $tld->transfer;
-        //         }
-
-        //         $data[] = [
-        //             "tld" => $name,
-        //             "registration" => $reg,
-        //             "renewal"      => $renew,
-        //             "transfer"     => $transfer,
-        //         ];
-        //     }
-        // }
-
-        // header("Content-Type: application/json");
-        // echo json_encode([
-        //     "status" => "success", 
-        //     "prices" => $data, 
-        //     "dotcom" => $dotCom,
-        //     "dotnet" => $dotNet,
-        //     "dotorg" => $dotOrg
-        // ], JSON_PRETTY_PRINT);
+        echo json_encode([
+            'status' => 'error',
+            'result' => $rows
+        ]);
     }
 
     public function updateDns(){
