@@ -173,9 +173,23 @@ class DomainRegistration{
         $response = curl_exec($ch);
         curl_close($ch);
 
-        //$xml = simplexml_load_string($response);
+        if (!$response) {
+            echo json_encode(['status' => 'error', 'message' => 'No response from Enom API']);
+            return;
+        }
 
-        print_r($response);
+        $xml = @simplexml_load_string($response);
+        if (!$xml || !isset($xml->tldlist)) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid XML structure from Enom']);
+            return;
+        }
+
+        $tlds = [];
+        foreach ($xml->tldlist->tld as $tld) {
+            $tlds[] = (string) $tld->tld;
+        }
+
+        print_r($tlds);
 
         // $data = [];
 
