@@ -178,7 +178,7 @@ class DomainRegistration{
         }
 
         echo json_encode([
-            'status' => 'error',
+            'status' => 'success',
             'result' => $rows
         ]);
     }
