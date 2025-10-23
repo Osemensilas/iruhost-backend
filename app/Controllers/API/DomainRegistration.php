@@ -4,7 +4,7 @@ namespace App\Controllers\API;
 use Dotenv\Dotenv;
 
 class DomainRegistration{
-    
+
     protected $enomUserId;
     protected $enomApiToken;
 
@@ -165,7 +165,7 @@ class DomainRegistration{
             return;
         }
 
-        $api = "https://resellert.enom.com/interface.asp?command=gettldlist&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
+        $api = "https://resellert.enom.com/interface.asp?command=gettldlist&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $api);
