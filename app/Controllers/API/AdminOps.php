@@ -330,7 +330,7 @@ class AdminOps{
             return;
         }
 
-        if (!preg_match('/^[0-0||.]+$/', $reg)){
+        if (!preg_match('/^[0-9||.]+$/', $reg)){
             echo json_encode([
                 'status' => 'error',
                 'message' => 'All price should be float'
@@ -338,7 +338,7 @@ class AdminOps{
             return;
         }
 
-        if (!preg_match('/^[0-0||.]+$/', $renew)){
+        if (!preg_match('/^[0-9||.]+$/', $renew)){
             echo json_encode([
                 'status' => 'error',
                 'message' => 'All price should be float'
@@ -346,7 +346,7 @@ class AdminOps{
             return;
         }
 
-        if (!preg_match('/^[0-0||.]+$/',  $transfer)){
+        if (!preg_match('/^[0-9||.]+$/',  $transfer)){
             echo json_encode([
                 'status' => 'error',
                 'message' => 'All price should be float'
