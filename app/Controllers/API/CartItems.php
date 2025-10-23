@@ -13,7 +13,7 @@ class CartItems {
     public function __construct(){
         $this->pdo = DB::connection();
         $this->userId = $_SESSION['user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
-        $this->publicKey = "FLWPUBK_TEST-ea3991777877ae8c494e5d206d286b33-X";
+        $this->publicKey = "FLWPUBK-79044d05b9b596e55c6937934dfe4b6c-X";
     }
     public function cartItems() {
 

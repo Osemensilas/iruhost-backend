@@ -1,13 +1,18 @@
 <?php
 
 namespace App\Controllers\API;
+use Dotenv\Dotenv;
 
 class DomainRegistration{
     protected $enomUserId;
     protected $enomApiToken;
     public function __construct(){
-        $this->enomUserId = "osemen";
-        $this->enomApiToken = "WMGTAYX54FS4WL4MWVIC4SMSHGCQWTWKTJKUE64R";
+
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv->load();
+
+        $this->enomUserId = getenv('ENOM_USER_ID');;
+        $this->enomApiToken = getenv('ENOM_USER_API_TOKEN');
     }
     public function domainSearch(){
 
