@@ -57,6 +57,9 @@ class AdminOps{
                 // store relative path (backend will serve it later)
                 $image = $filename;
             } else {
+                var_dump($uploadDir);
+                var_dump($targetFile);
+                var_dump($_FILES['image']);
                 echo json_encode(['status' => 'error', 'message' => 'Image upload failed']);
                 return;
             }
