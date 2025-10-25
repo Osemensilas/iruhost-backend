@@ -452,7 +452,8 @@ class CallFlutter {
                 $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
                 $insert = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
                 
-                $url = "";
+                $login_data = json_decode($login_response, true);
+                $url = $login_data['data']['url'] ?? '';
 
                 if ($insert){
                     $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ?");
