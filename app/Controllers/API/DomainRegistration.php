@@ -416,7 +416,7 @@ class DomainRegistration{
             echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
             return;
         }else{
-            echo $_SESSION['user'];
+            print_r($_SESSION['user']);
         }
 
         $data = json_decode(file_get_contents("php://input"), true);
