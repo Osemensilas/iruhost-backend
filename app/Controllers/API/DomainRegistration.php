@@ -403,7 +403,8 @@ class DomainRegistration{
         $tld = substr($domain, strpos($domain, '.') + 1);
         $sld = substr($domain, 0, strpos($domain, '.'));
 
-        $url = "https://resellertest.enom.com/interface.asp?command=GetDomainInfo&uid=$this->enomUserId&pw=$this->enomApiToken&sld=$sld&tld=$tld&responsetype=xml";
+        $url = "https://resellertest.enom.com/interface.asp?command=GetDomainInfo&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tld&responsetype=xml";
+        
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
