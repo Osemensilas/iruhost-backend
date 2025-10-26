@@ -455,18 +455,13 @@ class DomainRegistration{
 
         $domainRow = $domainStmt->fetch();
 
-        echo json_encode([
-            'user' => $sessionId,
-            'user_id' => $domainRow['user_id']
-        ]);
-
         if ($_SESSION['user']['user_id'] != $domainRow['user_id']){
             echo json_encode(['status' => 'error', 'message' => 'Domain not yours']);
             return;
         }
 
-        $stmt = $this->pdo->prepare("UPDATE products SET email = ?, user_id = ? WHERE user_id = ?");
-        $result = $stmt->execute([$newEmail, $newUser, $sessionId]);
+        $stmt = $this->pdo->prepare("UPDATE products SET user_id = ? WHERE user_id = ?");
+        $result = $stmt->execute([$newUser, $sessionId]);
 
         if ($result){
             echo json_encode([
