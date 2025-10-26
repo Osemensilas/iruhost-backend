@@ -414,7 +414,7 @@ class DomainRegistration{
 
         $xml = simplexml_load_string($response);
 
-        $transferLock = (string) $xml->GetDomainInfo->services;
+        $transferLock = (string) $xml->GetDomainInfo->services->entries[11];
 
         print_r($transferLock);
     }
