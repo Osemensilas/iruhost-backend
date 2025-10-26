@@ -432,8 +432,8 @@ class DomainRegistration{
             return;
         }
 
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$newEmail]);
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ? AND role = ?");
+        $stmt->execute([$newEmail, 'user']);
 
         if (!$stmt->rowCount() > 0){
             echo json_encode(['status' => 'error', 'message' => 'User do not exist']);
@@ -497,8 +497,8 @@ class DomainRegistration{
             return;
         }
 
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$newEmail]);
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ? AND role = ?");
+        $stmt->execute([$newEmail, 'user']);
 
         if (!$stmt->rowCount() > 0){
             echo json_encode(['status' => 'error', 'message' => 'User do not exist']);
