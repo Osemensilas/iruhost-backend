@@ -415,8 +415,6 @@ class DomainRegistration{
         if (!isset($_SESSION['user'])){
             echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
             return;
-        }else{
-            print_r($_SESSION['user']);
         }
 
         $data = json_decode(file_get_contents("php://input"), true);
@@ -444,7 +442,7 @@ class DomainRegistration{
 
         $row = $stmt->fetch();
 
-        $sessionId = $_SESSION['user'];
+        $sessionId = $_SESSION['user']['user_id'];
         $newUser = $row['user_id'];
 
         $domainStmt = $this->pdo->prepare("SELECT * FROM products WHERE domain = ?");
@@ -462,7 +460,7 @@ class DomainRegistration{
             'user_id' => $domainRow['user_id']
         ]);
 
-        if ($_SESSION['user'] !== $domainRow['user_id']){
+        if ($_SESSION['user']['user_id'] != $domainRow['user_id']){
             echo json_encode(['status' => 'error', 'message' => 'Domain not yours']);
             return;
         }
@@ -473,7 +471,7 @@ class DomainRegistration{
         if ($result){
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Passwords updated'
+                'message' => 'Ownership Changed'
             ]);
         }
 
