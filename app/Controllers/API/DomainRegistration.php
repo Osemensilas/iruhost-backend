@@ -424,7 +424,10 @@ class DomainRegistration{
             }
         }
 
-        echo "Transfer Lock: " . ($transferLock ?? 'Not found');
+        echo json_encode([
+            'status' => 'success',
+            'result' => $transferLock
+        ]);
     }
 
     public function changeOwnership () {
