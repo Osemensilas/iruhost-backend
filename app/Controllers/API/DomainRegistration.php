@@ -587,9 +587,31 @@ class DomainRegistration{
         $data = json_decode(file_get_contents("php://input"), true);
 
         $domain = $data['domain'];
+        $status = $data['lock'];
 
-        $lockUrl = "https://resellertest.enom.com/interface.asp?command=setreglock&uid=resellid&pw=resellpw&sld=resellerdocs&tld=com&unlockregistrar=0&responsetype=xml";
-        $unlockUrl = "https://resellertest.enom.com/interface.asp?command=setreglock&uid=resellid&pw=resellpw&sld=resellerdocs&tld=com&unlockregistrar=1&responsetype=xml";
+        $tld = substr($domain, strpos($domain, '.') + 1);
+        $sld = substr($domain, 0, strpos($domain, '.'));
+
+        $url = "";
+
+        if ($status === "False"){
+            $url = "https://resellertest.enom.com/interface.asp?command=setreglock&uid=$this->enomUserId&pw=$this->enomApiToken&sld=$sld&tld=$tld&unlockregistrar=1&responsetype=xml";
+        }
+
+        if ($status === "True"){
+            $url = "https://resellertest.enom.com/interface.asp?command=setreglock&uid=$this->enomUserId&pw=$this->enomApiToken&sld=$sld&tld=$tld&unlockregistrar=0&responsetype=xml";
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $xml = simplexml_load_string($response);
+
+        print_r($xml);
+        
         print_r($data);
     }
 }
