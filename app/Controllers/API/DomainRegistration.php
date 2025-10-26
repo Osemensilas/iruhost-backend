@@ -595,11 +595,11 @@ class DomainRegistration{
         $url = "";
 
         if ($status === "False"){
-            $url = "https://resellertest.enom.com/interface.asp?command=setreglock&uid=$this->enomUserId&pw=$this->enomApiToken&sld=$sld&tld=$tld&unlockregistrar=1&responsetype=xml";
+            $url = "https://reseller.enom.com/interface.asp?command=setreglock&uid=$this->enomUserId&pw=$this->enomApiToken&sld=$sld&tld=$tld&unlockregistrar=1&responsetype=xml";
         }
 
         if ($status === "True"){
-            $url = "https://resellertest.enom.com/interface.asp?command=setreglock&uid=$this->enomUserId&pw=$this->enomApiToken&sld=$sld&tld=$tld&unlockregistrar=0&responsetype=xml";
+            $url = "https://reseller.enom.com/interface.asp?command=setreglock&uid=$this->enomUserId&pw=$this->enomApiToken&sld=$sld&tld=$tld&unlockregistrar=0&responsetype=xml";
         }
 
         $ch = curl_init();
