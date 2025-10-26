@@ -445,6 +445,21 @@ class DomainRegistration{
         $sessionId = $_SESSION['user'];
         $newUser = $row['user_id'];
 
+        $domainStmt = $this->pdo->prepare("SELECT * FROM products WHERE product = ?");
+        $domain->execute([$domain]);
+
+        if (!$domainStmt->rowCount() > 0){
+            echo json_encode(['status' => 'error', 'message' => 'Domain do not exist']);
+            return;
+        }
+
+        $domainRow = $domainStmt->fetch();
+
+        if ($_SESSION['user'] != $domainRow['user_id']){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permisson']);
+            return;
+        }
+
         $stmt = $this->pdo->prepare("UPDATE products SET email = ?, user_id = ? WHERE user_id = ?");
         $result = $stmt->execute([$newEmail, $newUser, $sessionId]);
 
