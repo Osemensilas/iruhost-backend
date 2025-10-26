@@ -414,7 +414,9 @@ class DomainRegistration{
 
         $xml = simplexml_load_string($response);
 
-        print_r($xml);
+        $transferLock = (string) $xml->GetDomainInfo->services;
+
+        print_r($transferLock);
     }
 
     public function changeOwnership () {
