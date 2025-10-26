@@ -403,7 +403,7 @@ class DomainRegistration{
         $tld = substr($domain, strpos($domain, '.') + 1);
         $sld = substr($domain, 0, strpos($domain, '.'));
 
-        $url = "https://reseller.enom.com/interface.asp?command=GetDomainInfo&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tld&responsetype=xml";
+        $url = "https://reseller.enom.com/interface.asp?command=GetDomainInfo&uid=$this->enomUserId&pw=$this->enomApiToken&sld=$sld&tld=$tld&responsetype=xml";
         
 
         $ch = curl_init();
@@ -414,7 +414,7 @@ class DomainRegistration{
 
         $xml = simplexml_load_string($response);
 
-        print_r($xml);
+        print_r($response);
     }
 
     public function changeOwnership () {
