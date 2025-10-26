@@ -507,7 +507,7 @@ class DomainRegistration{
 
         $row = $stmt->fetch();
 
-        $sessionId = $_SESSION['user'];
+        $sessionId = $_SESSION['user']['user_id'];
         $newUser = $row['user_id'];
 
         $domainStmt = $this->pdo->prepare("SELECT * FROM products WHERE domain = ? AND domain = ?");
