@@ -456,7 +456,7 @@ class DomainRegistration{
         $domainRow = $domainStmt->fetch();
 
         if ($_SESSION['user'] != $domainRow['user_id']){
-            echo json_encode(['status' => 'error', 'message' => 'You do not have permisson']);
+            echo json_encode(['status' => 'error', 'message' => 'Domain not yours']);
             return;
         }
 
