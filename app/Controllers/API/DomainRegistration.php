@@ -414,7 +414,7 @@ class DomainRegistration{
 
         $xml = simplexml_load_string($response);
 
-        print_r($response);
+        print_r($xml);
     }
 
     public function changeOwnership () {
