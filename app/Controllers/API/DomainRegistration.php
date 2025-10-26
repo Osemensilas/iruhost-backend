@@ -456,7 +456,7 @@ class DomainRegistration{
         $domainRow = $domainStmt->fetch();
 
         echo json_encode([
-            'user' => $_SESSION['user'],
+            'user' => $sessionId,
             'user_id' => $domainRow['user_id']
         ]);
 
