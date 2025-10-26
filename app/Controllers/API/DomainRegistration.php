@@ -391,7 +391,17 @@ class DomainRegistration{
             return;
         }
 
+        if (!isset($_SESSION['user'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
         $data = json_decode(file_get_contents("php://input"), true);
+
+        $domain = $data['domain'];
+
+        $tld = substr($domain, strpos($domain, '.') + 1);
+        $sld = substr($domain, 0, strpos($domain, '.'));
 
         print_r($data);
     }
@@ -402,7 +412,48 @@ class DomainRegistration{
             return;
         }
 
+        if (!isset($_SESSION['user'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
         $data = json_decode(file_get_contents("php://input"), true);
+
+        $domain = $data['domain'];
+        $newEmail = $data['email'];
+
+        if (empty($domain) || empty($newEmail)){
+            echo json_encode(['status' => 'error', 'message' => 'All field required']);
+            return;
+        }
+
+        if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)){
+            echo json_encode(['status' => 'error', 'message' => 'All field required']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$newEmail]);
+
+        if (!$stmt->rowCount() > 0){
+            echo json_encode(['status' => 'error', 'message' => 'User do not exist']);
+            return;
+        }
+
+        $row = $stmt->fetch();
+
+        $sessionId = $_SESSION['user'];
+        $newUser = $row['user_id'];
+
+        $stmt = $this->pdo->prepare("UPDATE products SET email = ?, user_id = ? WHERE user_id = ?");
+        $result = $stmt->execute([$newEmail, $newUser, $sessionId]);
+
+        if ($result){
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Passwords updated'
+            ]);
+        }
 
         print_r($data);
     }
@@ -413,7 +464,38 @@ class DomainRegistration{
             return;
         }
 
+        if (!isset($_SESSION['user'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
         $data = json_decode(file_get_contents("php://input"), true);
+
+        $domain = $data['domain'];
+        $newEmail = $data['email'];
+
+        if (empty($domain) || empty($newEmail)){
+            echo json_encode(['status' => 'error', 'message' => 'All field required']);
+            return;
+        }
+
+        if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)){
+            echo json_encode(['status' => 'error', 'message' => 'All field required']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$newEmail]);
+
+        if (!$stmt->rowCount() > 0){
+            echo json_encode(['status' => 'error', 'message' => 'User do not exist']);
+            return;
+        }
+
+        $row = $stmt->fetch();
+
+        $sessionId = $_SESSION['user'];
+        $newUser = $row['user_id'];
 
         print_r($data);
     }
@@ -424,7 +506,14 @@ class DomainRegistration{
             return;
         }
 
+        if (!isset($_SESSION['user'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
         $data = json_decode(file_get_contents("php://input"), true);
+
+        $domain = $data['domain'];
 
         print_r($data);
     }
