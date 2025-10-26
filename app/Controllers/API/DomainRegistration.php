@@ -455,6 +455,11 @@ class DomainRegistration{
 
         $domainRow = $domainStmt->fetch();
 
+        echo json_encode([
+            'user' => $_SESSION['user'],
+            'user_id' => $domainRow['user_id']
+        ]);
+
         if ($_SESSION['user'] !== $domainRow['user_id']){
             echo json_encode(['status' => 'error', 'message' => 'Domain not yours']);
             return;
