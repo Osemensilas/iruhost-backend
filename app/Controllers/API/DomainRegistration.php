@@ -403,7 +403,17 @@ class DomainRegistration{
         $tld = substr($domain, strpos($domain, '.') + 1);
         $sld = substr($domain, 0, strpos($domain, '.'));
 
-        print_r($data);
+        $url = "https://resellertest.enom.com/interface.asp?command=GetDomainInfo&uid=$this->enomUserId&pw=$this->enomApiToken&sld=$sld&tld=$tld&responsetype=xml";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $xml = simplexml_load_string($response);
+
+        print_r($xml);
     }
 
     public function changeOwnership () {
@@ -564,6 +574,8 @@ class DomainRegistration{
 
         $domain = $data['domain'];
 
+        $lockUrl = "https://resellertest.enom.com/interface.asp?command=setreglock&uid=resellid&pw=resellpw&sld=resellerdocs&tld=com&unlockregistrar=0&responsetype=xml";
+        $unlockUrl = "https://resellertest.enom.com/interface.asp?command=setreglock&uid=resellid&pw=resellpw&sld=resellerdocs&tld=com&unlockregistrar=1&responsetype=xml";
         print_r($data);
     }
 }

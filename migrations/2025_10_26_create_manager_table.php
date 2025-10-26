@@ -5,6 +5,7 @@ return function ($pdo){
         CREATE TABLE IF NOT EXISTS manager (
             id INT AUTO_INCREMENT PRIMARY KEY,
             user_id VARCHAR(36) NOT NULL,
+            manager_id VARCHAR(36) NOT NULL,
             product_id VARCHAR(36) NOT NULL,
             product VARCHAR(255) NOT NULL,
             domain VARCHAR(50) NOT NULL,
