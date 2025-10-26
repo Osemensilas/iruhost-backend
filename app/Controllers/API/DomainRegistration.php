@@ -414,9 +414,17 @@ class DomainRegistration{
 
         $xml = simplexml_load_string($response);
 
-        $transferLock = (string) $xml->GetDomainInfo->services->entries[11];
+        $transferLock = null; // default
 
-        print_r($transferLock);
+        // Loop through all <entry> elements
+        foreach ($xml->GetDomainInfo->services->entry as $entry) {
+            if ((string)$entry['name'] === 'irtpsettings') {
+                $transferLock = (string)$entry->irtpsetting->transferlock;
+                break;
+            }
+        }
+
+        echo "Transfer Lock: " . ($transferLock ?? 'Not found');
     }
 
     public function changeOwnership () {
