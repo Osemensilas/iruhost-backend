@@ -510,8 +510,8 @@ class DomainRegistration{
         $sessionId = $_SESSION['user'];
         $newUser = $row['user_id'];
 
-        $domainStmt = $this->pdo->prepare("SELECT * FROM products WHERE domain = ?");
-        $domainStmt->execute([$domain]);
+        $domainStmt = $this->pdo->prepare("SELECT * FROM products WHERE domain = ? AND domain = ?");
+        $domainStmt->execute([$domain, $domain]);
 
         if (!$domainStmt->rowCount() > 0){
             echo json_encode(['status' => 'error', 'message' => 'Domain do not exist']);
