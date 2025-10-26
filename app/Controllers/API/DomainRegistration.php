@@ -510,7 +510,43 @@ class DomainRegistration{
         $sessionId = $_SESSION['user'];
         $newUser = $row['user_id'];
 
-        print_r($data);
+        $domainStmt = $this->pdo->prepare("SELECT * FROM products WHERE domain = ?");
+        $domainStmt->execute([$domain]);
+
+        if (!$domainStmt->rowCount() > 0){
+            echo json_encode(['status' => 'error', 'message' => 'Domain do not exist']);
+            return;
+        }
+
+        $domainRow = $domainStmt->fetch();
+
+        if ($_SESSION['user']['user_id'] != $domainRow['user_id']){
+            echo json_encode(['status' => 'error', 'message' => 'You can not add manager']);
+            return;
+        }
+
+        $productId = $domainRow['product_id'];
+        $product = $domainRow['product'];
+        $url = $domainRow['url'];
+        $text = $domainRow['text'];
+        $exp = $domainRow['expiry_date'];
+
+
+        $stmtCheck = $this->pdo->prepare("SELECT * FROM manager WHERE domain = ? AND manager_id = ?");
+        $stmtCheck->execute([$domain, $newUser]);
+
+        if ($stmtCheck->rowCount() > 0){
+            echo json_encode(['status' => 'error', 'message' => 'User already a manager']);
+            return;
+        }
+
+        $stmtAdd = $this->pdo->prepare("INSERT INTO `manager`(`user_id`, `product_id`, `manager_id`, `product`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?)");
+        $addResult = $stmtAdd->execute([$sessionId, $productId, $newUser, $product, $domain, $url, $text, $exp]);
+
+        if (!$addResult){
+            echo json_encode(['status' => 'error', 'message' => 'Error adding manager']);
+        }
+        echo json_encode(['status' => 'success', 'message' => 'User now a manager']);
     }
 
     public function unlockDomain(){
