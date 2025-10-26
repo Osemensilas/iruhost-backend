@@ -460,17 +460,15 @@ class DomainRegistration{
             return;
         }
 
-        $stmt = $this->pdo->prepare("UPDATE products SET user_id = ? WHERE user_id = ?");
-        $result = $stmt->execute([$newUser, $sessionId]);
+        $stmt = $this->pdo->prepare("UPDATE products SET user_id = ? WHERE domain = ?");
+        $result = $stmt->execute([$newUser, $domain]);
 
         if ($result){
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Ownership Changed'
+                'message' => 'Ownership Changed Successfully'
             ]);
         }
-
-        print_r($data);
     }
 
     public function domainManager(){
