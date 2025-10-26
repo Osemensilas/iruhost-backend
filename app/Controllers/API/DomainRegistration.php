@@ -445,7 +445,7 @@ class DomainRegistration{
         $sessionId = $_SESSION['user'];
         $newUser = $row['user_id'];
 
-        $domainStmt = $this->pdo->prepare("SELECT * FROM products WHERE product = ?");
+        $domainStmt = $this->pdo->prepare("SELECT * FROM products WHERE domain = ?");
         $domain->execute([$domain]);
 
         if (!$domainStmt->rowCount() > 0){
