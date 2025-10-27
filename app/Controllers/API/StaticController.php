@@ -3,6 +3,7 @@
 namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
+use PHPMailer\PHPMailer\Exception;
 
 class StaticController{
 
@@ -86,6 +87,31 @@ class StaticController{
             ]);
         }
     }
+
+    public function getBlogBySlug($slug){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE slug = ?");
+            $stmt->execute([$slug]);
+
+            if ($stmt->rowCount() > 0) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                echo json_encode([
+                    'status' => 'success',
+                    'result' => $row
+                ]);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Blog not found']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
 
     public function relatedBlog(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

@@ -89,3 +89,4 @@ $router->get('/api/get-todays-blogs', [StaticController::class, 'todayBlogs']);
 $router->post('/api/get-single-blogs', [StaticController::class, 'singleBlog']);
 $router->post('/api/get-related-blogs', [StaticController::class, 'relatedBlog']);
 $router->post('/api/get-other-blogs', [StaticController::class, 'otherBlog']);
+$router->get('/api/get-blog/{slug}', [StaticController::class, 'getBlogBySlug']);

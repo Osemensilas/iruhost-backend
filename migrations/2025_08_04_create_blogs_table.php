@@ -6,6 +6,7 @@ return function ($pdo){
             id int AUTO_INCREMENT PRIMARY KEY,
             blog_id VARCHAR(100),
             title VARCHAR(255),
+            slug VARCHAR(255),
             content VARCHAR(2000),
             image VARCHAR(300),
             writer VARCHAR(50),

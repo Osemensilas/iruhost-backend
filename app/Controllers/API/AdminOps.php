@@ -73,8 +73,10 @@ class AdminOps{
             return;
         }
 
-        $stmt = $this->pdo->prepare("INSERT INTO `blogs`(`blog_id`, `title`, `content`, `image`, `writer`, `category`) VALUES (?,?,?,?,?,?)");
-        $stmt->execute([$blogId, $title, $content, $image, $author, $category]);
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title), '-'));
+
+        $stmt = $this->pdo->prepare("INSERT INTO `blogs`(`blog_id`, `title`, `slug`, `content`, `image`, `writer`, `category`) VALUES (?,?,?,?,?,?,?)");
+        $stmt->execute([$blogId, $title, $slug, $content, $image, $author, $category]);
 
         echo json_encode(['status' => 'success', 'message' => 'Blog added successfully']);
     }
