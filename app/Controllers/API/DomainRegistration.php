@@ -47,7 +47,7 @@ class DomainRegistration{
         $domainId = uniqid('domain_');
 
         $stmtSearch = $this->pdo->prepare("INSERT INTO `searched_domain`(`domain_id`, `domain`) VALUES (?,?)");
-        $stmt->execute([$domainId, $data]);
+        $stmtSearch->execute([$domainId, $data]);
 
         $tdls = [substr($data, strpos($data, '.') + 1), 'com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
         $sld = substr($data, 0, strpos($data, '.'));
