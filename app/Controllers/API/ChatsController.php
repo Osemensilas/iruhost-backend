@@ -3,16 +3,27 @@
 namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
-use App\Services\PHPMailer\PHPMailer\PHPMailer;
-use Exception;
+use Dotenv\Dotenv;
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class ChatsController{
     protected $pdo;
     private $userId;
-
+    protected $emailHost;
+    protected $emailPassword;
+    protected $emailEnct;
+    protected $emailPort;
+    protected $emailUsername;
     public function __construct(){
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv->load();
         $this->pdo = DB::connection();
         $this->userId = $_SESSION['user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
+        $this->emailHost = $_ENV['MAIL_HOST'] ?? null;
+        $this->emailUsername = $_ENV['MAIL_USERNAME'] ?? null;
+        $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
     }
 
     public function createChatUser(){
@@ -104,12 +115,16 @@ class ChatsController{
             $recieverId = 'admin';
 
             $stmt = $this->pdo->prepare("INSERT INTO `chats`(`user_id`, `reciever_id`, `message`, `status`, `image`) VALUES (?,?,?,?,?)");
-            $stmt->execute([$this->userId, $recieverId, $message, 'new', $image]);
+            $result = $stmt->execute([$this->userId, $recieverId, $message, 'new', $image]);
 
-            echo json_encode([
-                'status'  => 'success',
-                'message' => 'message recieved'
-            ]);
+            if ($result){
+                echo json_encode([
+                    'status'  => 'success',
+                    'message' => 'message recieved'
+                ]);
+
+                $this->sentChatMessage($message);
+            }
         }catch (Exception $e) {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             return;
@@ -199,7 +214,47 @@ class ChatsController{
             return;
         }
 
-        $this->sendConsultMail($firstname, $lastname, $email, $code, $phone);
+        $consultResponse = $this->sendConsultMail($firstname, $lastname, $email, $code, $phone);
+        
+        $consult_status = $consultResponse['status'] ?? 'unknown';
+        $consult_msg = $consultResponse['message'] ?? 'unknown';
+
+        echo json_encode([
+            'status' => $consult_status,
+            'message' => $consult_msg
+        ]);
+    }
+
+    private function sentChatMessage($message){
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->isSMTP();
+            $mail->Host       = $this->emailHost; 
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $this->emailUsername; 
+            $mail->Password   = $this->emailPassword; 
+            $mail->SMTPSecure = 'ssl'; 
+            $mail->Port       = 465;
+
+            // Email Headers
+            $mail->isHTML(true);
+            $mail->setFrom('contact@iruhost.com', 'IruHost');
+            $mail->addAddress('osemensilas@gmail.com'); 
+            $mail->Subject = 'New Message from ChatBox';
+            $mail->Body = "
+            <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
+                <h2 style='color: #000000; paddin'>Password Reset</h2>
+                <p>{$message}</p>
+            </div>
+            ";
+
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => "Email failed: {$mail->ErrorInfo}"
+            ]);
+        }
     }
 
     private function sendConsultMail($firstname, $lastname, $email, $code, $phone){
@@ -211,18 +266,28 @@ class ChatsController{
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
-            $mail->Host       = $_ENV['MAIL_HOST']; 
+            $mail->Host       = $this->emailHost; 
             $mail->SMTPAuth   = true;
-            $mail->Username   = $_ENV['MAIL_USERNAME']; 
-            $mail->Password   = $_ENV['MAIL_PASSWORD']; 
-            $mail->SMTPSecure = $_ENV['MAIL_ENCRYPTION']; 
-            $mail->Port       = $_ENV['MAIL_PORT']; 
+            $mail->Username   = $this->emailUsername; 
+            $mail->Password   = $this->emailPassword; 
+            $mail->SMTPSecure = 'ssl'; 
+            $mail->Port       = 465;
 
             // Email Headers
-            $mail->setFrom('contact@mageekresult.com.ng', 'Ndiana Samuel'); // Sender
-            $mail->addAddress('ndianaisang@gmail.com'); // Recipient ndianaisang@gmail.com
-            $mail->Subject = 'New Order Notification';
-            $mail->Body = "New Consultation from $firstname $lastname\nPhone: $phone\nEmail: $email\nCode: $code";
+            $mail->isHTML(true);
+            $mail->setFrom('contact@iruhost.com', 'IruHost');
+            $mail->addAddress('osemensilas@gmail.com'); 
+            $mail->Subject = 'New Message from ChatBox';
+            $mail->Body = "
+            <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
+                <h2 style='color: #000000; paddin'>Password Reset</h2>
+                <p>Senders Firstname: {$firstname}</p>
+                <p>Senders Lastname: {$lastname}</p>
+                <p>Senders Email: {$email}</p>
+                <p>Senders Phone Number: {$phone}</p>
+                <p>Country Code: {$code}</p>
+            </div>
+            ";
 
             // Send Mail
             if ($mail->send()) {
@@ -237,6 +302,9 @@ class ChatsController{
             $response['message'] = "Email failed: {$mail->ErrorInfo}";
         }
 
-        echo json_encode($response);
+        return json_encode([
+            'status' => $response['status'],
+            'message' => $response['message']
+        ]);
     }
 }
