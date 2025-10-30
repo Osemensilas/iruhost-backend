@@ -237,7 +237,7 @@ class ChatsController{
             $mail->Username   = $this->emailUsername; 
             $mail->Password   = $this->emailPassword; 
             $mail->SMTPSecure = 'ssl'; 
-            $mail->Port       = 465;
+            $mail->Port       = 587;
 
             // Email Headers
             $mail->isHTML(true);
@@ -269,7 +269,7 @@ class ChatsController{
             $mail->Username   = $this->emailUsername; 
             $mail->Password   = $this->emailPassword; 
             $mail->SMTPSecure = 'ssl'; 
-            $mail->Port       = 465;
+            $mail->Port       = 587;
 
             // Email Headers
             $mail->isHTML(true);
