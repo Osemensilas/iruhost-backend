@@ -11,7 +11,7 @@ try {
     $mail->Username   = 'contact@iruhost.com';
     $mail->Password   = 'YourEmailPassword';
     $mail->SMTPSecure = 'ssl';
-    $mail->Port       = 465;
+    $mail->Port       = 587;
 
     $mail->setFrom('contact@iruhost.com', 'IruHost');
     $mail->addAddress('osemensilas@gmail.com');
