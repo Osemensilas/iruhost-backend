@@ -257,7 +257,7 @@ class AuthController{
             $mail->Username   = 'contact@iruhost.com'; 
             $mail->Password   = 'Bank$101Onion'; 
             $mail->SMTPSecure = 'ssl'; 
-            $mail->Port       = 587;
+            $mail->Port       = 465;
 
             // Email Headers
             $mail->isHTML(true);
