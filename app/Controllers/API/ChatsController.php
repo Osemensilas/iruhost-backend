@@ -8,6 +8,8 @@ use Dotenv\Dotenv;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+require_once __DIR__ . '/../../../vendor/autoload.php';
+
 class ChatsController{
     protected $pdo;
     private $userId;
@@ -258,10 +260,6 @@ class ChatsController{
     }
 
     private function sendConsultMail($firstname, $lastname, $email, $code, $phone){
-        require 'PHPMailer/src/Exception.php';
-        require 'PHPMailer/src/PHPMailer.php';
-        require 'PHPMailer/src/SMTP.php';
-
         // SMTP Configuration
         $mail = new PHPMailer(true);
         try {
