@@ -300,9 +300,9 @@ class ChatsController{
             $response['message'] = "Email failed: {$mail->ErrorInfo}";
         }
 
-        return json_encode([
+        return [
             'status' => $response['status'],
             'message' => $response['message']
-        ]);
+        ];
     }
 }
