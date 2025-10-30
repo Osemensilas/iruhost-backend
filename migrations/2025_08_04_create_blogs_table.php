@@ -7,7 +7,7 @@ return function ($pdo){
             blog_id VARCHAR(100),
             title VARCHAR(255),
             slug VARCHAR(255),
-            content VARCHAR(2000),
+            content LONGTEXT,
             image VARCHAR(300),
             writer VARCHAR(50),
             category VARCHAR(50),
