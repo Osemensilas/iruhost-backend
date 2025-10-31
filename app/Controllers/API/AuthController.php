@@ -254,6 +254,45 @@ class AuthController{
 
         $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
 
+        $passwordCode = $this->sendPasswordCode($name, $randomCode, $email);
+        $codeStatus = $passwordCode['status'] ?? 'unknown';
+        $codeMessage = $passwordCode['msg'] ?? 'unknown';
+
+        if ($codeStatus === "successful"){
+            $stmt = $this->pdo->prepare("SELECT * FROM `forget_password` WHERE email = ?");
+            $stmt->execute([$email]);
+
+            if ($stmt->rowCount() > 0){
+                $stmt = $this->pdo->prepare("UPDATE forget_password SET code = ? WHERE email = ?");
+                $result = $stmt->execute([$expiresAt, $email]);
+
+                if ($result){
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => 'Message Sent Successfullly'
+                    ]);
+                }
+            }else{
+                $stmt = $this->pdo->prepare("INSERT INTO `forget_password`(`email`, `code`) VALUES (?,?)");
+                $result = $stmt->execute([$email, $expiresAt]);
+
+                if ($result){
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => 'Message Sent Successfullly'
+                    ]);
+                }
+            }
+        }else{
+            echo json_encode([
+                'status' => 'error',
+                'message' => $codeMessage
+            ]);
+        }
+    }
+
+    private function sendPasswordCode($name, $randomCode, $email){
+
         $mail = new PHPMailer(true);
 
         try {
@@ -381,41 +420,21 @@ The IruHost Team
             // Send Mail
             if ($mail->send()) {
 
-                $stmt = $this->pdo->prepare("SELECT * FROM `forget_password` WHERE email = ?");
-                $stmt->execute([$email]);
-
-                if ($stmt->rowCount() > 0){
-                    $stmt = $this->pdo->prepare("UPDATE forget_password SET code = ? WHERE email = ?");
-                    $result = $stmt->execute([$expiresAt, $email]);
-
-                    if ($result){
-                        echo json_encode([
-                            'status' => 'success',
-                            'message' => 'Message Sent Successfullly'
-                        ]);
-                    }
-                }else{
-                    $stmt = $this->pdo->prepare("INSERT INTO `forget_password`(`email`, `code`) VALUES (?,?)");
-                    $result = $stmt->execute([$email, $expiresAt]);
-
-                    if ($result){
-                        echo json_encode([
-                            'status' => 'success',
-                            'message' => 'Message Sent Successfullly'
-                        ]);
-                    }
-                }
+                return[
+                    'status' => 'successful',
+                    'msg' => 'Message Sent'
+                ];
             } else {
-                echo json_encode([
+                return[
                     'status' => 'error',
-                    'message' => 'Message not sent. Check connection'
-                ]);
+                    'msg' => 'Message not sent. Check connection'
+                ];
             }
         } catch (Exception $e) {
-            echo json_encode([
+            return[
                 'status' => 'error',
-                'message' => "Email failed: {$mail->ErrorInfo}"
-            ]);
+                'msg' => "Email failed: {$mail->ErrorInfo}"
+            ];
         }
     }
 
