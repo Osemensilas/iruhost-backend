@@ -299,7 +299,7 @@ class AuthController{
             $mail->isSMTP();
             $mail->Host = 'mail.enom.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'contact';
+            $mail->Username = 'contact@iruhost.com';
             $mail->Password = 'Bank$101Onion';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use constant instead of string
             $mail->Port = 465;
