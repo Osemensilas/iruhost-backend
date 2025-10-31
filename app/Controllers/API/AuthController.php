@@ -8,13 +8,24 @@ use PHPMailer\PHPMailer\Exception;
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use App\Core\DB;
+use Dotenv\Dotenv;
 
 class AuthController{
 
     protected $pdo;
+    protected $emailHost;
+    protected $emailPassword;
+    protected $emailEnct;
+    protected $emailPort;
+    protected $emailUsername;
 
     public function __construct() {
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv->load();
         $this->pdo = DB::connection();
+        $this->emailHost = $_ENV['MAIL_HOST'] ?? null;
+        $this->emailUsername = $_ENV['MAIL_USERNAME'] ?? null;
+        $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
     }
 
     public function register(){
@@ -297,10 +308,10 @@ class AuthController{
 
         try {
             $mail->isSMTP();
-            $mail->Host = 'mail.enom.com';
+            $mail->Host = $this->emailHost;
             $mail->SMTPAuth = true;
-            $mail->Username = 'contact@iruhost.com';
-            $mail->Password = 'Bank$101Onion';
+            $mail->Username = $this->emailUsername;
+            $mail->Password = $this->emailPassword;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use constant instead of string
             $mail->Port = 465;
             $mail->Timeout = 30;
