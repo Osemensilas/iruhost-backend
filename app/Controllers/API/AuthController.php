@@ -28,7 +28,7 @@ class AuthController{
         $this->emailHost = $_ENV['MAIL_HOST'] ?? null;
         $this->emailUsername = $_ENV['MAIL_USERNAME'] ?? null;
         $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
-        $this->resend = \Resend::client($_ENV['RESEND_API_KEY']);
+        $this->resend = Resend::client($_ENV['RESEND_API_KEY']);
     }
 
     public function register(){
