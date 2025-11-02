@@ -307,25 +307,29 @@ class AuthController{
     }
 
     private function sendPasswordCode($name, $randomCode, $email){
-        try {
-            $result = $this->resend->emails->send([
-                'from' => 'Your App <noreply@yourdomain.com>',
-                'to' => [$email],
-                'subject' => 'Password Reset Code',
-                'html' => "<p>Hello {$name},</p><p>Your reset code is <strong>{$randomCode}</strong>.</p>"
-            ]);
+        return [
+            'status' => 'successful',
+            'msg' => 'result'
+        ];
+        // try {
+        //     $result = $this->resend->emails->send([
+        //         'from' => 'Your App <noreply@yourdomain.com>',
+        //         'to' => [$email],
+        //         'subject' => 'Password Reset Code',
+        //         'html' => "<p>Hello {$name},</p><p>Your reset code is <strong>{$randomCode}</strong>.</p>"
+        //     ]);
 
-            return [
-                'status' => 'successful',
-                'msg' => $result
-            ];
+        //     return [
+        //         'status' => 'successful',
+        //         'msg' => $result
+        //     ];
 
-        } catch (\Exception $e) {
-            return [
-                'status' => 'error',
-                'msg' => $e->getMessage()
-            ];
-        }
+        // } catch (\Exception $e) {
+        //     return [
+        //         'status' => 'error',
+        //         'msg' => $e->getMessage()
+        //     ];
+        // }
     }
 
     public function updatePassword() {
