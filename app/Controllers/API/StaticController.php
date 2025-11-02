@@ -92,7 +92,7 @@ class StaticController{
 
     public function getBlogBySlug($slug){
 
-        echo "Slug received: " . $slug;
+        echo "Hello World: " . $slug;
         exit;
 
         // if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
