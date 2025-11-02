@@ -7,8 +7,6 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-use Resend\Resend;
-
 use App\Core\DB;
 use Dotenv\Dotenv;
 
@@ -20,7 +18,7 @@ class AuthController{
     protected $emailEnct;
     protected $emailPort;
     protected $emailUsername;
-    protected $resendMail;
+    protected $resend;
 
     public function __construct() {
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
@@ -29,7 +27,7 @@ class AuthController{
         $this->emailHost = $_ENV['MAIL_HOST'] ?? null;
         $this->emailUsername = $_ENV['MAIL_USERNAME'] ?? null;
         $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
-        $this->resendMail = Resend($_ENV['RESEND_API_KEY']);
+        $this->resend = Resend::client('RESEND_API_KEY');
     }
 
     public function register(){
@@ -312,7 +310,7 @@ class AuthController{
             'msg' => 'result'
         ];
         // try {
-        //     $result = $this->resendMail->emails->send([
+        //     $result = $this->resend->emails->send([
         //         'from' => 'Your App <noreply@yourdomain.com>',
         //         'to' => [$email],
         //         'subject' => 'Password Reset Code',
