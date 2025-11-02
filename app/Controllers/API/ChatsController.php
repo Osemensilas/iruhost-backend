@@ -254,7 +254,7 @@ class ChatsController{
         try {
             $result = $this->resend->emails->send([
                 'from' => 'IruHost <contact@iruhost.com>',
-                'to' => ['contact@iruhost.com'],
+                'to' => ['osemensilas@gmail.com'],
                 'subject' => 'Consultation Request',
                 'html' => "<p>Firstname: {$firstname}, Lastname: {$lastname}, Email: {$email}, Phone Code: {$code}, Phone: {$phone}</p>"
             ]);
