@@ -31,7 +31,7 @@ class AuthController{
         $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
         $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
 
-        $this->resend = Resend::client('re_YpFmqEUg_8ezR37PB2xVKeRDWGpbeFg7M');
+        $this->resend = Resend::client('re_DpGtaVPe_jn1hjosLc4tG5ZAPbxrim66w');
     }
 
     public function register(){
