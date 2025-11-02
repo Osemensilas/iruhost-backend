@@ -31,7 +31,7 @@ class AuthController{
         $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
         $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
 
-        $this->resend = Resend::client('re_FVsN1EMi_HfYQBxpWw88paP1WH53ctZSh');
+        $this->resend = Resend::client($this->resendApiCode);
     }
 
     public function register(){
@@ -311,7 +311,7 @@ class AuthController{
     private function sendPasswordCode($name, $randomCode, $email){
         try {
             $result = $this->resend->emails->send([
-                'from' => 'Your App <contact@iruhost.com>',
+                'from' => 'IruHost <contact@iruhost.com>',
                 'to' => [$email],
                 'subject' => 'Password Reset Code',
                 'html' => "<p>Hello {$name},</p><p>Your reset code is <strong>{$randomCode}</strong>.</p>"
