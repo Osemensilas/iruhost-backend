@@ -20,6 +20,7 @@ class AuthController{
     protected $emailPort;
     protected $emailUsername;
     protected $resend;
+    protected $resendApiCode;
 
     public function __construct() {
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
@@ -28,7 +29,9 @@ class AuthController{
         $this->emailHost = $_ENV['MAIL_HOST'] ?? null;
         $this->emailUsername = $_ENV['MAIL_USERNAME'] ?? null;
         $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
-        $this->resend = Resend::client($_ENV['RESEND_API_KEY']);
+        $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
+
+        $this->resend = Resend::client('re_YpFmqEUg_8ezR37PB2xVKeRDWGpbeFg7M');
     }
 
     public function register(){
