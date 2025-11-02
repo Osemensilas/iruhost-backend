@@ -311,7 +311,7 @@ class AuthController{
     private function sendPasswordCode($name, $randomCode, $email){
         try {
             $result = $this->resend->emails->send([
-                'from' => 'Your App <noreply@yourdomain.com>',
+                'from' => 'Your App <contact@iruhost.com>',
                 'to' => [$email],
                 'subject' => 'Password Reset Code',
                 'html' => "<p>Hello {$name},</p><p>Your reset code is <strong>{$randomCode}</strong>.</p>"
