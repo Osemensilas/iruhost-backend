@@ -164,6 +164,8 @@ class AuthController{
                 'message' => 'successful'
             ]);
 
+            $this->regMessage($name, $email);
+
         }catch(Exception $err){
 
             echo json_encode([
@@ -171,6 +173,27 @@ class AuthController{
                 'message' => 'Database Error: ' . $err->getMessage()
             ]);
 
+        }
+    }
+
+    private function regMessage($name, $email){
+        try {
+            $this->resend->emails->send([
+                'from' => 'IruHost <contact@iruhost.com>',
+                'to' => [$email],
+                'subject' => 'Welcome to IruHost',
+                'html' => "
+                <p>Hello {$name},</p>
+                <p>Welcome to <strong>IruHost</strong> — we're excited to have you on board!</p>
+                <p>Your account has been successfully created. You can now manage your domains, hosting, and more from your dashboard.</p>
+                <p>If you need any help, our support team is always here for you.</p>
+                <p>Best regards,<br>
+                The IruHost Team</p>
+                "
+            ]);
+
+        } catch (\Exception $e) {
+            
         }
     }
 
