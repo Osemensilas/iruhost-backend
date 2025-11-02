@@ -10,6 +10,8 @@ use PHPMailer\PHPMailer\Exception;
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
+use Resend;
+
 class ChatsController{
     protected $pdo;
     private $userId;
@@ -18,6 +20,8 @@ class ChatsController{
     protected $emailEnct;
     protected $emailPort;
     protected $emailUsername;
+    protected $resend;
+    protected $resendApiCode;
     public function __construct(){
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
         $dotenv->load();
@@ -26,6 +30,8 @@ class ChatsController{
         $this->emailHost = $_ENV['MAIL_HOST'] ?? null;
         $this->emailUsername = $_ENV['MAIL_USERNAME'] ?? null;
         $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
+        $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
+        $this->resend = Resend::client($this->resendApiCode);
     }
 
     public function createChatUser(){
@@ -228,34 +234,18 @@ class ChatsController{
     }
 
     private function sentChatMessage($message){
-        $mail = new PHPMailer(true);
-
-        try {
-            $mail->isSMTP();
-            $mail->Host       = $this->emailHost; 
-            $mail->SMTPAuth   = true;
-            $mail->Username   = $this->emailUsername; 
-            $mail->Password   = $this->emailPassword; 
-            $mail->SMTPSecure = 'ssl'; 
-            $mail->Port       = 465;
-
-            // Email Headers
-            $mail->isHTML(true);
-            $mail->setFrom('contact@iruhost.com', 'IruHost');
-            $mail->addAddress('osemensilas@gmail.com'); 
-            $mail->Subject = 'New Message from ChatBox';
-            $mail->Body = "
-            <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
-                <h2 style='color: #000000; paddin'>Password Reset</h2>
+       try {
+            $this->resend->emails->send([
+                'from' => 'IruHost <contact@iruhost.com>',
+                'to' => ['osemensilas@gmail.com'],
+                'subject' => 'New Chat',
+                'html' => "
                 <p>{$message}</p>
-            </div>
-            ";
-
-        } catch (Exception $e) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => "Email failed: {$mail->ErrorInfo}"
+                "
             ]);
+
+        } catch (\Exception $e) {
+            
         }
     }
 
