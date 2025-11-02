@@ -251,48 +251,24 @@ class ChatsController{
 
     private function sendConsultMail($firstname, $lastname, $email, $code, $phone){
         // SMTP Configuration
-        $mail = new PHPMailer(true);
         try {
-            $mail->isSMTP();
-            $mail->Host       = $this->emailHost; 
-            $mail->SMTPAuth   = true;
-            $mail->Username   = $this->emailUsername; 
-            $mail->Password   = $this->emailPassword; 
-            $mail->SMTPSecure = 'ssl'; 
-            $mail->Port       = 465;
+            $result = $this->resend->emails->send([
+                'from' => 'IruHost <contact@iruhost.com>',
+                'to' => ['contact@iruhost.com'],
+                'subject' => 'Consultation Request',
+                'html' => "<p>Firstname: {$firstname}, Lastname: {$lastname}, Email: {$email}, Phone Code: {$code}, Phone: {$phone}</p>"
+            ]);
 
-            // Email Headers
-            $mail->isHTML(true);
-            $mail->setFrom('contact@iruhost.com', 'IruHost');
-            $mail->addAddress('osemensilas@gmail.com'); 
-            $mail->Subject = 'New Message from ChatBox';
-            $mail->Body = "
-            <div style='font-family: Arial, sans-serif; color: #333; padding: 20px;'>
-                <h2 style='color: #000000; paddin'>Password Reset</h2>
-                <p>Senders Firstname: {$firstname}</p>
-                <p>Senders Lastname: {$lastname}</p>
-                <p>Senders Email: {$email}</p>
-                <p>Senders Phone Number: {$phone}</p>
-                <p>Country Code: {$code}</p>
-            </div>
-            ";
+            return [
+                'status' => 'successful',
+                'message' => $result
+            ];
 
-            // Send Mail
-            if ($mail->send()) {
-                $response['status'] = 'success';
-                $response['message'] = 'Message sent successfully';
-            } else {
-                $response['status'] = 'error';
-                $response['message'] = 'Message not sent. Check connection';
-            }
-        } catch (Exception $e) {
-            $response['status'] = 'error';
-            $response['message'] = "Email failed: {$mail->ErrorInfo}";
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
         }
-
-        return [
-            'status' => $response['status'],
-            'message' => $response['message']
-        ];
     }
 }
