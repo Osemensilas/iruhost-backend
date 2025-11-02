@@ -317,8 +317,7 @@ class AuthController{
 
             return [
                 'status' => 'successful',
-                'msg' => 'Email sent',
-                'data' => $result
+                'msg' => $result
             ];
 
         } catch (\Exception $e) {
