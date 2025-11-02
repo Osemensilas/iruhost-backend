@@ -20,7 +20,7 @@ class AuthController{
     protected $emailEnct;
     protected $emailPort;
     protected $emailUsername;
-    protected $resend;
+    protected $resendMail;
 
     public function __construct() {
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
@@ -29,7 +29,7 @@ class AuthController{
         $this->emailHost = $_ENV['MAIL_HOST'] ?? null;
         $this->emailUsername = $_ENV['MAIL_USERNAME'] ?? null;
         $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
-        $this->resend = new Resend($_ENV['RESEND_API_KEY']);
+        $this->resendMail = Resend($_ENV['RESEND_API_KEY']);
     }
 
     public function register(){
@@ -312,7 +312,7 @@ class AuthController{
             'msg' => 'result'
         ];
         // try {
-        //     $result = $this->resend->emails->send([
+        //     $result = $this->resendMail->emails->send([
         //         'from' => 'Your App <noreply@yourdomain.com>',
         //         'to' => [$email],
         //         'subject' => 'Password Reset Code',
