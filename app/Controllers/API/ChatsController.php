@@ -374,8 +374,8 @@ class ChatsController{
             return;
         }
 
-        $stmtInsert = $this->pdo->prepare("INSERT INTO `support`(`user_id`, `name`, `email`, `subject`, `department`, `priority`, `message`) VALUES (?,?,?,?,?,?,?)");
-        $result = $stmtInsert->execute([$userId, $name, $email, $subject, $department, $priority, $message]);
+        $stmtInsert = $this->pdo->prepare("INSERT INTO `support`(`user_id`, `name`, `email`, `subject`, `department`, `priority`, `message`, `status`) VALUES (?,?,?,?,?,?,?,?)");
+        $result = $stmtInsert->execute([$userId, $name, $email, $subject, $department, $priority, $message, "not resolved"]);
     
         if (!$result){
             echo json_encode([
