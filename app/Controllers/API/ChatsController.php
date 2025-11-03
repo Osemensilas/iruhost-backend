@@ -390,42 +390,13 @@ class ChatsController{
         ]);
     }
 
-    public function getResolvedTicket(){
+    public function getTickets(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
         }
 
-        $status = 'resolved';
-
-        $stmtTickets = $this->pdo->prepare("SELECT * FROM `support` WHERE status = ?");
-        $result = $stmtTickets->execute([$status]);
-
-        if (!$result){
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'no ticket opened'
-            ]);
-            return;
-        }
-
-        if ($stmtTickets->rowCount() > 0){
-            $rows = $stmtTickets->fetchAll(PDO::FETCH_ASSOC);
-        }
-
-        echo json_encode([
-            'status' => 'success',
-            'message' => $rows
-        ]);
-    }
-
-    public function getUnresolvedTicket(){
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-            return;
-        }
-
-        $status = 'unresolved';
+        $status = $_GET['status'] ?? 'unresolved';
 
         $stmtTickets = $this->pdo->prepare("SELECT * FROM `support` WHERE status = ?");
         $result = $stmtTickets->execute([$status]);
