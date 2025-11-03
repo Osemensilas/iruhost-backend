@@ -39,7 +39,7 @@ class StaticController{
 
         header("Content-Type: application/json");
 
-        $stmt = $this->pdo->prepare("SELECT * FROM blogs ORDER BY id ASC LIMIT 3");
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs ORDER BY id DESC LIMIT 3");
         $stmt->execute();
 
         if ($stmt->rowCount() > 0){
@@ -59,7 +59,7 @@ class StaticController{
 
         $rows = []; 
         
-        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE category = ? ORDER BY id ASC LIMIT 3");
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE category = ? ORDER BY id DESC LIMIT 3");
         $stmt->execute(['Online Business']);
 
         if ($stmt->rowCount() > 0){
