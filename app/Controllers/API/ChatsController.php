@@ -398,8 +398,8 @@ class ChatsController{
 
         $status = $_GET['status'] ?? 'unresolved';
 
-        $stmtTickets = $this->pdo->prepare("SELECT * FROM `support` WHERE status = ?");
-        $result = $stmtTickets->execute([$status]);
+        $stmtTickets = $this->pdo->prepare("SELECT * FROM `support` WHERE status = ? AND user_id = ?");
+        $result = $stmtTickets->execute([$status, $this->userId]);
 
         if (!$result){
             echo json_encode([
