@@ -286,5 +286,7 @@ class ChatsController{
         $department = $data["department"];
         $priority = $data["priority"];
         $message = $data["message"];
+
+        
     }
 }
