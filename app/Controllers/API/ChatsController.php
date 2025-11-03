@@ -409,6 +409,8 @@ class ChatsController{
             return;
         }
 
+        $rows = [];
+
         if ($stmtTickets->rowCount() > 0){
             $rows = $stmtTickets->fetchAll(PDO::FETCH_ASSOC);
         }
