@@ -288,6 +288,92 @@ class ChatsController{
         $message = $data["message"];
         $userId = $this->userId;
 
+        if (empty($email) || empty($subject) || empty($department) || empty($priority) || empty($message)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All field required'
+            ]);
+            return;
+        }
+
+        if (strlen($subject) < 5) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Subject is too short. Please be more specific.'
+            ]);
+            return;
+        }
+
+        if (strlen($subject) > 100) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Subject is too long. Keep it under 100 characters.'
+            ]);
+            return;
+        }
+
+        if ($subject !== strip_tags($subject)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'HTML tags are not allowed in the subject.'
+            ]);
+            return;
+        }
+
+        // Validate email format
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Please enter a valid email address'
+            ]);
+            return;
+        }
+
+        // Validate priority (optional)
+        $allowedPriorities = ['Low', 'Medium', 'High'];
+        if (!in_array($priority, $allowedPriorities)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid priority selected'
+            ]);
+            return;
+        }
+
+        // Validate message content
+        if (strlen($message) < 10) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Your message is too short. Please provide more details.'
+            ]);
+            return;
+        }
+
+        if (strlen($message) > 1000) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Your message is too long. Please shorten it (max 1000 characters).'
+            ]);
+            return;
+        }
+
+        // Prevent HTML or scripts
+        if ($message !== strip_tags($message)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'HTML or script content is not allowed in the message.'
+            ]);
+            return;
+        }
+
+        // Optional: detect spammy content (URLs, etc.)
+        if (preg_match('/https?:\/\//i', $message)) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Links are not allowed in support messages.'
+            ]);
+            return;
+        }
+
         $stmtInsert = $this->pdo->prepare("INSERT INTO `support`(`user_id`, `name`, `email`, `subject`, `department`, `priority`, `message`) VALUES (?,?,?,?,?,?,?)");
         $result = $stmtInsert->execute([$userId, $name, $email, $subject, $department, $priority, $message]);
     
