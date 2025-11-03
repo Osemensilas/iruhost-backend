@@ -413,11 +413,11 @@ class ChatsController{
 
         if ($stmtTickets->rowCount() > 0){
             $rows = $stmtTickets->fetchAll(PDO::FETCH_ASSOC);
-        }
 
-        echo json_encode([
-            'status' => 'success',
-            'message' => $rows
-        ]);
+            echo json_encode([
+                'status' => 'success',
+                'message' => $rows
+            ]);
+        }
     }
 }
