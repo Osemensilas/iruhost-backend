@@ -271,4 +271,20 @@ class ChatsController{
             ];
         }
     }
+
+    public function openTicket(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+        
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $name = $data["name"];
+        $email = $data["email"];
+        $subject = $data["subject"];
+        $department = $data["department"];
+        $priority = $data["priority"];
+        $message = $data["message"];
+    }
 }
