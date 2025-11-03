@@ -374,8 +374,10 @@ class ChatsController{
             return;
         }
 
-        $stmtInsert = $this->pdo->prepare("INSERT INTO `support`(`user_id`, `name`, `email`, `subject`, `department`, `priority`, `message`, `status`) VALUES (?,?,?,?,?,?,?,?)");
-        $result = $stmtInsert->execute([$userId, $name, $email, $subject, $department, $priority, $message, "unresolved"]);
+        $ticketId = uniqid("#", );
+
+        $stmtInsert = $this->pdo->prepare("INSERT INTO `support`(`user_id`, `ticket_id`, `name`, `email`, `subject`, `department`, `priority`, `message`, `status`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $result = $stmtInsert->execute([$userId, $ticketId, $name, $email, $subject, $department, $priority, $message, "unresolved"]);
     
         if (!$result){
             echo json_encode([
