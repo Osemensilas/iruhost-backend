@@ -375,7 +375,7 @@ class ChatsController{
         }
 
         $stmtInsert = $this->pdo->prepare("INSERT INTO `support`(`user_id`, `name`, `email`, `subject`, `department`, `priority`, `message`, `status`) VALUES (?,?,?,?,?,?,?,?)");
-        $result = $stmtInsert->execute([$userId, $name, $email, $subject, $department, $priority, $message, "not resolved"]);
+        $result = $stmtInsert->execute([$userId, $name, $email, $subject, $department, $priority, $message, "unresolved"]);
     
         if (!$result){
             echo json_encode([
@@ -387,6 +387,35 @@ class ChatsController{
         echo json_encode([
             'status' => 'success',
             'message' => 'Your support tick has been opened and active'
+        ]);
+    }
+
+    public function getTicket(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $status = $_GET['status'];
+
+        $stmtTickets = $this->pdo->prepare("SELECT * FROM `support` WHERE status = ?");
+        $result = $stmtTickets->execute([$status]);
+
+        if (!$result){
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'no ticket opened'
+            ]);
+            return;
+        }
+
+        if ($stmtTickets->rowCount() > 0){
+            $rows = $stmtTickets->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => $rows
         ]);
     }
 }

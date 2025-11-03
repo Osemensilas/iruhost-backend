@@ -63,6 +63,7 @@ $router->post('/api/add-chat', [ChatsController::class, 'addChat']);
 $router->get('/api/get-chats', [ChatsController::class, 'getChats']);
 $router->post('/api/consult', [ChatsController::class, 'consult']);
 $router->post('/api/send-ticket', [ChatsController::class, 'openTicket']);
+$router->get('/api/user-tickets', [ChatsController::class, 'getTicket']);
 $router->get('/api/get-dashboard', [UserProducts::class, 'getDashboardProducts']);
 $router->post('/api/get-user-domain-products', [UserProducts::class, 'getDomainProducts']);
 $router->get('/api/get-expiring', [UserProducts::class, 'expiringProduct']);
