@@ -277,7 +277,7 @@ class ChatsController{
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
         }
-        
+
         $data = json_decode(file_get_contents("php://input"), true);
 
         $name = $data["name"];
@@ -286,7 +286,21 @@ class ChatsController{
         $department = $data["department"];
         $priority = $data["priority"];
         $message = $data["message"];
+        $userId = $this->userId;
 
-        
+        $stmtInsert = $this->pdo->prepare("INSERT INTO `support`(`user_id`, `name`, `email`, `subject`, `department`, `priority`, `message`) VALUES (?,?,?,?,?,?,?)");
+        $result = $stmtInsert->execute([$userId, $name, $email, $subject, $department, $priority, $message]);
+    
+        if (!$result){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'We are upgrading our servers. Check back later'
+            ]);
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Your support tick has been opened and active'
+        ]);
     }
 }
