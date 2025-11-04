@@ -157,7 +157,7 @@ class StaticController{
 
         $slug = $data['slug'];
 
-        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE slug != ? ORDER BY RAND()");
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE slug != ? ORDER BY RAND() LIMIT 9");
         $stmt->execute([$slug]);
 
         if ($stmt->rowCount() > 0){
