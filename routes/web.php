@@ -13,6 +13,22 @@ use App\Controllers\API\UserProducts;
 use App\Controllers\API\AdminDashboard;
 use App\Controllers\API\StaticController;
 
+$router->get('/api/test', function() {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'message' => 'Router is working!',
+        'timestamp' => date('Y-m-d H:i:s')
+    ]);
+});
+
+$router->get('/api/test/{id}', function($id) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'message' => 'Dynamic route works!',
+        'id' => $id
+    ]);
+});
+
 $router->get('/api/session', [SessionController::class, 'userSession']);
 $router->get('/api/session-data', [SessionController::class, 'userData']);
 $router->get('/api/session-address', [SessionController::class, 'userAddress']);
