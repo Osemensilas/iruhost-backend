@@ -625,6 +625,27 @@ class AuthController{
         }
     }
 
+    public function getLocation(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $geoplugin = unserialize(file_get_contents('http://www.geoplugin.net/php.gp'));
+        $country = $geoplugin['geoplugin_countryCode']; // e.g., 'US', 'NG'
+        $currency = $geoplugin['geoplugin_currencyCode']; // e.g., 'USD', 'NGN'
+
+        $price_in_naira = 1000;
+
+        if ($currency == "USD") {
+            $conversion_rate = 0.0025; // Example static conversion
+            $price = $price_in_naira * $conversion_rate;
+            echo "$" . number_format($price, 2);
+        } else {
+            echo "₦" . number_format($price_in_naira, 2);
+        }
+    }
+
     public function addWeb(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);

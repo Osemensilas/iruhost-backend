@@ -28,6 +28,7 @@ $router->post('/api/update-password', [AuthController::class, 'updatePassword'])
 $router->post('/api/admin-login', [AuthController::class, 'adminLogin']);
 $router->post('/api/update-naira', [AuthController::class, 'currency']);
 $router->get('/api/get-naira', [AuthController::class, 'getNaira']);
+$router->get('/api/get-user-location', [AuthController::class, 'getLocation']);
 $router->post('/api/add-website', [AuthController::class, 'addWeb']);
 $router->post('/api/update-email', [AuthController::class, 'updateEmail']);
 $router->post('/api/update-address', [AuthController::class, 'updateAddress']);
