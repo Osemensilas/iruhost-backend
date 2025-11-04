@@ -633,32 +633,27 @@ class AuthController{
 
         // Initialize cURL
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://www.geoplugin.net/php.gp");
+        curl_setopt($ch, CURLOPT_URL, "https://ipapi.co/json"); // JSON API
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $response = curl_exec($ch);
         curl_close($ch);
 
-        // Check if response is valid
-        if ($response !== false) {
-            $geoplugin = unserialize($response);
-            $country = $geoplugin['geoplugin_countryCode']; // e.g., 'US', 'NG'
-            $currency = $geoplugin['geoplugin_currencyCode']; // e.g., 'USD', 'NGN'
-        } else {
-            // Default fallback
-            $country = 'NG';
-            $currency = 'NGN';
-        }
+        // Decode JSON response
+        $data = json_decode($response, true);
+
+        // Fallback if API fails
+        $country_code = $data['country'] ?? 'NG';
+        $currency = ($country_code === 'NG') ? 'NGN' : 'USD';
 
         $price_in_naira = 1000;
 
-        if ($currency == "USD") {
-            $conversion_rate = 0.0025; // Example static conversion
+        if ($currency === 'USD') {
+            $conversion_rate = 0.0025; // Example: 1 NGN = 0.0025 USD
             $price = $price_in_naira * $conversion_rate;
             echo "$" . number_format($price, 2);
         } else {
             echo "₦" . number_format($price_in_naira, 2);
         }
-
     }
 
     public function addWeb(){
