@@ -645,7 +645,6 @@ class AuthController{
             if (json_last_error() === JSON_ERROR_NONE && !empty($data['country'])) {
                 $country_code = $data['country'];
             }
-            return;
         }
 
         echo json_encode([
