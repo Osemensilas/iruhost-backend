@@ -638,37 +638,20 @@ class AuthController{
         $response = curl_exec($ch);
         curl_close($ch);
 
-        if (!$response){
-            echo json_encode([
-                "status" => "success",
-                "country" => "NG"
-            ]);
+        $country_code = 'NG';
+
+        if ($response) {
+            $data = json_decode($response, true);
+            if (json_last_error() === JSON_ERROR_NONE && !empty($data['country'])) {
+                $country_code = $data['country'];
+            }
             return;
         }
 
-        // Decode JSON response
-        $data = json_decode($response, true);
-
-        // Fallback if API fails
-        $country_code = $data['country'] ?? 'NG';
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $country_code = 'NG';
-        } else {
-            $country_code = $data['country'] ?? 'NG';
-        }
-        
-        if ($country_code === 'NG') {
-            echo json_encode([
-                "status" => "success",
-                "country" => "NG"
-            ]);
-        } else {
-            echo json_encode([
-                "status" => "success",
-                "country" => $country_code
-            ]);
-        }
+        echo json_encode([
+            "status" => "success",
+            "country" => $country_code
+        ]);
     }
 
     public function addWeb(){
