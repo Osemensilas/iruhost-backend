@@ -92,30 +92,27 @@ class StaticController{
 
     public function getBlogBySlug($slug){
 
-        echo "Hello World: " . $slug;
-        exit;
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
 
-        // if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        //     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-        //     return;
-        // }
+        try {
+            $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE slug = ?");
+            $stmt->execute([$slug]);
 
-        // try {
-        //     $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE slug = ?");
-        //     $stmt->execute([$slug]);
-
-        //     if ($stmt->rowCount() > 0) {
-        //         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        //         echo json_encode([
-        //             'status' => 'success',
-        //             'result' => $row
-        //         ]);
-        //     } else {
-        //         echo json_encode(['status' => 'error', 'message' => 'Blog not found']);
-        //     }
-        // } catch (Exception $e) {
-        //     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-        // }
+            if ($stmt->rowCount() > 0) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                echo json_encode([
+                    'status' => 'success',
+                    'result' => $row
+                ]);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Blog not found']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
     }
 
 
