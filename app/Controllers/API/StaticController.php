@@ -124,15 +124,25 @@ class StaticController{
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE category = ? AND title != ?");
-        $stmt->execute([$data['action'], $data['blog']]);
+        $slug = $data['slug'];
+
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE slug = ?");
+        $stmt->execute([$slug]);
 
         if ($stmt->rowCount() > 0){
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $rows = $stmt->fetch(PDO::FETCH_ASSOC);  
+        }
+
+        $relatedBlogs = $this->pdo->prepare("SELECT * FROM blogs WHERE category = ? AND slug != ? ORDER BY id DESC LIMIT 3");
+        $relatedBlogs->execute([$rows['category'], $slug]);
+
+        if ($relatedBlogs->rowCount() > 0){
+
+            $relatedRows = $relatedBlogs->fetchAll(PDO::FETCH_ASSOC);
 
             echo json_encode([
                 'status' => 'success',
-                'result' => $rows
+                'result' => $relatedRows
             ]);
         }
     }
@@ -145,8 +155,10 @@ class StaticController{
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE title != ? ORDER BY RAND()");
-        $stmt->execute([$data['blog']]);
+        $slug = $data['slug'];
+
+        $stmt = $this->pdo->prepare("SELECT * FROM blogs WHERE slug != ? ORDER BY RAND()");
+        $stmt->execute([$slug]);
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
