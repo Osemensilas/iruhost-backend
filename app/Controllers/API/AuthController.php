@@ -631,9 +631,23 @@ class AuthController{
             return;
         }
 
-        $geoplugin = unserialize(file_get_contents('http://www.geoplugin.net/php.gp'));
-        $country = $geoplugin['geoplugin_countryCode']; // e.g., 'US', 'NG'
-        $currency = $geoplugin['geoplugin_currencyCode']; // e.g., 'USD', 'NGN'
+        // Initialize cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "http://www.geoplugin.net/php.gp");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        // Check if response is valid
+        if ($response !== false) {
+            $geoplugin = unserialize($response);
+            $country = $geoplugin['geoplugin_countryCode']; // e.g., 'US', 'NG'
+            $currency = $geoplugin['geoplugin_currencyCode']; // e.g., 'USD', 'NGN'
+        } else {
+            // Default fallback
+            $country = 'NG';
+            $currency = 'NGN';
+        }
 
         $price_in_naira = 1000;
 
@@ -644,6 +658,7 @@ class AuthController{
         } else {
             echo "₦" . number_format($price_in_naira, 2);
         }
+
     }
 
     public function addWeb(){
