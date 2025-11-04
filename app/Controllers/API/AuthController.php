@@ -651,6 +651,12 @@ class AuthController{
 
         // Fallback if API fails
         $country_code = $data['country'] ?? 'NG';
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $country_code = 'NG';
+        } else {
+            $country_code = $data['country'] ?? 'NG';
+        }
         
         if ($country_code === 'NG') {
             echo json_encode([
@@ -660,7 +666,7 @@ class AuthController{
         } else {
             echo json_encode([
                 "status" => "success",
-                "country" => "US"
+                "country" => $country_code
             ]);
         }
     }
