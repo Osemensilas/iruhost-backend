@@ -638,21 +638,30 @@ class AuthController{
         $response = curl_exec($ch);
         curl_close($ch);
 
+        if (!$response){
+            echo json_encode([
+                "status" => "success",
+                "country" => "NG"
+            ]);
+            return;
+        }
+
         // Decode JSON response
         $data = json_decode($response, true);
 
         // Fallback if API fails
         $country_code = $data['country'] ?? 'NG';
-        $currency = ($country_code === 'NG') ? 'NGN' : 'USD';
-
-        $price_in_naira = 1000;
-
-        if ($currency === 'USD') {
-            $conversion_rate = 0.0025; // Example: 1 NGN = 0.0025 USD
-            $price = $price_in_naira * $conversion_rate;
-            echo "$" . number_format($price, 2);
+        
+        if ($country_code === 'NG') {
+            echo json_encode([
+                "status" => "success",
+                "country" => "NG"
+            ]);
         } else {
-            echo "₦" . number_format($price_in_naira, 2);
+            echo json_encode([
+                "status" => "success",
+                "country" => "US"
+            ]);
         }
     }
 
