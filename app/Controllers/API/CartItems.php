@@ -38,21 +38,18 @@ class CartItems {
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         if ($_GET['country'] === "NG"){
-            echo "NG";
             foreach($rows as $row){
                 if ($row['currency'] === "USD"){
-                    print_r($row);
-                    // $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
-                    // $delete->execute([$row['currency']]);
+                    $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
+                    $delete->execute(["USD"]);
                 }
             }
         }else{
             echo "US";
             foreach($rows as $row){
                 if ($row['currency'] === "NGN"){
-                    print_r($row);
-                    // $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
-                    // $delete->execute([$row['currency']]);
+                    $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
+                    $delete->execute(["NGN"]);
                 }
             }
         }
