@@ -83,6 +83,7 @@ class AddToCart {
         $domainPrice = $data['domainPrice'] ?? null;
         $domainRenew = $data['domainRenew'] ?? null;
         $domainOp = $data['domainOperation'] ?? null;
+        $currency = $data['currency'] ?? null;
         $domainDuration = 1;
         $domainId = uniqid("domain_");
         $domainProduct = 'Domain Registration';
@@ -103,7 +104,7 @@ class AddToCart {
         }
 
         if ($domainOp === 'existing'){
-            $this->addOld($this->userId, $domainName, $hostingName, $hostingPrice, $hostingRenew);
+            $this->addOld($this->userId, $domainName, $hostingName, $hostingPrice, $hostingRenew, $currency);
             return;
         }
         
@@ -112,18 +113,18 @@ class AddToCart {
         $stmt->execute([$domainName, $this->userId]);
 
         if ($stmt->fetch()) {
-            $this->addAny($this->userId, $domainName, $hostingName, $hostingPrice, $hostingRenew);
+            $this->addAny($this->userId, $domainName, $hostingName, $hostingPrice, $hostingRenew, $currency);
             return;
         }
 
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
         try {
-            $stmt->execute([$this->userId, $domainId, $domainProduct, $domainName, $domainPrice, $domainRenew, $domainBilling, $domainName]);
+            $stmt->execute([$this->userId, $domainId, $domainProduct, $domainName, $domainPrice, $domainRenew, $domainBilling, $domainName, $currency]);
 
-            $this->addAny($this->userId, $domainName, $hostingName, $hostingPrice, $hostingRenew);
+            $this->addAny($this->userId, $domainName, $hostingName, $hostingPrice, $hostingRenew, $currency);
         
         } catch (Exception $err) {
             echo json_encode([
@@ -133,16 +134,16 @@ class AddToCart {
         }
     }
 
-    private function addAny($userId, $domainName, $hostingName, $hostingPrice, $hostingRenew) {
+    private function addAny($userId, $domainName, $hostingName, $hostingPrice, $hostingRenew, $currency) {
 
         $productId = uniqid('hosting_');
         $product = "Hosting Registration";
         
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         try{
-            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $hostingRenew, $domainName]);
+            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $hostingRenew, $domainName, $currency]);
         
             echo json_encode([
                 'status' => 'success',
@@ -156,16 +157,16 @@ class AddToCart {
         }
     }
 
-    private function addOld($userId, $domainName, $hostingName, $hostingPrice, $hostingRenew) {
+    private function addOld($userId, $domainName, $hostingName, $hostingPrice, $hostingRenew, $currency) {
 
         $productId = uniqid('hosting_');
         $product = "Hosting Registration";
         
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         try{
-            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $hostingRenew, $domainName]);
+            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $hostingRenew, $domainName, $currency]);
         
             echo json_encode([
                 'status' => 'success',
