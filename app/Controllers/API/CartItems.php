@@ -39,21 +39,21 @@ class CartItems {
 
         if ($_GET['country'] === "NG"){
             foreach($rows as $row){
-                if ($row['currency'] !== "USD"){
+                if ($row['currency'] === "USD"){
+                    $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
+                    $delete->execute([$row['currency']]);
+                }
+            }
+        }else{
+            foreach($rows as $row){
+                if ($row['currency'] === "NGN"){
                     $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
                     $delete->execute([$row['currency']]);
                 }
             }
         }
         
-        if ($_GET['country'] === "USD"){
-            foreach($rows as $row){
-                if ($row['currency'] !== "NGN"){
-                    $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
-                    $delete->execute([$row['currency']]);
-                }
-            }
-        }
+        
 
         if ($rows) {
             echo json_encode([
