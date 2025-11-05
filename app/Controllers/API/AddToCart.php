@@ -29,6 +29,7 @@ class AddToCart {
         $domainPrice = $data['cartDomainPrice'] ?? null;
         $domainRenew = $data['cartDomainRenew'] ?? null;
         $domainDuration = $data['cartDomainDuration'] ?? null;
+        $currency = $data['currency'] ?? null;
         $product = 'Domain Registration';
         $billing = 'year';
         $productId = uniqid("domain_");
@@ -51,11 +52,11 @@ class AddToCart {
         }
 
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`,`currency`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)");
 
         try {
-            $stmt->execute([$this->userId, $productId, $product, $domainName, $domainPrice, $domainRenew, $billing, $domainName]);
+            $stmt->execute([$this->userId, $productId, $product, $domainName, $domainPrice, $domainRenew, $billing, $domainName, $currency]);
 
             echo json_encode([
                 'status' => 'success',
