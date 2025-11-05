@@ -20,7 +20,10 @@ class CartItems {
         $this->userId = $_SESSION['user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
         $this->publicKey = $_ENV['FLUTTERWAVE_PUBLIC_KEY'] ?? null;
     }
+
     public function cartItems() {
+
+        header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
@@ -32,31 +35,27 @@ class CartItems {
             return;
         }
 
-        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ?");
-        $stmt->execute([$this->userId]);
+        $country = $_GET['country'] ?? null;
 
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        if ($_GET['country'] === "NG"){
-            foreach($rows as $row){
-                if ($row['currency'] === "USD"){
-                    $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
-                    $delete->execute(["USD"]);
-                }
-            }
-        }else{
-            echo "US";
-            foreach($rows as $row){
-                if ($row['currency'] === "NGN"){
-                    $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
-                    $delete->execute(["NGN"]);
-                }
-            }
+        if (!$country) {
+            echo json_encode(['status' => 'error', 'message' => 'Country not specified']);
+            return;
         }
         
+        if ($country === "NG") {
+            $delete = $this->pdo->prepare("DELETE FROM cart WHERE user_id = ? AND currency = ?");
+            $delete->execute([$this->userId, "USD"]);
+        } else {
+            $delete = $this->pdo->prepare("DELETE FROM cart WHERE user_id = ? AND currency = ?");
+            $delete->execute([$this->userId, "NGN"]);
+        }
+        
+        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ?");
+        $stmt->execute([$this->userId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
 
-        if ($rows) {
+        if ($rows && count($rows) > 0) {
             echo json_encode([
                 'status' => 'success',
                 'items' => $rows
@@ -64,7 +63,7 @@ class CartItems {
         } else {
             echo json_encode([
                 'status' => 'empty',
-                'items' => 'No items found in cart.'
+                'items' => []
             ]);
         }
     }
