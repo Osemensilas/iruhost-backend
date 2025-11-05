@@ -37,6 +37,8 @@ class CartItems {
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        echo $_GET['country'];
+
         if ($_GET['country'] === "NG"){
             foreach($rows as $row){
                 if ($row['currency'] === "USD"){
