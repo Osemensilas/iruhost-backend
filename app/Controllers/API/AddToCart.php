@@ -119,7 +119,7 @@ class AddToCart {
 
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
             (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         try {
             $stmt->execute([$this->userId, $domainId, $domainProduct, $domainName, $domainPrice, $domainRenew, $domainBilling, $domainName, $currency]);
