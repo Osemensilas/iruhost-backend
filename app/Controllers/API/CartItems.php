@@ -22,7 +22,7 @@ class CartItems {
     }
     public function cartItems() {
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
         }
@@ -32,10 +32,28 @@ class CartItems {
             return;
         }
 
+        $data = json_decode(file_get_contents("php://input"), true);
+
         $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ?");
         $stmt->execute([$this->userId]);
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($data['currency'] && $data['currency'] != "NG"){
+            foreach($rows as $row){
+                if ($row['currency'] !== "USD"){
+                    $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
+                    $delete->execute([$data['currency']]);
+                }
+            }
+        }else{
+            foreach($rows as $row){
+                if ($row['currency'] !== "NGN"){
+                    $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
+                    $delete->execute([$data['currency']]);
+                }
+            }
+        }
 
         if ($rows) {
             echo json_encode([
