@@ -191,6 +191,7 @@ class AddToCart {
         $sslName = $data['product_name'] ?? null;
         $sslPrice = $data['price'] ?? null;
         $sslRenew = $data['price'] ?? null;
+        $currency = $data['currency'] ?? null;
         $sslDuration = 1;
         $sslId = uniqid("ssl_");
         $sslProduct = 'SSL Registration';
@@ -214,11 +215,11 @@ class AddToCart {
         }
 
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         try {
-            $stmt->execute([$this->userId, $sslId, $sslProduct, $sslName, $sslPrice, $sslRenew, $sslBilling, $sslDomain]);
+            $stmt->execute([$this->userId, $sslId, $sslProduct, $sslName, $sslPrice, $sslRenew, $sslBilling, $sslDomain, $currency]);
             
             echo json_encode([
                 'status' => 'success',
@@ -243,6 +244,7 @@ class AddToCart {
         $emailName = $data['emailName'];
         $emailPrice = $data['emailPrice'];
         $emailRenew = $data['emailPrice'] ?? null;
+        $currency = $data['currency'] ?? null;
         $emailDuration = 1;
         $emailId = uniqid("email_");
         $emailProduct = 'Email Registration';
@@ -266,11 +268,11 @@ class AddToCart {
         }
 
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
         try {
-            $stmt->execute([$this->userId, $emailId, $emailProduct, $emailName, $emailPrice, $emailRenew, $emailBilling, $emailDomain]);
+            $stmt->execute([$this->userId, $emailId, $emailProduct, $emailName, $emailPrice, $emailRenew, $emailBilling, $emailDomain, $currency]);
             
             echo json_encode([
                 'status' => 'success',
