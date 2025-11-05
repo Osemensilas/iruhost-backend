@@ -41,7 +41,7 @@ class CartItems {
             foreach($rows as $row){
                 if ($row['currency'] !== "USD"){
                     $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
-                    $delete->execute([$data['currency']]);
+                    $delete->execute([$row['currency']]);
                 }
             }
         }
@@ -50,7 +50,7 @@ class CartItems {
             foreach($rows as $row){
                 if ($row['currency'] !== "NGN"){
                     $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
-                    $delete->execute([$data['currency']]);
+                    $delete->execute([$row['currency']]);
                 }
             }
         }
