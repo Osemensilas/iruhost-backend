@@ -39,14 +39,16 @@ class CartItems {
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($data['currency'] && $data['currency'] != "NG"){
+        if ($data['country'] === "NG"){
             foreach($rows as $row){
                 if ($row['currency'] !== "USD"){
                     $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
                     $delete->execute([$data['currency']]);
                 }
             }
-        }else{
+        }
+        
+        if ($data['country'] === "USD"){
             foreach($rows as $row){
                 if ($row['currency'] !== "NGN"){
                     $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
