@@ -40,8 +40,8 @@ class CartItems {
         if ($_GET['country'] === "NG"){
             echo "NG";
             foreach($rows as $row){
-                print_r($row);
                 if ($row['currency'] === "USD"){
+                    print_r($row);
                     // $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
                     // $delete->execute([$row['currency']]);
                 }
@@ -49,8 +49,8 @@ class CartItems {
         }else{
             echo "US";
             foreach($rows as $row){
-                print_r($row);
                 if ($row['currency'] === "NGN"){
+                    print_r($row);
                     // $delete = $this->pdo->prepare("DELETE FROM `cart` WHERE currency = ?");
                     // $delete->execute([$row['currency']]);
                 }
