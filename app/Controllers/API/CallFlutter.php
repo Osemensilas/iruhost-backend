@@ -640,20 +640,52 @@ class CallFlutter {
             $this->resend->emails->send([
                 'from' => 'IruHost <contact@iruhost.com>',
                 'to' => [$userEmail],
-                'subject' => 'cPanel Account Information',
+                'subject' => 'Your cPanel Account Information',
                 'html' => "
-                <p>Dear {$clientName},</p>
-                <p>Your hosting account for <strong>{$domainCreated}</strong> has been successfully set up.</p>
-                <p>You can log in to your cPanel to manage your website, emails, and files using the details below:</p>
-                <ul>
-                    <li><strong>Login URL:</strong> <a href='https://{$this->cpanelHostname}:2083'>https://{$this->cpanelHostname}:2083</a></li>
-                    <li><strong>Username:</strong> {$usernameCreated}</li>
-                    <li><strong>Password:</strong> {$passwordCreated}</li>
-                </ul>
-                <p>If you registered a new domain, please note that it may take up to 72 hours for DNS propagation.</p>
-                <p>Thank you for choosing IruHost!</p>
+                <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+                <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+                    
+                    <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>Welcome to IruHost</h2>
+                    
+                    <p style='color: #333;'>Dear <strong>{$clientName}</strong>,</p>
+                    
+                    <p style='color: #333; line-height: 1.6;'>
+                    Your hosting account for <strong style='color:#0056b3;'>{$domainCreated}</strong> has been successfully set up.
+                    You can now log in to your cPanel to manage your website, emails, and files using the details below:
+                    </p>
+                    
+                    <table cellpadding='8' cellspacing='0' style='width:100%; border-collapse: collapse; margin: 20px 0;'>
+                    <tr style='background-color:#f0f4ff;'>
+                        <td style='width:35%; font-weight:bold; color:#333;'>Login URL:</td>
+                        <td><a href='https://{$this->cpanelHostname}:2083' style='color:#007bff; text-decoration:none;'>https://{$this->cpanelHostname}:2083</a></td>
+                    </tr>
+                    <tr>
+                        <td style='font-weight:bold; color:#333;'>Username:</td>
+                        <td style='color:#555;'>{$usernameCreated}</td>
+                    </tr>
+                    <tr style='background-color:#f0f4ff;'>
+                        <td style='font-weight:bold; color:#333;'>Password:</td>
+                        <td style='color:#555;'>{$passwordCreated}</td>
+                    </tr>
+                    </table>
+
+                    <p style='color:#333; line-height:1.6;'>
+                    <em>Note:</em> If you registered a new domain, please allow up to <strong>72 hours</strong> for DNS propagation.
+                    </p>
+                    
+                    <div style='text-align:center; margin-top:30px;'>
+                    <a href='https://{$this->cpanelHostname}:2083' style='display:inline-block; background-color:#007bff; color:#fff; text-decoration:none; padding:12px 25px; border-radius:6px; font-weight:bold;'>Login to cPanel</a>
+                    </div>
+
+                    <p style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
+                    Thank you for choosing <strong>IruHost</strong>.<br>
+                    Need help? Contact us at <a href='mailto:contact@iruhost.com' style='color:#007bff;'>contact@iruhost.com</a>
+                    </p>
+                </div>
+                </div>
                 "
             ]);
+
 
         } catch (\Exception $e) {
             
