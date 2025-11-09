@@ -585,7 +585,7 @@ class CallFlutter {
 
                 if ($insert){
                     $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ?");
-                    $stmt->execute([$url, $this->userId]);
+                    $stmt->execute([$url, $userId]);
 
                     return [
                         'status' => 'success',
