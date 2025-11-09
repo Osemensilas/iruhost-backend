@@ -395,7 +395,7 @@ class CallFlutter {
         $whm_token = $this->cpanelApiToken;
 
         // Create cPanel account via WHM API
-        $api_endpoint = "https://{$whm_host}:{$whm_port}/json-api/createacct?api.version=1";
+        $api_endpoint = "https://cloud.webhostingbliss.com:2087/json-api/createacct?api.version=1";
 
         // Account details
         $account_data = [
@@ -414,7 +414,7 @@ class CallFlutter {
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["Authorization: whm {$whm_username}:$whm_token"],
+            CURLOPT_HTTPHEADER => ["Authorization: whm iruhostc:Y7CYGX5H6H9PKKKVEN7CCE5XEHER1OY0"],
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => http_build_query($account_data),
             CURLOPT_TIMEOUT => 60,
