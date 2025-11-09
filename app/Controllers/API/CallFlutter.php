@@ -497,7 +497,6 @@ class CallFlutter {
         $userId = "iru_6907ae4b6d0cd";
         $userEmail = "ahbieosezua@gmail.com";
         $domain = "claimfeesol.com";
-        $hostingName = "claimfeesol.com";
         $password = $this->generateSecurePassword();
         $expiryDate = "2026-11-09 11:55:46";
         $clientName = "Abigail Osezua";
