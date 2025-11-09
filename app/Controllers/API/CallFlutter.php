@@ -462,7 +462,7 @@ class CallFlutter {
                 
                 $url = "https://{$domain}:2083/";
 
-                $this->sendHostingMessage($usernameCreated, $passwordCreated, $domainCreated, $ipAddress, $userEmail, $clientName);
+                $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
 
                 if ($insert){
                     $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ?");
@@ -582,7 +582,7 @@ class CallFlutter {
                 
                 $url = "https://{$domain}:2083/";
 
-                $this->sendHostingMessage($usernameCreated, $passwordCreated, $domainCreated, $ipAddress, $userEmail, $clientName);
+                $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
 
                 if ($insert){
                     $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ?");
@@ -635,7 +635,7 @@ class CallFlutter {
         return $password;
     }
 
-    private function sendHostingMessage($usernameCreated, $passwordCreated, $domainCreated, $ipAddress, $userEmail, $clientName){
+    private function sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName){
         try {
             $this->resend->emails->send([
                 'from' => 'IruHost <contact@iruhost.com>',
@@ -665,7 +665,7 @@ class CallFlutter {
                     </tr>
                     <tr style='background-color:#f0f4ff;'>
                         <td style='font-weight:bold; color:#333;'>Password:</td>
-                        <td style='color:#555;'>{$passwordCreated}</td>
+                        <td style='color:#555;'>{$password}</td>
                     </tr>
                     </table>
 
