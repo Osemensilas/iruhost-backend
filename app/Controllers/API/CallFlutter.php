@@ -507,6 +507,8 @@ class CallFlutter {
         $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', "Abigail Osezua"), 0, 8)) . rand(10, 99);
         $username = substr($username, 0, 16);
 
+        echo "Hello World" . $username;
+
         $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
         $checkStmt->execute([$hostingName]);
         if ($checkStmt->fetchColumn() > 0) {
