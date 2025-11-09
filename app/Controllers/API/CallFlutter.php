@@ -465,8 +465,8 @@ class CallFlutter {
                 $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
 
                 if ($insert){
-                    $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ?");
-                    $stmt->execute([$url, $this->userId]);
+                    $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product = ?");
+                    $stmt->execute([$url, $this->userId, 'hosting']);
 
                     return [
                         'status' => 'success',
@@ -587,8 +587,8 @@ class CallFlutter {
                 $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
 
                 if ($insert){
-                    $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ?");
-                    $stmt->execute([$url, $userId]);
+                    $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product = ?");
+                    $stmt->execute([$url, $userId, 'hosting']);
 
                     echo json_encode ([
                         'status' => 'success',
