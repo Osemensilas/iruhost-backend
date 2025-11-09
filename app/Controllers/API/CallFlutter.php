@@ -487,6 +487,125 @@ class CallFlutter {
         }
     }
 
+    public function adminCreateHosting(){
+
+        $productId = uniqid('prod_');
+        $product = 'hosting';
+        $text = 'Cpanel';
+        $hostingName = "iruhostc_starter";
+        $billing = "year";
+        $userId = "iru_6907ae4b6d0cd";
+        $userEmail = "ahbieosezua@gmail.com";
+        $domain = "claimfeesol.com";
+        $hostingName = "claimfeesol.com";
+        $password = $this->generateSecurePassword();
+        $expiryDate = "2026-11-09 11:55:46";
+        $clientName = "Abigail Osezua";
+
+        $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
+
+        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', "Abigail Osezua"), 0, 8)) . rand(10, 99);
+        $username = substr($username, 0, 16);
+
+        $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
+        $checkStmt->execute([$hostingName]);
+        if ($checkStmt->fetchColumn() > 0) {
+            $username .= rand(100, 999); // make it more unique
+        }
+
+        // Create cPanel account via WHM API
+        $api_endpoint = "https://cloud.webhostingbliss.com:2087/json-api/createacct?api.version=1";
+
+        // Account details
+        $account_data = [
+            'username' => $username,
+            'domain' => $domain,
+            'password' => $password,
+            'plan' => $hostingName,
+            'contactemail' => $userEmail,
+        ];
+
+        // Initialize cURL
+        $curl = curl_init($api_endpoint);
+
+        // Set cURL options
+        curl_setopt_array($curl, [
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ["Authorization: whm iruhostc:Y7CYGX5H6H9PKKKVEN7CCE5XEHER1OY0"],
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => http_build_query($account_data),
+            CURLOPT_TIMEOUT => 60,
+        ]);
+
+        // Execute request
+        $result = curl_exec($curl);
+
+        // Check for cURL errors
+        if ($result === false) {
+            return [
+                'status' => 'error',
+                'message' => 'Unable to reach WHM server: ' . curl_error($curl)
+            ];
+        }
+
+        // Close cURL
+        curl_close($curl);
+
+        file_put_contents(__DIR__ . '/whm_log.txt', date('Y-m-d H:i:s') . " - $result\n", FILE_APPEND);
+
+
+        // Process the API response
+        if ($result) {
+
+            $decoded_result = json_decode($result, true);
+
+            // Access WHM metadata
+            $reason = $decoded_result['metadata']['reason'] ?? '';
+            $raw_output = $decoded_result['metadata']['output']['raw'] ?? '';
+
+            // Extract key values from raw output (regex)
+            preg_match('/UserName:\s*(\S+)/', $raw_output, $usernameMatch);
+            preg_match('/PassWord:\s*\(([^)]+)\)/', $raw_output, $passwordMatch);
+            preg_match('/Domain:\s*(\S+)/', $raw_output, $domainMatch);
+
+            $usernameCreated = $usernameMatch[1] ?? '';
+            $passwordCreated = $passwordMatch[1] ?? '';
+            $domainCreated   = $domainMatch[1] ?? '';
+            $ipAddress       = $decoded_result['data']['ip'] ?? '';
+
+            if (stripos($reason, 'Account Creation Ok') !== false){
+                $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+                $insert = $stmt->execute([$userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
+                
+                $url = "https://{$domain}:2083/";
+
+                $this->sendHostingMessage($usernameCreated, $passwordCreated, $domainCreated, $ipAddress, $userEmail, $clientName);
+
+                if ($insert){
+                    $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ?");
+                    $stmt->execute([$url, $this->userId]);
+
+                    return [
+                        'status' => 'success',
+                        'message' => 'Hosting account created successfully'
+                    ];
+                }
+            }else{
+                return [
+                    'status' => 'success',
+                    'message' => "Here is the result: " . json_encode($decoded_result)
+                ];
+            }
+        } else {
+            return [
+                'status' => 'error',
+                'message' => 'Failed to get API response.'
+            ];
+        }
+    }
+
     private function generateSecurePassword($length = 12){
         // Define character sets
         $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
