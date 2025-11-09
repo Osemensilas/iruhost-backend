@@ -580,7 +580,9 @@ class CallFlutter {
                 $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
                 $insert = $stmt->execute([$userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
                 
-                $url = "https://{$domain}:2083/";
+                $autoLoginUrl = $this->createCpanelAutoLoginUrl($username, $domain);
+
+                $url = $autoLoginUrl ?: "https://{$domain}:2083/";
 
                 $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
 
@@ -605,6 +607,46 @@ class CallFlutter {
                 'message' => 'Failed to get API response.'
             ]);
         }
+    }
+
+    private function createCpanelAutoLoginUrl($username, $domain) {
+    // WHM API endpoint for creating user session
+        $api_endpoint = "https://{$this->cpanelHostname}:2087/json-api/create_user_session";
+        
+        $session_data = [
+            'api.version' => '1',
+            'user' => $username,
+            'service' => 'cpaneld'
+        ];
+        
+        $curl = curl_init($api_endpoint);
+        
+        curl_setopt_array($curl, [
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ["Authorization: whm {$this->cpanelUsername}:{$this->cpanelApiToken}"],
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => http_build_query($session_data),
+            CURLOPT_TIMEOUT => 30,
+        ]);
+        
+        $result = curl_exec($curl);
+        curl_close($curl);
+        
+        if ($result) {
+            $decoded = json_decode($result, true);
+            
+            // Extract the session URL
+            $sessionUrl = $decoded['data']['url'] ?? '';
+            
+            if ($sessionUrl) {
+                return $sessionUrl;
+            }
+        }
+        
+        // Fallback to regular login URL if auto-login fails
+        return "https://{$domain}:2083/";
     }
 
     private function generateSecurePassword($length = 12){
