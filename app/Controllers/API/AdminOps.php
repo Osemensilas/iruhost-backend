@@ -388,4 +388,8 @@ class AdminOps{
             'message' => 'TLD added successfully'
         ]);
     }
+
+    public function adminTest(){
+        
+    }
 }

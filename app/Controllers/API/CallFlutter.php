@@ -4,6 +4,7 @@ namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
 use Dotenv\Dotenv;
+use Resend;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -20,6 +21,8 @@ class CallFlutter {
     protected $cpanelHostname;
     protected $encryptionKey;
     protected $encryptionIV;
+    protected $resend;
+    protected $resendApiCode;
 
     public function __construct(){
 
@@ -36,6 +39,8 @@ class CallFlutter {
         $this->cpanelHostname = $_ENV['CPANEL_HOST'] ?? null;
         $this->encryptionKey = hash('sha256', $_ENV['ENCRYPTION_KEY']);
         $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
+        $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
+        $this->resend = Resend::client($this->resendApiCode);
     }
 
     public function paymentSuccessful(){
@@ -363,12 +368,15 @@ class CallFlutter {
             ];
         }
 
+        $userEmail = $userRow['email'];
+        $clientName = $userRow['name'];
+
         // Generate unique cPanel username (max 16 characters)
         $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', $userRow['name']), 0, 8)) . rand(10, 99);
         $username = substr($username, 0, 16);
 
         $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
-        $checkStmt->execute([$productName]);
+        $checkStmt->execute([$hostingName]);
         if ($checkStmt->fetchColumn() > 0) {
             $username .= rand(100, 999); // make it more unique
         }
@@ -387,7 +395,7 @@ class CallFlutter {
         $whm_token = $this->cpanelApiToken;
 
         // Create cPanel account via WHM API
-        $api_endpoint = "https://serverr.webhostingbliss.com:{$whm_port}/json-api/createacct?api.version=1";
+        $api_endpoint = "https://{$whm_host}:{$whm_port}/json-api/createacct?api.version=1";
 
         // Account details
         $account_data = [
@@ -406,7 +414,7 @@ class CallFlutter {
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["Authorization: whm iruhostc:Y7CYGX5H6H9PKKKVEN7CCE5XEHER1OY0"],
+            CURLOPT_HTTPHEADER => ["Authorization: whm {$whm_username}:$whm_token"],
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => http_build_query($account_data),
             CURLOPT_TIMEOUT => 60,
@@ -443,17 +451,18 @@ class CallFlutter {
             preg_match('/PassWord:\s*\(([^)]+)\)/', $raw_output, $passwordMatch);
             preg_match('/Domain:\s*(\S+)/', $raw_output, $domainMatch);
 
-            $username_created = $usernameMatch[1] ?? '';
-            $password_created = $passwordMatch[1] ?? '';
-            $domain_created   = $domainMatch[1] ?? '';
-            $ip_address       = $decoded_result['data']['ip'] ?? '';
+            $usernameCreated = $usernameMatch[1] ?? '';
+            $passwordCreated = $passwordMatch[1] ?? '';
+            $domainCreated   = $domainMatch[1] ?? '';
+            $ipAddress       = $decoded_result['data']['ip'] ?? '';
 
             if (stripos($reason, 'Account Creation Ok') !== false){
                 $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
                 $insert = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
                 
-                $login_data = json_decode($login_response, true);
-                $url = $login_data['data']['url'] ?? '';
+                $url = "https://{$domain}:2083/";
+
+                $this->sendHostingMessage($usernameCreated, $passwordCreated, $domainCreated, $ipAddress, $userEmail, $clientName);
 
                 if ($insert){
                     $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ?");
@@ -506,6 +515,30 @@ class CallFlutter {
         return $password;
     }
 
+    private function sendHostingMessage($usernameCreated, $passwordCreated, $domainCreated, $ipAddress, $userEmail, $clientName){
+        try {
+            $this->resend->emails->send([
+                'from' => 'IruHost <contact@iruhost.com>',
+                'to' => [$userEmail],
+                'subject' => 'cPanel Account Information',
+                'html' => "
+                <p>Dear {$clientName},</p>
+                <p>Your hosting account for <strong>{$domainCreated}</strong> has been successfully set up.</p>
+                <p>You can log in to your cPanel to manage your website, emails, and files using the details below:</p>
+                <ul>
+                    <li><strong>Login URL:</strong> <a href='https://{$this->cpanelHostname}:2083'>https://{$this->cpanelHostname}:2083</a></li>
+                    <li><strong>Username:</strong> {$usernameCreated}</li>
+                    <li><strong>Password:</strong> {$passwordCreated}</li>
+                </ul>
+                <p>If you registered a new domain, please note that it may take up to 72 hours for DNS propagation.</p>
+                <p>Thank you for choosing IruHost!</p>
+                "
+            ]);
+
+        } catch (\Exception $e) {
+            
+        }
+    }
 
     private function webApp($productName, $cartId, $domain){
         $productId = uniqid('prod_');

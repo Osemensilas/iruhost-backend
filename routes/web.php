@@ -86,6 +86,7 @@ $router->post('/api/send-admin-chat', [AdminOps::class, 'sendChat']);
 $router->post('/api/add-tld', [AdminOps::class, 'addTld']);
 $router->post('/api/update-admin-chat', [AdminOps::class, 'updateChats']);
 $router->get('/api/run-migrations', [AdminOps::class, 'updateMigrations']);
+$router->get('/api/run-test', [AdminOps::class, 'adminTest']);
 $router->get('/api/get-blogs', [StaticController::class, 'getBlogs']);
 $router->get('/api/get-recent-blogs', [StaticController::class, 'recentBlogs']);
 $router->get('/api/get-todays-blogs', [StaticController::class, 'todayBlogs']);
