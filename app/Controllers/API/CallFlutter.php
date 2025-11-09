@@ -544,10 +544,10 @@ class CallFlutter {
 
         // Check for cURL errors
         if ($result === false) {
-            return [
+            echo json_encode( [
                 'status' => 'error',
                 'message' => 'Unable to reach WHM server: ' . curl_error($curl)
-            ];
+            ]);
         }
 
         // Close cURL
@@ -587,10 +587,10 @@ class CallFlutter {
                     $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ?");
                     $stmt->execute([$url, $userId]);
 
-                    return [
+                    echo json_encode ([
                         'status' => 'success',
                         'message' => 'Hosting account created successfully'
-                    ];
+                    ]);
                 }
             }else{
                 return [
@@ -599,10 +599,10 @@ class CallFlutter {
                 ];
             }
         } else {
-            return [
+            echo json_encode( [
                 'status' => 'error',
                 'message' => 'Failed to get API response.'
-            ];
+            ]);
         }
     }
 
