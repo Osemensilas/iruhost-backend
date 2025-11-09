@@ -31,7 +31,7 @@ class CallFlutter {
 
         $this->pdo = DB::connection();
         $this->secretKey = $_ENV['FLUTTERWAVE_SECRETE_KEY'] ?? null;
-        $this->userId = $_SESSION['user']['user_id'];
+        $this->userId = $_SESSION['user']['user_id'] ?? null;
         $this->enomUserId = $_ENV['ENOM_USER_ID'];
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
         $this->cpanelUsername = $_ENV['CPANEL_USERNAME'] ?? null;
