@@ -150,7 +150,34 @@ class DomainRegistration{
     private function nigerianDomain($data){
         $domainName = $data;
 
-        echo $domainName;
+        $endpoint   = "https://domainreseller.prymhosting.com/modules/addons/DomainsReseller/api/index.php";
+        $action     = "/domains/lookup";
+        $params     = [
+            "domain"    => "$domainName",
+            "regperiod" => "1",
+            "addons"    => [
+                "dnsmanagement"     => 0,
+                "emailforwarding"   => 1,
+                "idprotection"      => 1,
+            ]
+        ];
+        $headers = [
+            "username: osemensilas@gmail.com",
+            "token: ". base64_encode(hash_hmac("sha256", "1234567890QWERTYUIOPASDFGHJKLZXCVBNM", "osemensilas@gmail.com:".gmdate("y-m-d H")))
+        ];
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        print_r($response);
     }
 
     public function existingCheck(){
