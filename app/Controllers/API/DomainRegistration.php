@@ -151,7 +151,7 @@ class DomainRegistration{
         $domainName = $data;
 
         $endpoint   = "https://domainreseller.prymhosting.com/modules/addons/DomainsReseller/api/index.php";
-        $action     = "domains/lookup";
+        $action     = "/domains/lookup";
         $params     = [
             "domain"    => $domainName,
             "regperiod" => "1",
