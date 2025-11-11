@@ -51,6 +51,27 @@ class DomainRegistration{
 
         $tdls = [substr($data, strpos($data, '.') + 1), 'com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
         $sld = substr($data, 0, strpos($data, '.'));
+
+        $domainTld = substr($data, strpos($data, '.') + 1);
+
+        $ngTld = [
+            'ng',          // root country code
+            'com.ng',      // for commercial entities
+            'org.ng',      // for non-profits
+            'gov.ng',      // for government institutions
+            'edu.ng',      // for accredited educational institutions
+            'net.ng',      // for network providers and ISPs
+            'sch.ng',      // for primary and secondary schools
+            'name.ng',     // for individuals
+            'mobi.ng',     // for mobile services and websites
+            'mil.ng',      // for military institutions
+            'i.ng',        // for personal or individual projects
+        ];
+
+        if (in_array($domainTld, $ngTld)){
+            $this->nigerianDomain($data);
+            return;
+        }
         $myCharge = 3;
 
         foreach($tdls as $tdl){
@@ -124,6 +145,12 @@ class DomainRegistration{
             'regPrice' => $regPrice,
             'renewPrice' => $renewPrice
         ]);
+    }
+
+    private function nigerianDomain($data){
+        $domainName = $data;
+
+        echo $domainName;
     }
 
     public function existingCheck(){
