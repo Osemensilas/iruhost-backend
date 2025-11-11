@@ -150,6 +150,8 @@ class DomainRegistration{
     private function nigerianDomain($data){
         $domainName = $data;
 
+        echo $domainName;
+
         $endpoint   = "https://domainreseller.prymhosting.com/modules/addons/DomainsReseller/api/index.php";
         $action     = "/domains/lookup";
         $params     = [
