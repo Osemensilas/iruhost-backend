@@ -648,7 +648,7 @@ class CallFlutter {
         }
         
         // Fallback to regular login URL if auto-login fails
-        return "https://{$domain}:2083/";
+        return "https://cloud.webhostingbliss.com:2087/";
     }
 
     private function generateSecurePassword($length = 12){
