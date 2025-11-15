@@ -460,7 +460,9 @@ class CallFlutter {
                 $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
                 $insert = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
                 
-                $url = "https://{$domain}:2083/";
+                $autoLoginUrl = $this->createCpanelAutoLoginUrl($username, $domain);
+
+                $url = $autoLoginUrl ?: "https://cloud.webhostingbliss.com:2087/";
 
                 $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
 
@@ -492,14 +494,14 @@ class CallFlutter {
         $productId = uniqid('prod_');
         $product = 'hosting';
         $text = 'Cpanel';
-        $hostingName = "iruhostc_starter";
+        $hostingName = "iruhostc_growth";
         $billing = "year";
-        $userId = "iru_6907ae4b6d0cd";
-        $userEmail = "ahbieosezua@gmail.com";
-        $domain = "claimfeesol.com";
+        $userId = "iru_6900bb928467e";
+        $userEmail = "osemensilas@gmail.com";
+        $domain = "enermillpower.com";
         $password = $this->generateSecurePassword();
         $expiryDate = "2026-11-09 11:55:46";
-        $clientName = "Abigail Osezua";
+        $clientName = "Enermill Power";
 
         $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
 
@@ -582,7 +584,7 @@ class CallFlutter {
                 
                 $autoLoginUrl = $this->createCpanelAutoLoginUrl($username, $domain);
 
-                $url = $autoLoginUrl ?: "https://{$domain}:2083/";
+                $url = $autoLoginUrl ?: "https://cloud.webhostingbliss.com:2087/";
 
                 $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
 
@@ -625,7 +627,7 @@ class CallFlutter {
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["Authorization: whm {$this->cpanelUsername}:{$this->cpanelApiToken}"],
+            CURLOPT_HTTPHEADER => ["Authorization: whm iruhostc:V6DJRXECR4K7IK0ZXV2ELRX8TMF9SVLS"],
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => http_build_query($session_data),
             CURLOPT_TIMEOUT => 30,
