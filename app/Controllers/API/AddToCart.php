@@ -335,10 +335,8 @@ class AddToCart {
         $renew = $data['renewPrice'];
         $currency = $data['currency'];
 
-        print_r($data);
-
         $stmt = $this->pdo->prepare("INSERT INTO `cart`(`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`) VALUES (?,?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $cartId, 'Custom web application', 'web app', $price, $renew, 'year', 'website'], $currency);
+        $result = $stmt->execute([$this->userId, $cartId, 'Custom web application', 'web app', $price, $renew, 'year', 'website', $currency]);
 
         if (!$result){
             echo json_encode([
