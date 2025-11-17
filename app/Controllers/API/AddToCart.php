@@ -334,21 +334,23 @@ class AddToCart {
         $price = $data['websitePrice'];
         $renew = $data['renew'];
 
-        $stmt = $this->pdo->prepare("INSERT INTO `cart`(`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`) VALUES (?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $cartId, 'Custom web application', 'web app', $price, $renew, 'year', 'website']);
+        print_r($data);
 
-        if (!$result){
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Error adding to cart'
-            ]);
-        }
+        // $stmt = $this->pdo->prepare("INSERT INTO `cart`(`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`) VALUES (?,?,?,?,?,?,?,?)");
+        // $result = $stmt->execute([$this->userId, $cartId, 'Custom web application', 'web app', $price, $renew, 'year', 'website']);
 
-        echo json_encode([
-            'status' => 'success',
-            'message' => 'Product added to cart',
-            'data' => $data
-        ]);
+        // if (!$result){
+        //     echo json_encode([
+        //         'status' => 'error',
+        //         'message' => 'Error adding to cart'
+        //     ]);
+        // }
+
+        // echo json_encode([
+        //     'status' => 'success',
+        //     'message' => 'Product added to cart',
+        //     'data' => $data
+        // ]);
     }
 
     public function tranferDomain(){
