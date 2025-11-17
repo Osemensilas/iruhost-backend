@@ -322,6 +322,44 @@ class AddToCart {
         }
     }
 
+    public function addCustomWebsite(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        print_r($data);
+
+        // $stmt = $this->pdo->prepare("SELECT * FROM `websites` WHERE web_id = ?");
+        // $stmt->execute([$data['website']]);
+
+        // if ($stmt->rowCount() > 0){
+        //     $website = $stmt->fetch();
+
+        //     $cartId = uniqid('prod_');
+
+        //     $stmt = $this->pdo->prepare("SELECT * FROM `cart` WHERE domain = ? AND user_id = ?");
+        //     $stmt->execute([$data['website'], $this->userId]);
+        
+        //     if (!$stmt->rowCount() > 0){
+        //         $stmt = $this->pdo->prepare("INSERT INTO `cart`(`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`) VALUES (?,?,?,?,?,?,?,?)");
+        //         $stmt->execute([$this->userId, $cartId, 'Web application', 'web app', $website['price'], '', '', $data['website']]);
+
+        //         echo json_encode([
+        //             'status' => 'success',
+        //             'message' => 'Product added to cart'
+        //         ]);
+        //     }else{
+        //         echo json_encode([
+        //             'status' => 'success',
+        //             'message' => 'Product already in cart'
+        //         ]);
+        //     }
+        // }
+    }
+
     public function tranferDomain(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);

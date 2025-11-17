@@ -51,6 +51,7 @@ $router->post('/api/add-to-cart-hosting', [AddToCart::class, 'addHosting']);
 $router->post('/api/add-to-cart-ssl', [AddToCart::class, 'addSSL']);
 $router->post('/api/add-to-cart-email', [AddToCart::class, 'addEmail']);
 $router->post('/api/add-website-to-cart', [AddToCart::class, 'addWebsite']);
+$router->post('/api/add-custom-website-to-cart', [AddToCart::class, 'addCustomWebsite']);
 $router->get('/api/cart-items', [CartItems::class, 'cartItems']);
 $router->get('/api/cart-total-price', [CartItems::class, 'cartTotal']);
 $router->get('/api/cart-domain', [CartItems::class, 'cartDomain']);
