@@ -150,34 +150,42 @@ class DomainRegistration{
     private function nigerianDomain($data){
         $domainName = $data;
 
-        $endpoint   = "https://domainreseller.prymhosting.com/modules/addons/DomainsReseller/api/index.php";
-        $action     = "/domains/lookup";
-        $params     = [
-            "domain"    => $domainName,
-            "regperiod" => "1",
-            "addons"    => [
-                "dnsmanagement"     => 0,
-                "emailforwarding"   => 1,
-                "idprotection"      => 1,
-            ]
-        ];
-        $headers = [
-            "username: osemensilas@gmail.com",
-            "token: ". base64_encode(hash_hmac("sha256", "7JxtY9NkcJwWACqi5jzJ5ZvAH0fj8K8L", "osemensilas@gmail.com:".gmdate("y-m-d H")))
-        ];
+        // $endpoint   = "https://domainreseller.prymhosting.com/modules/addons/DomainsReseller/api/index.php";
+        // $action     = "/domains/lookup";
+        // $params     = [
+        //     "domain"    => $domainName,
+        //     "regperiod" => "1",
+        //     "addons"    => [
+        //         "dnsmanagement"     => 0,
+        //         "emailforwarding"   => 1,
+        //         "idprotection"      => 1,
+        //     ]
+        // ];
+        // $headers = [
+        //     "username: osemensilas@gmail.com",
+        //     "token: ". base64_encode(hash_hmac("sha256", "7JxtY9NkcJwWACqi5jzJ5ZvAH0fj8K8L", "osemensilas@gmail.com:".gmdate("y-m-d H")))
+        // ];
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        // $curl = curl_init();
+        // curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
+        // curl_setopt($curl, CURLOPT_POST, true);
+        // curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
+        // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        // curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-        $response = curl_exec($curl);
-        curl_close($curl);
+        // $response = curl_exec($curl);
+        // curl_close($curl);
 
-        print_r($response);
+        require_once __DIR__.'/../DomainNameApi/DomainNameAPI_PHPLibrary.php';
+
+        $username = 'osemensilas@gmail.com';
+        $password = 'Bank$101';
+
+        $dna = new \DomainNameApi\DomainNameAPI_PHPLibrary($username,$password);
+
+        $result = $dna->checkAvailability(['example','testdomain'],['com','net'],1,'create');
+        print_r($result);
     }
 
     public function existingCheck(){

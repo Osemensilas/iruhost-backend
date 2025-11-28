@@ -802,4 +802,56 @@ class AuthController{
             echo json_encode(['status' => 'success', 'message' => 'Address Added']);
         }
     }
+
+    public function panelUser(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $pdo = DB::connection();
+
+        $username = $data['username'] ?? null;
+        $password = $data['password'] ?? null;
+
+        $checkUser = $pdo->prepare("SELECT * FROM `panel_users` WHERE username = ?");
+        $checkUser->execute([$username]);
+
+        if (!$checkUser->rowCount() > 0){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'User do not exist'
+            ]);
+            return;
+        }
+
+        $userRow = $checkUser->fetch();
+
+        if ($userRow['password'] !== $password){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Wrong password'
+            ]);
+            return;
+        }
+
+        $_SESSION['panel_user'] = [
+            'user_id' => $userRow['user_id'],
+            'name' => $userRow['uername'],
+            'email' => $$userRow['email'],
+        ];
+
+        $userSession = $_SESSION['panel_user'];
+
+        session_regenerate_id(true);
+        $this->checkCart($userSession);
+        $this->checkChat($userSession);
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'successful'
+        ]);
+    }
 }

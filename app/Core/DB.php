@@ -4,12 +4,17 @@ namespace App\Core;
 
 use PDO;
 use PDOException;
+use Dotenv\Dotenv;
 
 class DB {
     protected static $pdo;
 
     public static function connection() {
         if (!self::$pdo) {
+
+            $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
+            $dotenv->load();
+
             $hostname = "localhost";
             $username = "iruhostc_osemen";
             $password = "Bank$101Onion";

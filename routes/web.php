@@ -11,6 +11,7 @@ use App\Controllers\API\CallFlutter;
 use App\Controllers\API\ChatsController;
 use App\Controllers\API\UserProducts;
 use App\Controllers\API\AdminDashboard;
+use App\Controllers\API\PanelEmailOperations;
 use App\Controllers\API\StaticController;
 
 $router->get('/api/session', [SessionController::class, 'userSession']);
@@ -95,3 +96,6 @@ $router->post('/api/get-single-blogs', [StaticController::class, 'singleBlog']);
 $router->post('/api/get-related-blogs', [StaticController::class, 'relatedBlog']);
 $router->post('/api/get-other-blogs', [StaticController::class, 'otherBlog']);
 $router->get('/api/get-blog/{slug}', [StaticController::class, 'getBlogBySlug']);
+
+$router->post('/api/panel-login', [AuthController::class, 'panelUser']);
+$router->post('/api/create-email-db', [PanelEmailOperations::class, 'createEmailDb']);
