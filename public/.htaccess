@@ -30,7 +30,7 @@
     Header always unset Access-Control-Allow-Credentials
 
     # Define allowed origins
-    SetEnvIf Origin "^(https?://(www\.)?(localhost:3000|iruhost\.com|iruap-studio\.vercel\.app|dashboard\.iruhost\.com|iruhost-dashboard\.vercel\.app))$" ALLOWED_ORIGIN=$1
+    SetEnvIf Origin "^(https?://(www\.)?(localhost:3000|iruhost\.com|iruap-studio\.vercel\.app|dashboard\.iruhost\.com|iruhost-dashboard\.vercel\.app|iruhost-frontend-bm2c\.vercel\.app/))$" ALLOWED_ORIGIN=$1
     
     # Set CORS headers only for allowed origins
     Header set Access-Control-Allow-Origin "%{ALLOWED_ORIGIN}e" env=ALLOWED_ORIGIN
