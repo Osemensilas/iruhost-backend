@@ -253,7 +253,8 @@ class AuthController{
 
         echo json_encode([
             'status' => 'success',
-            'message' => 'successful'
+            'message' => 'successful',
+            'user' => $userSession
         ]);
     }
 
