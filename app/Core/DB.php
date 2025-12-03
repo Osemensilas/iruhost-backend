@@ -16,9 +16,9 @@ class DB {
             $dotenv->load();
 
             $hostname = "localhost";
-            $username = "iruhostc_osemen";
-            $password = "Bank$101Onion";
-            $dbname   = "iruhostc_iruhost";
+            $username = "Banks";
+            $password = "Bank$101";
+            $dbname   = "iruhost";
 
             try {
                 // Connect without specifying database

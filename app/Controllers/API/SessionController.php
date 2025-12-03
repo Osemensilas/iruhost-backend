@@ -10,6 +10,7 @@ class SessionController{
     public function __construct(){
         $this->pdo = DB::connection();
     }
+    
     public function userSession(){
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);

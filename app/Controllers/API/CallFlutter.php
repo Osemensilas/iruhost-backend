@@ -109,7 +109,7 @@ class CallFlutter {
                         $ssl_status = $sslResponse['status'] ?? 'unknown';
                         $ssl_message = $sslResponse['message'] ?? 'unknown';
                     }else{
-                        if ($row['product_name'] === 'Starter' || $row['product_name'] === 'Growth' || $row['product_name'] === 'Pro' || $row['product_name'] === 'Enterprise'){
+                        if ($row['product'] === 'Hosting Registration'){
                             $productName = strtolower($row['product_name']);
                             $billing = $row['billing'];
                             $cartId = $row['cart_id'];
@@ -128,6 +128,7 @@ class CallFlutter {
                             $hostingResponse = $this->regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain);
                             $hosting_status = $hostingResponse['status'] ?? 'unknown';
                             $hosting_message = $hostingResponse['message'] ?? 'unknown';
+                            $iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
                         } else{
                             if ($row['product'] === 'Email Registration'){
                                 $productName = $row['product_name'];
@@ -185,6 +186,87 @@ class CallFlutter {
             'ssl_message' => $ssl_message,
             'email_message' => $email_message,
             'web_message' => $web_message
+        ]);
+    }
+
+    private function regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain){
+        
+        $productId = uniqid('prod_');
+        $product = 'hosting';
+        $text = 'Ipanel';
+        $hostingName = "iruhostc_$productName";
+        $url = "https://iruap-shared-hosting.vercel.app/";
+
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $url, $text, $expiryDate]);
+
+        if (!$result){
+            return [
+                'status' => 'error',
+                'message' => 'Error inserting to database'
+            ];
+        }
+
+        $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+        $delete = $stmtDel->execute([$cartId, $this->userId]);
+
+        if (!$delete){
+            return [
+                'status' => 'error',
+                'message' => 'Error deleting from cart'
+            ];
+        }
+
+        $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+        $stmtUser->execute([$this->userId]);
+        $userRow = $stmtUser->fetch();
+
+        if (!$userRow) {
+            return [
+                'status' => 'error',
+                'message' => 'User not found'
+            ];
+        }
+
+        $userEmail = $userRow['email'];
+        $clientName = $userRow['name'];
+        $clientId = $userRow['user_id'];
+
+        $basePath = __DIR__ . "/../../Services/";
+        $userFolder = $basePath . $clientId;
+
+        if (!is_dir($userFolder)) {
+            mkdir($userFolder, 0777, true);
+        }
+
+        $publicHtml = $userFolder . "/public_html";
+
+        if (!is_dir($publicHtml)) {
+            mkdir($publicHtml, 0777, true);
+        }
+
+        $defaultIndex = $publicHtml . "/index.html";
+
+        if (!file_exists($defaultIndex)) {
+            $content = "
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <meta charset='UTF-8'>
+                    <title>Welcome to Your Hosting</title>
+                </head>
+                <body>
+                    <h1>Your hosting space is ready 🎉</h1>
+                    <p>Upload your website files into this folder.</p>
+                </body>
+            </html>
+            ";
+            file_put_contents($defaultIndex, $content);
+        }
+
+        echo json_encode([
+            'status' => 'successful',
+            'message' => 'account creation successful'
         ]);
     }
 
