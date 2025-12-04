@@ -128,7 +128,7 @@ class CallFlutter {
                             $hostingResponse = $this->regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain);
                             $hosting_status = $hostingResponse['status'] ?? 'unknown';
                             $hosting_message = $hostingResponse['message'] ?? 'unknown';
-                            $iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
+                            //$iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
                         } else{
                             if ($row['product'] === 'Email Registration'){
                                 $productName = $row['product_name'];
