@@ -624,7 +624,7 @@ class CallFlutter {
 
         $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
 
-        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', "Barkar-x"), 0, 8)) . rand(10, 99);
+        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', "Bakar-x"), 0, 8)) . rand(10, 99);
         $username = substr($username, 0, 16);
 
         $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
