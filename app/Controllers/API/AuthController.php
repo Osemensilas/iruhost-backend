@@ -21,6 +21,8 @@ class AuthController{
     protected $emailUsername;
     protected $resend;
     protected $resendApiCode;
+    protected $encryptionKey;
+    protected $encryptionIV;
 
     public function __construct() {
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
@@ -30,6 +32,8 @@ class AuthController{
         $this->emailUsername = $_ENV['MAIL_USERNAME'] ?? null;
         $this->emailPassword = $_ENV['MAIL_PASSWORD'] ?? null;
         $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
+        $this->encryptionKey = hash('sha256', $_ENV['ENCRYPTION_KEY']);
+        $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
 
         $this->resend = Resend::client($this->resendApiCode);
     }
@@ -819,7 +823,7 @@ class AuthController{
         $checkUser = $pdo->prepare("SELECT * FROM `panel_users` WHERE username = ?");
         $checkUser->execute([$username]);
 
-        if (!$checkUser->rowCount() > 0){
+        if ($checkUser->rowCount() === 0){
             echo json_encode([
                 'status' => 'error',
                 'message' => 'User do not exist'
@@ -828,8 +832,15 @@ class AuthController{
         }
 
         $userRow = $checkUser->fetch();
+        $decryptedPassword = openssl_decrypt(
+        $userRow['password'],
+        'AES-256-CBC',
+        $this->encryptionKey,
+        0,
+        $this->encryptionIV
+        );
 
-        if ($userRow['password'] !== $password){
+        if ($decryptedPassword !== $password){
             echo json_encode([
                 'status' => 'error',
                 'message' => 'Wrong password'
@@ -852,6 +863,47 @@ class AuthController{
         echo json_encode([
             'status' => 'success',
             'message' => 'successful'
+        ]);
+    }
+
+    public function panelAutoLogin(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $pdo = DB::connection();
+
+        $autoLogin = $_GET['autoLogin'] ?? null;
+        $autoUser = $_GET['autoUser'] ?? null;
+
+        if (empty($autoLogin) || empty($autoUser)){
+            echo json_encode(['status' => 'error', 'message' => 'Missing parameter']);
+            return;
+        }
+
+        $checkUser = $pdo->prepare("SELECT * FROM `panel_users` WHERE user_id = ? AND auto_login = ?");
+        $checkUser->execute([$autoUser, $autoLogin]);
+
+        if ($checkUser->rowCount() === 0){
+            echo json_encode(['status' => 'error', 'message' => 'User do not exist']);
+            return;
+        }
+
+        $userRow = $checkUser->fetch();
+
+        $decryptedPassword = openssl_decrypt(
+        $userRow['password'],
+        'AES-256-CBC',
+        $this->encryptionKey,
+        0,
+        $this->encryptionIV
+        );
+
+        echo json_encode([
+            'status' => 'success',
+            'username' => $userRow['username'],
+            'password' => $decryptedPassword
         ]);
     }
 }

@@ -128,7 +128,7 @@ class CallFlutter {
                             $hostingResponse = $this->regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain);
                             $hosting_status = $hostingResponse['status'] ?? 'unknown';
                             $hosting_message = $hostingResponse['message'] ?? 'unknown';
-                            //$iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
+                            $iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
                         } else{
                             if ($row['product'] === 'Email Registration'){
                                 $productName = $row['product_name'];
@@ -194,7 +194,7 @@ class CallFlutter {
         $productId = uniqid('prod_');
         $product = 'hosting';
         $text = 'Ipanel';
-        $hostingName = "iruhostc_$productName";
+        $hostingName = "$productName";
         $url = "https://iruap-shared-hosting.vercel.app/";
 
         $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
@@ -204,16 +204,6 @@ class CallFlutter {
             return [
                 'status' => 'error',
                 'message' => 'Error inserting to database'
-            ];
-        }
-
-        $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
-        $delete = $stmtDel->execute([$cartId, $this->userId]);
-
-        if (!$delete){
-            return [
-                'status' => 'error',
-                'message' => 'Error deleting from cart'
             ];
         }
 
@@ -232,7 +222,36 @@ class CallFlutter {
         $clientName = $userRow['name'];
         $clientId = $userRow['user_id'];
 
-        $basePath = __DIR__ . "/../../Services/";
+        $panelUserId = uniqid("IruPanel_");
+        $sld = substr($domain, 0, strpos($domain, '.'));
+        $username = "Iru_" . $sld;
+
+        $password = $this->generateSecurePassword();
+
+        $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
+
+        $stmtCreatePanelUser = $this->pdo->prepare("INSERT INTO `panel_users`(`user_id`, `username`, `email`, `domain`, `password`, `auto_login`) VALUES (?,?,?,?,?,?)");
+        $userCreated = $stmtCreatePanelUser->execute([$panelUserId, $username, $userEmail, $domain, $encryptedPassword, '']);
+
+        if (!$userCreated){
+            return [
+                'status' => 'error',
+                'message' => 'Error Creating Panel User'
+            ];
+        }
+
+
+        $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+        $delete = $stmtDel->execute([$cartId, $this->userId]);
+
+        if (!$delete){
+            return [
+                'status' => 'error',
+                'message' => 'Error deleting from cart'
+            ];
+        }
+
+        $basePath = __DIR__ . "/../../Services/Iruhost/";
         $userFolder = $basePath . $clientId;
 
         if (!is_dir($userFolder)) {
@@ -264,10 +283,28 @@ class CallFlutter {
             file_put_contents($defaultIndex, $content);
         }
 
+        $autoLogin = uniqid('iru_auto_');
+        $autoUrl = "https://iruap-shared-hosting.vercel.app?user=$panelUserId&login=$autoLogin";
+
+        $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product = ?");
+        $stmt->execute([$autoUrl, $this->userId, 'hosting']);
+
         echo json_encode([
             'status' => 'successful',
             'message' => 'account creation successful'
         ]);
+
+        $stmt = $this->pdo->prepare("UPDATE `panel_users` SET `auto_login`=? WHERE user_id = ? AND username = ?");
+        $stmt->execute([$autoLogin, $panelUserId, $username]);
+
+        echo json_encode([
+            'status' => 'successful',
+            'message' => 'User update successful'
+        ]);
+
+        $ipAddress = '';
+
+        $this->sendHostingMessage($username, $password, $domain, $ipAddress, $userEmail, $clientName);
     }
 
     public function topupSuccessful(){
@@ -580,14 +617,14 @@ class CallFlutter {
         $billing = "year";
         $userId = "iru_6900bb928467e";
         $userEmail = "osemensilas@gmail.com";
-        $domain = "enermillpower.com";
+        $domain = "bakar-x.com";
         $password = $this->generateSecurePassword();
         $expiryDate = "2026-11-09 11:55:46";
-        $clientName = "Enermill Power";
+        $clientName = "Barkar-X";
 
         $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
 
-        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', "Enermil Power"), 0, 8)) . rand(10, 99);
+        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', "Barkar-x"), 0, 8)) . rand(10, 99);
         $username = substr($username, 0, 16);
 
         $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");

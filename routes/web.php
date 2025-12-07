@@ -98,4 +98,5 @@ $router->post('/api/get-other-blogs', [StaticController::class, 'otherBlog']);
 $router->get('/api/get-blog/{slug}', [StaticController::class, 'getBlogBySlug']);
 
 $router->post('/api/panel-login', [AuthController::class, 'panelUser']);
+$router->get('/api/auto-login', [AuthController::class, 'panelAutoLogin']);
 $router->post('/api/create-email-db', [PanelEmailOperations::class, 'createEmailDb']);

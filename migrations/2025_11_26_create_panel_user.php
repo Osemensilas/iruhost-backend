@@ -9,6 +9,7 @@ return function ($pdo){
             email VARCHAR(100) UNIQUE,
             domain VARCHAR(100),
             password VARCHAR(100),
+            auto_login VARCHAR(100),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ");
