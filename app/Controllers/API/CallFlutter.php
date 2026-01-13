@@ -972,8 +972,12 @@ class CallFlutter {
         $response = curl_exec($ch);
         curl_close($ch);
 
-        $data = json_decode($response, true);
+        $apiData = json_decode($response, true);
 
-        print_r($data);
+        if (isset($apiData['data']['url'])) {
+            echo json_encode(['success' => true, 'url' => $apiData['data']['url']]);
+        } else {
+            echo json_encode(['success' => false, 'message' => $response]);
+        }
     }
 }
