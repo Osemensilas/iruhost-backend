@@ -958,12 +958,10 @@ class CallFlutter {
         $whmToken = $this->cpanelApiToken;
         $cpanelServer = $this->server;
 
-        echo $whmToken;
-
         $url = "https://cloud.webhostingbliss.com:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
 
         $headers = [
-            "Authorization: whm root:$whmToken"
+            "Authorization: whm root:Y7CYGX5H6H9PKKKVEN7CCE5XEHER1OY0"
         ];
 
         $ch = curl_init($url);
