@@ -960,14 +960,12 @@ class CallFlutter {
 
         $url = "https://cloud.webhostingbliss.com:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
 
-        $headers = [
-            "Authorization: whm root:Y7CYGX5H6H9PKKKVEN7CCE5XEHER1OY0"
-        ];
-
         $ch = curl_init($url);
+
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: whm root:EV11Z43ZN5N0ZC19F9AH5I0Y5HFAT7LH"]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true); // keep secure
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
         $response = curl_exec($ch);
         curl_close($ch);
