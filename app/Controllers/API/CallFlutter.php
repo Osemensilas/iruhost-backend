@@ -649,17 +649,17 @@ class CallFlutter {
         $product = 'hosting';
         $text = 'Cpanel';
         $hostingName = "iruhostc_growth";
-        $billing = "year";
+        $billing = "month";
         $userId = "iru_6900bb928467e";
         $userEmail = "osemensilas@gmail.com";
-        $domain = "bakar-x.com";
+        $domain = "osemen.com";
         $password = $this->generateSecurePassword();
         $expiryDate = "2026-11-09 11:55:46";
-        $clientName = "Barkar-X";
+        $clientName = "Osemen";
 
         $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
 
-        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', "Bakar-x"), 0, 8)) . rand(10, 99);
+        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', "osemen"), 0, 8)) . rand(10, 99);
         $username = substr($username, 0, 16);
 
         $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
@@ -984,5 +984,9 @@ class CallFlutter {
         } else {
             echo json_encode(['success' => false, 'message' => $response, 'user' => $cpanelUser]);
         }
+
+        //UBOWSXPKNRGPN4TFGAJ89J9X55VFTJBF
+        curl -H "Authorization: whm root:UBOWSXPKNRGPN4TFGAJ89J9X55VFTJBF" \
+"https://cloud.webhostingbliss.com:2087/json-api/version"
     }
 }
