@@ -439,7 +439,7 @@ class DomainRegistration{
 
         $currentDate = date('Y-m-d');
 
-        if ($currentDate >= $expiration) {
+        if ($currentDate < $expiration) {
             $status = "Active";
         } elseif ($currentDate == $expiration) {
             $status = "Expired";
