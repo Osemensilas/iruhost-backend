@@ -165,18 +165,16 @@ class AdminDashboard {
             return;
         }
 
-        // $getProducts = $this->pdo->prepare("SELECT * FROM products)");
-        // $getProducts->execute();
+        $getProducts = $this->pdo->prepare("SELECT * FROM products");
+        $getProducts->execute();
 
-        // if ($getProducts->rowCount() > 0){
-        //     $products = $getProducts->fetchAll(PDO::FETCH_ASSOC);
+        if ($getProducts->rowCount() > 0){
+            $products = $getProducts->fetchAll(PDO::FETCH_ASSOC);
 
-        //     echo json_encode([
-        //         'status' => 'success',
-        //         'data' => $products
-        //     ]);
-        // }
-
-        echo "Hello World";
+            echo json_encode([
+                'status' => 'success',
+                'data' => $products
+            ]);
+        }
     }
 }
