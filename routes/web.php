@@ -98,6 +98,7 @@ $router->post('/api/get-other-blogs', [StaticController::class, 'otherBlog']);
 $router->get('/api/get-blog/{slug}', [StaticController::class, 'getBlogBySlug']);
 
 $router->get('/api/expiring-products', [AdminDashboard::class, 'expiringProducts']);
+$router->get('/api/expiring-message', [AdminDashboard::class, 'expiringMessage']);
 
 $router->post('/api/panel-login', [AuthController::class, 'panelUser']);
 $router->get('/api/auto-login', [AuthController::class, 'panelAutoLogin']);
