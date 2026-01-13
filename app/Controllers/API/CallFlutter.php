@@ -933,4 +933,30 @@ class CallFlutter {
             ]);
         }
     }
+
+    public function autoCpanelLogin($productId){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        echo $productId;
+        // $url = "https://$serverIp:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
+
+        // $headers = [
+        //     "Authorization: whm root:$whmApiToken"
+        // ];
+
+        // $ch = curl_init($url);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        // $response = curl_exec($ch);
+        // curl_close($ch);
+
+        // $data = json_decode($response, true);
+
+        // return $data['data']['url'];
+    }
 }

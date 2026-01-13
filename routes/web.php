@@ -96,12 +96,13 @@ $router->post('/api/get-single-blogs', [StaticController::class, 'singleBlog']);
 $router->post('/api/get-related-blogs', [StaticController::class, 'relatedBlog']);
 $router->post('/api/get-other-blogs', [StaticController::class, 'otherBlog']);
 $router->get('/api/get-blog/{slug}', [StaticController::class, 'getBlogBySlug']);
+$router->get('/api/cpanel-login/{productId}', [CallFlutter::class, 'autoCpanelLogin']);
 
 $router->get('/api/expiring-products', [AdminDashboard::class, 'expiringProducts']);
 $router->get('/api/expiring-message', [AdminDashboard::class, 'expiringMessage']);
 
 $router->post('/api/panel-login', [AuthController::class, 'panelUser']);
-$router->get('/api/auto-login', [AuthController::class, 'panelAutoLogin']);
+$router->get('/api/auto-login', [AuthController::class, 'panelCpanel']);
 $router->get('/api/check-panel-session', [SessionController::class, 'checkPanelUser']);
 $router->post('/api/create-email-db', [PanelEmailOperations::class, 'createEmailDb']);
 $router->get('/api/open-user-database', [PanelEmailOperations::class, 'openUserDatabase']);

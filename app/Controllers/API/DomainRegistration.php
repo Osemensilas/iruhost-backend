@@ -411,19 +411,6 @@ class DomainRegistration{
 
         $domainName = $data["domain"] ?? null;
 
-        // $tdl = substr($domainName, strpos($domainName, '.') + 1);
-        // $sld = substr($domainName, 0, strpos($domainName, '.'));
-
-        // $url = "https://reseller.enom.com/interface.asp?command=GetDomainInfo&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tdl&responsetype=xml";
-
-        // $ch = curl_init();
-        // curl_setopt($ch, CURLOPT_URL, $url);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // $response = curl_exec($ch);
-        // curl_close($ch);
-
-        // $xml = simplexml_load_string($response);
-
         $getDomainName = $this->pdo->prepare("SELECT * FROM products WHERE product_name = ? AND domain = ?");
         $getDomainName->execute([$domainName, $domainName]);
 
@@ -433,9 +420,6 @@ class DomainRegistration{
 
         $expiration = date('Y-m-d', strtotime($domainRow['expiry_date']));
         $registration = date('Y-m-d', strtotime($domainRow['created_at']));
-        
-        // $expirationDate = explode(' ', $expiration)[0];
-        // $registrationDate = explode(' ', $registration)[0];
 
         $currentDate = date('Y-m-d');
 
