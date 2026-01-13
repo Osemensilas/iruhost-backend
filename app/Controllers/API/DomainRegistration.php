@@ -450,6 +450,7 @@ class DomainRegistration{
         $results = [
             'expiration' => $expiration,
             'registration' => $registration,
+            'currentData' => $currentDate,
             'status' => $status
         ];
         
