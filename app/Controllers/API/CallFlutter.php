@@ -959,22 +959,22 @@ class CallFlutter {
         $cpanelServer = $this->server;
 
         echo "$cpanelUser $whmToken $cpanelServer";
-        // $url = "https://$serverIp:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
+        $url = "https://$serverIp:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
 
-        // $headers = [
-        //     "Authorization: whm root:$whmApiToken"
-        // ];
+        $headers = [
+            "Authorization: whm root:$whmToken"
+        ];
 
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-        // $response = curl_exec($ch);
-        // curl_close($ch);
+        $response = curl_exec($ch);
+        curl_close($ch);
 
-        // $data = json_decode($response, true);
+        $data = json_decode($response, true);
 
-        // return $data['data']['url'];
+        return $data['data']['url'];
     }
 }
