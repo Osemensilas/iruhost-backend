@@ -25,7 +25,6 @@ class CallFlutter {
     protected $resend;
     protected $resendApiCode;
     protected $server;
-    protected $whmApiToken;
 
     public function __construct(){
 
@@ -946,7 +945,20 @@ class CallFlutter {
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        print_r($data);
+        $productId = $data['productId'];
+
+        $getProduct = $this->pdo->prepare("SELECT * FROM products WHERE product_id = ?");
+        $getProduct->execute([$productId]);
+
+        if ($getProduct->rowCount() > 0){
+            $productRow = $getProduct->fetch();
+        }
+
+        $cpanelUser = $productRow['url'];
+        $whmToken = $this->cpanelApiToken;
+        $cpanelServer = $this->server;
+
+        echo "$cpanelUser $whmToken $cpanelServer";
         // $url = "https://$serverIp:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
 
         // $headers = [
