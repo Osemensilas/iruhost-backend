@@ -171,6 +171,10 @@ class AdminDashboard {
         if ($getProducts->rowCount() > 0){
             $products = $getProducts->fetchAll(PDO::FETCH_ASSOC);
 
+            foreach($products as $product){
+                echo $product['expiry_date'];
+            }
+
             echo json_encode([
                 'status' => 'success',
                 'data' => $products
