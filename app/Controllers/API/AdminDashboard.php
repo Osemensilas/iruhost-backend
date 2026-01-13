@@ -155,26 +155,28 @@ class AdminDashboard {
     }
 
     public function expiringProducts(){
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-            return;
-        }
+        // if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        //     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+        //     return;
+        // }
 
-        if (!isset($_SESSION['admin'])){
-            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
-            return;
-        }
+        // if (!isset($_SESSION['admin'])){
+        //     echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+        //     return;
+        // }
 
-        $getProducts = $this->pdo->prepare("SELECT * FROM products)");
-        $getProducts->execute();
+        // $getProducts = $this->pdo->prepare("SELECT * FROM products)");
+        // $getProducts->execute();
 
-        if ($getProducts->rowCount() > 0){
-            $products = $getProducts->fetchAll(PDO::FETCH_ASSOC);
+        // if ($getProducts->rowCount() > 0){
+        //     $products = $getProducts->fetchAll(PDO::FETCH_ASSOC);
 
-            echo json_encode([
-                'status' => 'success',
-                'data' => $products
-            ]);
-        }
+        //     echo json_encode([
+        //         'status' => 'success',
+        //         'data' => $products
+        //     ]);
+        // }
+
+        echo "Hello World";
     }
 }
