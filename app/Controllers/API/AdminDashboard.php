@@ -127,7 +127,7 @@ class AdminDashboard {
     }
 
     public function getTotalWebSalesNum(){
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
         }
@@ -152,5 +152,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             'others' => $product,
             'status' => 'success'
         ]);
+    }
+
+    public function expiringProducts(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        echo "Hello WOrld";
     }
 }
