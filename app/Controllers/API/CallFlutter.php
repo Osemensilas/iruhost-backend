@@ -955,8 +955,9 @@ class CallFlutter {
         }
 
         $cpanelUser = $productRow['url'];
+        $serverHostname = "cloud.webhostingbliss.com";
 
-        $loginUrl = "https://cloud.webhostingbliss.com:2083/login/?user={$cpanelUser}&goto_app=cpanel";
+        $loginUrl = "https://{$serverHostname}:2083/login/?user={$cpanelUser}&goto_app=cpanel";
 
         echo json_encode(['success' => true, 'url' => $loginUrl]);
     }
