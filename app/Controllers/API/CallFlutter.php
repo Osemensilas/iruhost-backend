@@ -974,6 +974,6 @@ class CallFlutter {
 
         $data = json_decode($response, true);
 
-        return $data['data']['url'];
+        print_r($data);
     }
 }
