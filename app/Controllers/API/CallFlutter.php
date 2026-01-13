@@ -963,7 +963,7 @@ class CallFlutter {
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: whm root:EV11Z43ZN5N0ZC19F9AH5I0Y5HFAT7LH"]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: whm root:" . $whmToken]);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true); // keep secure
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
@@ -974,6 +974,7 @@ class CallFlutter {
             $error = curl_error($ch);
             curl_close($ch);
             echo json_encode(['success' => false, 'message' => "cURL error: $error"]);
+            error_log("Attempting login for user: " . $cpanelUser);
             return;
         }
 
@@ -983,6 +984,7 @@ class CallFlutter {
             echo json_encode(['success' => true, 'url' => $apiData['data']['url']]);
         } else {
             echo json_encode(['success' => false, 'message' => $response]);
+            error_log("Attempting login for user: " . $cpanelUser);
         }
     }
 }
