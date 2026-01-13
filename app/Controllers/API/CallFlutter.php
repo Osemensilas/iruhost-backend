@@ -958,8 +958,7 @@ class CallFlutter {
         $whmToken = $this->cpanelApiToken;
         $cpanelServer = $this->server;
 
-        echo "$cpanelUser $whmToken $cpanelServer";
-        $url = "https://$serverIp:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
+        $url = "https://$cpanelServer:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
 
         $headers = [
             "Authorization: whm root:$whmToken"
