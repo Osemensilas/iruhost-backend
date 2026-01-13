@@ -431,8 +431,8 @@ class DomainRegistration{
             $domainRow = $getDomainName->fetch();
         }
 
-        $expiration = date('Y-m-d', $domainRow['expiry_date']);
-        $registration = date('Y-m-d', $domainRow['created_at']);
+        $expiration = date('Y-m-d', strtotime($domainRow['expiry_date']));
+        $registration = date('Y-m-d', strtotime($domainRow['created_at']));
         
         // $expirationDate = explode(' ', $expiration)[0];
         // $registrationDate = explode(' ', $registration)[0];
