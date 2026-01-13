@@ -955,36 +955,9 @@ class CallFlutter {
         }
 
         $cpanelUser = $productRow['url'];
-        $whmToken = $this->cpanelApiToken;
-        $cpanelServer = $this->server;
 
-        $url = "https://cloud.webhostingbliss.com:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
+        $loginUrl = "https://cloud.webhostingbliss.com:2083/login/?user={$cpanelUser}&goto_app=cpanel";
 
-        $ch = curl_init($url);
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: whm root:" . $whmToken]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true); // keep secure
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        if ($response === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            echo json_encode(['success' => false, 'message' => "cURL error: $error"]);
-            return;
-        }
-
-        $apiData = json_decode($response, true);
-
-        if (isset($apiData['data']['url'])) {
-            echo json_encode(['success' => true, 'url' => $apiData['data']['url']]);
-        } else {
-            echo json_encode(['success' => false, 'message' => $response, 'user' => $cpanelUser]);
-        }
-
-        //UBOWSXPKNRGPN4TFGAJ89J9X55VFTJBF
+        echo json_encode(['success' => true, 'url' => $loginUrl]);
     }
 }
