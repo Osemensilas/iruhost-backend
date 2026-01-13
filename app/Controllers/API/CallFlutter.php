@@ -24,6 +24,8 @@ class CallFlutter {
     protected $encryptionIV;
     protected $resend;
     protected $resendApiCode;
+    protected $server;
+    protected $whmApiToken;
 
     public function __construct(){
 
@@ -42,6 +44,8 @@ class CallFlutter {
         $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
         $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
         $this->resend = Resend::client($this->resendApiCode);
+        $this->whmApiToken = "iruap";
+        $this->server = "37.59.113.132";
     }
 
     public function paymentSuccessful(){
@@ -934,13 +938,15 @@ class CallFlutter {
         }
     }
 
-    public function autoCpanelLogin($productId){
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    public function autoCpanelLogin(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
         }
 
-        echo $productId;
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        print_r($data);
         // $url = "https://$serverIp:2087/json-api/create_user_session?api.version=1&user=$cpanelUser&service=cpaneld";
 
         // $headers = [

@@ -96,7 +96,7 @@ $router->post('/api/get-single-blogs', [StaticController::class, 'singleBlog']);
 $router->post('/api/get-related-blogs', [StaticController::class, 'relatedBlog']);
 $router->post('/api/get-other-blogs', [StaticController::class, 'otherBlog']);
 $router->get('/api/get-blog/{slug}', [StaticController::class, 'getBlogBySlug']);
-$router->get('/api/cpanel-login/{productId}', [CallFlutter::class, 'autoCpanelLogin']);
+$router->post('/api/cpanel-login', [CallFlutter::class, 'autoCpanelLogin']);
 
 $router->get('/api/expiring-products', [AdminDashboard::class, 'expiringProducts']);
 $router->get('/api/expiring-message', [AdminDashboard::class, 'expiringMessage']);
