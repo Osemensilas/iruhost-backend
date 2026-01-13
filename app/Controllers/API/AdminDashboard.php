@@ -204,7 +204,7 @@ class AdminDashboard {
 
             echo json_encode([
                 'status' => 'success',
-                'data' => $expiring
+                'products' => $expiring
             ]);
         }
     }
