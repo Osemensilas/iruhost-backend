@@ -974,7 +974,6 @@ class CallFlutter {
             $error = curl_error($ch);
             curl_close($ch);
             echo json_encode(['success' => false, 'message' => "cURL error: $error"]);
-            error_log("Attempting login for user: " . $cpanelUser);
             return;
         }
 
@@ -983,8 +982,7 @@ class CallFlutter {
         if (isset($apiData['data']['url'])) {
             echo json_encode(['success' => true, 'url' => $apiData['data']['url']]);
         } else {
-            echo json_encode(['success' => false, 'message' => $response]);
-            error_log("Attempting login for user: " . $cpanelUser);
+            echo json_encode(['success' => false, 'message' => $response, 'user' => $cpanelUser]);
         }
     }
 }
