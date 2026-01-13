@@ -986,7 +986,5 @@ class CallFlutter {
         }
 
         //UBOWSXPKNRGPN4TFGAJ89J9X55VFTJBF
-        curl -H "Authorization: whm root:UBOWSXPKNRGPN4TFGAJ89J9X55VFTJBF" \
-"https://cloud.webhostingbliss.com:2087/json-api/version"
     }
 }
