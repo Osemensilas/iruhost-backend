@@ -820,6 +820,8 @@ class AuthController{
         $username = $data['username'] ?? null;
         $password = $data['password'] ?? null;
 
+        //echo "$username and $password";
+
         $checkUser = $pdo->prepare("SELECT * FROM `panel_users` WHERE username = ?");
         $checkUser->execute([$username]);
 
@@ -848,6 +850,19 @@ class AuthController{
             return;
         }
 
+        $userId = $userRow['user_id'];
+
+        // Set a cookie accessible in JS
+        setcookie(
+            "panel_session",      // cookie name
+            $userId,              // value
+            time() + 60*60*24,    // 1 day expiration
+            "/",                  // path
+            "",                   // domain, leave blank for current domain
+            false,                // secure (true if using HTTPS)
+            true                  // httponly (true if you don't want JS to read it)
+        );
+
         $_SESSION['panel_user'] = [
             'user_id' => $userRow['user_id'],
             'name' => $userRow['uername'],
@@ -857,8 +872,6 @@ class AuthController{
         $userSession = $_SESSION['panel_user'];
 
         session_regenerate_id(true);
-        $this->checkCart($userSession);
-        $this->checkChat($userSession);
 
         echo json_encode([
             'status' => 'success',
@@ -900,10 +913,33 @@ class AuthController{
         $this->encryptionIV
         );
 
+        $userId = $userRow['user_id'];
+
+        // Set a cookie accessible in JS
+        setcookie(
+            "panel_session",      // cookie name
+            $userId,              // value
+            time() + 60*60*24,    // 1 day expiration
+            "/",                  // path
+            "",                   // domain, leave blank for current domain
+            false,                // secure (true if using HTTPS)
+            true                  // httponly (true if you don't want JS to read it)
+        );
+
+
+        $_SESSION['panel_user'] = [
+            'user_id' => $userRow['user_id'],
+            'name' => $userRow['username'],
+            'email' => $userRow['email'],
+        ];
+
+        $userSession = $_SESSION['panel_user'];
+
+        session_regenerate_id(true);
+
         echo json_encode([
             'status' => 'success',
-            'username' => $userRow['username'],
-            'password' => $decryptedPassword
+            'message' => 'successful'
         ]);
     }
 }

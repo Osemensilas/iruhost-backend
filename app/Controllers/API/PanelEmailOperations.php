@@ -14,7 +14,7 @@ class PanelEmailOperations{
     {
         $this->pdo = DB::connection();
         $this->userId = $_SESSION['user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
-        $this->panelUser = $_SESSION['panel_user']['user_id'] ?? null;
+        $this->panelUser = $_SESSION['panel_user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
     }
 
     public function createEmailDb()
@@ -88,6 +88,47 @@ class PanelEmailOperations{
             "status" => "successful",
             "message" => "Mailbox created successfully",
             "email" => $email
+        ]);
+    }
+
+    public function openUserDatabase(){
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($this->panelUser)){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+            return;
+        }
+
+        $databaseName = $_GET['panelId'] ?? null;
+        $panelUserId = $this->panelUser;
+
+        $stmt = $this->pdo->prepare("SELECT * FROM panel_users_database WHERE panel_id = ?");
+        $stmt->execute([$panelUserId]);
+        $data = $stmt->fetch();
+
+        if ($data && strtotime($data['expires_at']) > time()) {
+            $token = $data['pma_token'];
+        } else {
+
+            $token = bin2hex(random_bytes(32));
+
+            $stmt = $this->pdo->prepare("
+                UPDATE panel_users_database
+                SET pma_token = ?, expires_at = DATE_ADD(NOW(), INTERVAL 30 MINUTE)
+                WHERE panel_id = ?
+            ");
+            $stmt->execute([$token, $panelUserId]);
+        }
+
+        $link = "http://localhost/irupanel/pma-signon.php?token=$token";
+
+        echo json_encode([
+            'status' => 'successful',
+            'link' => $link
         ]);
     }
 }

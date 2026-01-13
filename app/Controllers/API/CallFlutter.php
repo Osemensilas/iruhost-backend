@@ -5,6 +5,7 @@ use App\Core\DB;
 use PDO;
 use Dotenv\Dotenv;
 use Resend;
+use PDOException;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -128,7 +129,7 @@ class CallFlutter {
                             $hostingResponse = $this->regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain);
                             $hosting_status = $hostingResponse['status'] ?? 'unknown';
                             $hosting_message = $hostingResponse['message'] ?? 'unknown';
-                            $iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
+                            //$iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
                         } else{
                             if ($row['product'] === 'Email Registration'){
                                 $productName = $row['product_name'];
@@ -189,123 +190,152 @@ class CallFlutter {
         ]);
     }
 
-    private function regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain){
+    // private function regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain){
         
-        $productId = uniqid('prod_');
-        $product = 'hosting';
-        $text = 'Ipanel';
-        $hostingName = "$productName";
-        $url = "https://iruap-shared-hosting.vercel.app/";
+    //     $productId = uniqid('prod_');
+    //     $product = 'hosting';
+    //     $text = 'Ipanel';
+    //     $hostingName = "$productName";
+    //     $url = "https://iruap-shared-hosting.vercel.app/";
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $url, $text, $expiryDate]);
+    //     $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+    //     $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $url, $text, $expiryDate]);
 
-        if (!$result){
-            return [
-                'status' => 'error',
-                'message' => 'Error inserting to database'
-            ];
-        }
+    //     if (!$result){
+    //         return [
+    //             'status' => 'error',
+    //             'message' => 'Error inserting to database'
+    //         ];
+    //     }
 
-        $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
-        $stmtUser->execute([$this->userId]);
-        $userRow = $stmtUser->fetch();
+    //     $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+    //     $stmtUser->execute([$this->userId]);
+    //     $userRow = $stmtUser->fetch();
 
-        if (!$userRow) {
-            return [
-                'status' => 'error',
-                'message' => 'User not found'
-            ];
-        }
+    //     if (!$userRow) {
+    //         return [
+    //             'status' => 'error',
+    //             'message' => 'User not found'
+    //         ];
+    //     }
 
-        $userEmail = $userRow['email'];
-        $clientName = $userRow['name'];
-        $clientId = $userRow['user_id'];
+    //     $userEmail = $userRow['email'];
+    //     $clientName = $userRow['name'];
+    //     $clientId = $userRow['user_id'];
 
-        $panelUserId = uniqid("IruPanel_");
-        $sld = substr($domain, 0, strpos($domain, '.'));
-        $username = "Iru_" . $sld;
+    //     $panelUserId = uniqid("IruPanel_");
+    //     $sld = substr($domain, 0, strpos($domain, '.'));
+    //     $username = "Iru_" . $sld;
 
-        $password = $this->generateSecurePassword();
+    //     $password = $this->generateSecurePassword();
 
-        $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
+    //     $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
 
-        $stmtCreatePanelUser = $this->pdo->prepare("INSERT INTO `panel_users`(`user_id`, `username`, `email`, `domain`, `password`, `auto_login`) VALUES (?,?,?,?,?,?)");
-        $userCreated = $stmtCreatePanelUser->execute([$panelUserId, $username, $userEmail, $domain, $encryptedPassword, '']);
+    //     $stmtCreatePanelUser = $this->pdo->prepare("INSERT INTO `panel_users`(`user_id`, `username`, `email`, `domain`, `password`, `auto_login`) VALUES (?,?,?,?,?,?)");
+    //     $userCreated = $stmtCreatePanelUser->execute([$panelUserId, $username, $userEmail, $domain, $encryptedPassword, '']);
 
-        if (!$userCreated){
-            return [
-                'status' => 'error',
-                'message' => 'Error Creating Panel User'
-            ];
-        }
+    //     if (!$userCreated){
+    //         return [
+    //             'status' => 'error',
+    //             'message' => 'Error Creating Panel User'
+    //         ];
+    //     }
 
 
-        $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
-        $delete = $stmtDel->execute([$cartId, $this->userId]);
+    //     $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+    //     $delete = $stmtDel->execute([$cartId, $this->userId]);
 
-        if (!$delete){
-            return [
-                'status' => 'error',
-                'message' => 'Error deleting from cart'
-            ];
-        }
+    //     if (!$delete){
+    //         return [
+    //             'status' => 'error',
+    //             'message' => 'Error deleting from cart'
+    //         ];
+    //     }
 
-        $basePath = __DIR__ . "/../../Services/Iruhost/";
-        $userFolder = $basePath . $clientId;
+    //     $basePath = __DIR__ . "/../../Services/Iruhost/";
+    //     $userFolder = $basePath . $clientId;
 
-        if (!is_dir($userFolder)) {
-            mkdir($userFolder, 0777, true);
-        }
+    //     if (!is_dir($userFolder)) {
+    //         mkdir($userFolder, 0777, true);
+    //     }
 
-        $publicHtml = $userFolder . "/public_html";
+    //     $publicHtml = $userFolder . "/public_html";
 
-        if (!is_dir($publicHtml)) {
-            mkdir($publicHtml, 0777, true);
-        }
+    //     if (!is_dir($publicHtml)) {
+    //         mkdir($publicHtml, 0777, true);
+    //     }
 
-        $defaultIndex = $publicHtml . "/index.html";
+    //     $defaultIndex = $publicHtml . "/index.html";
 
-        if (!file_exists($defaultIndex)) {
-            $content = "
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <meta charset='UTF-8'>
-                    <title>Welcome to Your Hosting</title>
-                </head>
-                <body>
-                    <h1>Your hosting space is ready 🎉</h1>
-                    <p>Upload your website files into this folder.</p>
-                </body>
-            </html>
-            ";
-            file_put_contents($defaultIndex, $content);
-        }
+    //     if (!file_exists($defaultIndex)) {
+    //         $content = "
+    //         <!DOCTYPE html>
+    //         <html>
+    //             <head>
+    //                 <meta charset='UTF-8'>
+    //                 <title>Welcome to Your Hosting</title>
+    //             </head>
+    //             <body>
+    //                 <h1>Your hosting space is ready 🎉</h1>
+    //                 <p>Upload your website files into this folder.</p>
+    //             </body>
+    //         </html>
+    //         ";
+    //         file_put_contents($defaultIndex, $content);
+    //     }
 
-        $autoLogin = uniqid('iru_auto_');
-        $autoUrl = "https://iruap-shared-hosting.vercel.app?user=$panelUserId&login=$autoLogin";
+    //     $databaseName = "db_" . $panelUserId; // e.g., db_user123
 
-        $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product = ?");
-        $stmt->execute([$autoUrl, $this->userId, 'hosting']);
+    //     $dbUser = "iru_" . substr(md5($panelUserId), 0, 8);
+    //     $dbPass = $this->generateSecurePassword();
 
-        echo json_encode([
-            'status' => 'successful',
-            'message' => 'account creation successful'
-        ]);
+    //     $encryptedDbPass = openssl_encrypt($dbPass, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
 
-        $stmt = $this->pdo->prepare("UPDATE `panel_users` SET `auto_login`=? WHERE user_id = ? AND username = ?");
-        $stmt->execute([$autoLogin, $panelUserId, $username]);
+    //     try {
+    //         $this->pdo->exec("CREATE USER '$dbUser'@'localhost' IDENTIFIED BY '$dbPass'");
+    //         $this->pdo->exec("GRANT ALL PRIVILEGES ON `$databaseName`.* TO '$dbUser'@'localhost'");
+    //         $this->pdo->exec("FLUSH PRIVILEGES");
 
-        echo json_encode([
-            'status' => 'successful',
-            'message' => 'User update successful'
-        ]);
+    //         $panelDatabasesStmt = $this->pdo->prepare("INSERT INTO `panel_users_database`(`user_id`, `panel_id`, `database_name`, `db_user`, `db_password`) VALUES (?,?,?,?,?)");
+    //         $saveDatabaseToIruhostRecord = $panelDatabasesStmt->execute([$clientId, $panelUserId, $databaseName, $dbUser, $encryptedDbPass]);
 
-        $ipAddress = '';
+    //         if (!$saveDatabaseToIruhostRecord){
+    //             return [
+    //                 'status' => 'error',
+    //                 'message' => 'Error saving database name to iruhost'
+    //             ];
+    //         }
+    //     } catch (PDOException $e) {
+    //         try { 
+    //             $this->pdo->exec("DROP DATABASE IF EXISTS `$databaseName`"); 
+    //         } catch (\Throwable $t) {}
+            
+    //         return [
+    //             'status'=>'error',
+    //             'message'=>'Database creation failed: '.$e->getMessage()
+    //         ];
+    //     }
 
-        $this->sendHostingMessage($username, $password, $domain, $ipAddress, $userEmail, $clientName);
-    }
+
+    //     $autoLogin = uniqid('iru_auto_');
+    //     $autoUrl = "https://iruap-shared-hosting.vercel.app?user=$panelUserId&login=$autoLogin";
+
+    //     $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product = ?");
+    //     $stmt->execute([$autoUrl, $this->userId, 'hosting']);
+
+    //     $stmt = $this->pdo->prepare("UPDATE `panel_users` SET `auto_login`=? WHERE user_id = ? AND username = ?");
+    //     $stmt->execute([$autoLogin, $panelUserId, $username]);
+
+    //     echo json_encode([
+    //         'status' => 'successful',
+    //         'update_message' => 'User update successful',
+    //         'create_message' => 'account creation successful'
+    //     ]);
+
+    //     $ipAddress = '';
+
+    //     $this->sendHostingMessage($username, $password, $domain, $ipAddress, $userEmail, $clientName);
+    // }
 
     public function topupSuccessful(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -609,6 +639,8 @@ class CallFlutter {
     }
 
     public function adminCreateHosting(){
+
+        //T9erTsc671yw
 
         $productId = uniqid('prod_');
         $product = 'hosting';
