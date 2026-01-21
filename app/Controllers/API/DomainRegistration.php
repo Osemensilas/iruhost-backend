@@ -177,15 +177,7 @@ class DomainRegistration{
         // $response = curl_exec($curl);
         // curl_close($curl);
 
-        require_once __DIR__.'/../../Core/DomainNameApi/DomainNameAPI_PHPLibrary.php';
-
-        $username = 'osemensilas@gmail.com';
-        $password = 'Bank$101';
-
-        $dna = new \DomainNameApi\DomainNameAPI_PHPLibrary($username,$password);
-
-        $result = $dna->checkAvailability(['example','testdomain'],['com','net'],1,'create');
-        print_r($result);
+        echo $data;
     }
 
     public function existingCheck(){
