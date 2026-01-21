@@ -150,34 +150,33 @@ class DomainRegistration{
     private function nigerianDomain($data){
         $domainName = $data;
 
-        // $endpoint   = "https://domainreseller.prymhosting.com/modules/addons/DomainsReseller/api/index.php";
-        // $action     = "/domains/lookup";
-        // $params     = [
-        //     "domain"    => $domainName,
-        //     "regperiod" => "1",
-        //     "addons"    => [
-        //         "dnsmanagement"     => 0,
-        //         "emailforwarding"   => 1,
-        //         "idprotection"      => 1,
-        //     ]
-        // ];
-        // $headers = [
-        //     "username: osemensilas@gmail.com",
-        //     "token: ". base64_encode(hash_hmac("sha256", "7JxtY9NkcJwWACqi5jzJ5ZvAH0fj8K8L", "osemensilas@gmail.com:".gmdate("y-m-d H")))
-        // ];
+        $tdl = substr($domainName, strpos($domainName, '.') + 1);
+        $sld = substr($domainName, 0, strpos($domainName, '.'));
 
-        // $curl = curl_init();
-        // curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
-        // curl_setopt($curl, CURLOPT_POST, true);
-        // curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
-        // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
-        // curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
+        $action     = "/domains/lookup";
+        $params     = [
+            "searchTerm" => $sld,
+            "punnyCodeSearchTerm" => $sld,
+            "tldsToInclude" => [$tdl, ".com.ng", ".org.ng", ".net.ng", ".gov.ng", ".edu.ng", ".sch.ng", ".name.ng", ".mobi.ng", ".mil.ng", ".i.ng"],
+            "isIdnDomain" => true,
+            "premiumEnabled" => true,
+        ];
+        $headers = [
+            "username: osemensilas@gmail.com",
+            "token: " . base64_encode(hash_hmac("sha256", "1234567890QWERTYUIOPASDFGHJKLZXCVBNM", "osemensilas@gmail.com:" . gmdate("y-m-d H")))
+        ];
 
-        // $response = curl_exec($curl);
-        // curl_close($curl);
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-        echo $data;
+        $response = curl_exec($curl);
+        curl_close($curl);
     }
 
     public function existingCheck(){
