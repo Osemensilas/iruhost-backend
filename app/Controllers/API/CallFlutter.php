@@ -487,7 +487,7 @@ class CallFlutter {
         $productId = uniqid('prod_');
         $product = 'hosting';
         $text = 'Cpanel';
-        $hostingName = "iruhostc_$productName";
+        $hostingName = $productName;
 
         $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
         $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $url, $text, $expiryDate]);
@@ -547,7 +547,7 @@ class CallFlutter {
         $whm_token = $this->cpanelApiToken;
 
         // Create cPanel account via WHM API
-        $api_endpoint = "https://cloud.webhostingbliss.com:2087/json-api/createacct?api.version=1";
+        $api_endpoint = "https://server.iruhost.com:2087/json-api/createacct?api.version=1";
 
         // Account details
         $account_data = [
