@@ -177,6 +177,8 @@ class DomainRegistration{
 
         $response = curl_exec($curl);
         curl_close($curl);
+
+        print_r($response);
     }
 
     public function existingCheck(){
