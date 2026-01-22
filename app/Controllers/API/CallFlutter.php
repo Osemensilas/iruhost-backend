@@ -782,7 +782,8 @@ class CallFlutter {
 
         $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
 
-        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', "osemen"), 0, 8)) . rand(10, 99);
+        $username = substr($domain, 0, strpos($domain, '.') ?: strlen($domain));
+        $username = preg_replace('/[^a-zA-Z0-9]/', '', $username); // Remove special chars
         $username = substr($username, 0, 16);
 
         $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
@@ -1002,7 +1003,7 @@ class CallFlutter {
                     <table cellpadding='8' cellspacing='0' style='width:100%; border-collapse: collapse; margin: 20px 0;'>
                     <tr style='background-color:#f0f4ff;'>
                         <td style='width:35%; font-weight:bold; color:#333;'>Login URL:</td>
-                        <td><a href='https://{$this->cpanelHostname}:2083' style='color:#007bff; text-decoration:none;'>https://{$this->cpanelHostname}:2083</a></td>
+                        <td><a href='https://{$this->whmHostname}:2083' style='color:#007bff; text-decoration:none;'>https://{$this->whmHostname}:2083</a></td>
                     </tr>
                     <tr>
                         <td style='font-weight:bold; color:#333;'>Username:</td>
@@ -1019,7 +1020,7 @@ class CallFlutter {
                     </p>
                     
                     <div style='text-align:center; margin-top:30px;'>
-                    <a href='https://{$this->cpanelHostname}:2083' style='display:inline-block; background-color:#007bff; color:#fff; text-decoration:none; padding:12px 25px; border-radius:6px; font-weight:bold;'>Login to cPanel</a>
+                    <a href='https://{$this->whmHostname}:2083' style='display:inline-block; background-color:#007bff; color:#fff; text-decoration:none; padding:12px 25px; border-radius:6px; font-weight:bold;'>Login to cPanel</a>
                     </div>
 
                     <p style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
