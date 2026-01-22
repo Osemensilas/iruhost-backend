@@ -153,20 +153,18 @@ class DomainRegistration{
         $tdl = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
-        $endpoint   = "https://domainreseller.prymhosting.com/modules/addons/DomainsReseller/api/index.php";
+        $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
         $action     = "/domains/lookup";
         $params     = [
-            "domain"    => $domainName,
-            "regperiod" => "3",
-            "addons"    => [
-                "dnsmanagement"     => 0,
-                "emailforwarding"   => 1,
-                "idprotection"      => 1,
-            ]
+            "searchTerm" => $sld,
+            "punnyCodeSearchTerm" => $sld,
+            "tldsToInclude" => [$tdl, ".com.ng", ".org.ng", ".net.ng", ".gov.ng", ".edu.ng", ".sch.ng", ".name.ng", ".mobi.ng", ".mil.ng", ".i.ng"],
+            "isIdnDomain" => true,
+            "premiumEnabled" => true,
         ];
         $headers = [
             "username: osemensilas@gmail.com",
-            "token: ". base64_encode(hash_hmac("sha256", "fr4yBqmZzDlfUIYIutjdPqP4mFCX47OA", "osemensilas@gmail.com:".gmdate("y-m-d H")))
+            "token: " . base64_encode(hash_hmac("sha256", "1234567890QWERTYUIOPASDFGHJKLZXCVBNM", "osemensilas@gmail.com:" . gmdate("y-m-d H")))
         ];
 
         $curl = curl_init();
