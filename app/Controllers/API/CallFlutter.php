@@ -17,9 +17,9 @@ class CallFlutter {
     protected $userId;
     protected $enomUserId;
     protected $enomApiToken;
-    protected $cpanelUsername;
-    protected $cpanelApiToken;
-    protected $cpanelHostname;
+    protected $whmUsername;
+    protected $whmApiToken;
+    protected $whmHostname;
     protected $encryptionKey;
     protected $encryptionIV;
     protected $resend;
@@ -36,9 +36,9 @@ class CallFlutter {
         $this->userId = $_SESSION['user']['user_id'] ?? null;
         $this->enomUserId = $_ENV['ENOM_USER_ID'];
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
-        $this->cpanelUsername = $_ENV['CPANEL_USERNAME'] ?? null;
-        $this->cpanelApiToken = $_ENV['CPANEL_API_TOKEN'] ?? null;
-        $this->cpanelHostname = $_ENV['CPANEL_HOST'] ?? null;
+        $this->whmUsername = $_ENV['WHM_USERNAME'] ?? null;
+        $this->whmApiToken = $_ENV['WHM_API_TOKEN'] ?? null;
+        $this->whmHostname = $_ENV['WHM_HOST'] ?? null;
         $this->encryptionKey = hash('sha256', $_ENV['ENCRYPTION_KEY']);
         $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
         $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
@@ -129,7 +129,7 @@ class CallFlutter {
                                 $expiryDate = date('Y-m-d H:i:s', strtotime('+1 month'));
                             }
 
-                            $hostingResponse = $this->regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain);
+                            $hostingResponse = $this->regHosting($expiryDate, $productName, $billing, $cartId, $domain);
                             $hosting_status = $hostingResponse['status'] ?? 'unknown';
                             $hosting_message = $hostingResponse['message'] ?? 'unknown';
                             //$iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
@@ -483,172 +483,296 @@ class CallFlutter {
         ];
     }
 
-    private function regHosting($expiryDate, $url, $productName, $billing, $cartId, $domain){
-        $productId = uniqid('prod_');
-        $product = 'hosting';
-        $text = 'Cpanel';
-        $hostingName = $productName;
+    // private function regHosting($expiryDate, $productName, $billing, $cartId, $domain){
+    //     $productId = uniqid('prod_');
+    //     $product = 'hosting';
+    //     $text = 'Cpanel';
+    //     $hostingName = $productName;
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $url, $text, $expiryDate]);
+    //     $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+    //     $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, "", $text, $expiryDate]);
 
-        if (!$result){
-            return [
-                'status' => 'error',
-                'message' => 'Error inserting to database'
-            ];
-        }
+    //     if (!$result){
+    //         return [
+    //             'status' => 'error',
+    //             'message' => 'Error inserting to database'
+    //         ];
+    //     }
 
-        $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
-        $delete = $stmtDel->execute([$cartId, $this->userId]);
+    //     $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+    //     $delete = $stmtDel->execute([$cartId, $this->userId]);
 
-        if (!$delete){
-            return [
-                'status' => 'error',
-                'message' => 'Error deleting from cart'
-            ];
-        }
+    //     if (!$delete){
+    //         return [
+    //             'status' => 'error',
+    //             'message' => 'Error deleting from cart'
+    //         ];
+    //     }
 
-        $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
-        $stmtUser->execute([$this->userId]);
-        $userRow = $stmtUser->fetch();
+    //     $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+    //     $stmtUser->execute([$this->userId]);
+    //     $userRow = $stmtUser->fetch();
 
-        if (!$userRow) {
-            return [
-                'status' => 'error',
-                'message' => 'User not found'
-            ];
-        }
+    //     if (!$userRow) {
+    //         return [
+    //             'status' => 'error',
+    //             'message' => 'User not found'
+    //         ];
+    //     }
 
-        $userEmail = $userRow['email'];
-        $clientName = $userRow['name'];
+    //     $userEmail = $userRow['email'];
+    //     $clientName = $userRow['name'];
 
-        // Generate unique cPanel username (max 16 characters)
-        $username = 'iru' . strtolower(substr(preg_replace('/[^a-zA-Z0-9]/', '', $userRow['name']), 0, 8)) . rand(10, 99);
-        $username = substr($username, 0, 16);
+    //     // Generate unique cPanel username (max 16 characters)
+    //     $username = substr($domain, 0, strpos($domain, '.'));
+    //     $username = substr($username, 0, 16);
 
-        $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
-        $checkStmt->execute([$hostingName]);
-        if ($checkStmt->fetchColumn() > 0) {
-            $username .= rand(100, 999); // make it more unique
-        }
+    //     $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
+    //     $checkStmt->execute([$hostingName]);
+    //     if ($checkStmt->fetchColumn() > 0) {
+    //         $username .= rand(100, 999); // make it more unique
+    //     }
 
-        // Generate secure password
+    //     // Generate secure password
         
-        $password = $this->generateSecurePassword();
+    //     $password = $this->generateSecurePassword();
 
-        $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
-
-
-        // WHM API credentials
-        $whm_host = $this->cpanelHostname;
-        $whm_port = 2087;
-        $whm_username = $this->cpanelUsername;
-        $whm_token = $this->cpanelApiToken;
-
-        // Create cPanel account via WHM API
-        $api_endpoint = "https://server.iruhost.com:2087/json-api/createacct?api.version=1";
-
-        // Account details
-        $account_data = [
-            'username' => $username,
-            'domain' => $domain,
-            'password' => $password,
-            'plan' => $hostingName,
-            'contactemail' => $userRow['email'],
-        ];
-
-        // Initialize cURL
-        $curl = curl_init($api_endpoint);
-
-        // Set cURL options
-        curl_setopt_array($curl, [
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["Authorization: whm iruhostc:V6DJRXECR4K7IK0ZXV2ELRX8TMF9SVLS"],
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => http_build_query($account_data),
-            CURLOPT_TIMEOUT => 60,
-        ]);
-
-        // Execute request
-        $result = curl_exec($curl);
-
-        // Check for cURL errors
-        if ($result === false) {
-            return [
-                'status' => 'error',
-                'message' => 'Unable to reach WHM server: ' . curl_error($curl)
-            ];
-        }
-
-        // Close cURL
-        curl_close($curl);
-
-        file_put_contents(__DIR__ . '/whm_log.txt', date('Y-m-d H:i:s') . " - $result\n", FILE_APPEND);
+    //     $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
 
 
-        // Process the API response
-        if ($result) {
+    //     // WHM API credentials
+    //     $whm_host = $this->whmHostname;
+    //     $whm_port = 2087;
+    //     $whm_username = $this->whmUsername;
+    //     $whm_token = $this->whmApiToken;
 
-            $decoded_result = json_decode($result, true);
+    //     // Create cPanel account via WHM API
+    //     $api_endpoint = "https://server.iruhost.com:2087/json-api/createacct?api.version=1";
 
-            // Access WHM metadata
-            $reason = $decoded_result['metadata']['reason'] ?? '';
-            $raw_output = $decoded_result['metadata']['output']['raw'] ?? '';
+    //     // Account details
+    //     $account_data = [
+    //         'username' => $username,
+    //         'domain' => $domain,
+    //         'password' => $password,
+    //         'plan' => $hostingName,
+    //         'contactemail' => $userRow['email'],
+    //     ];
 
-            // Extract key values from raw output (regex)
-            preg_match('/UserName:\s*(\S+)/', $raw_output, $usernameMatch);
-            preg_match('/PassWord:\s*\(([^)]+)\)/', $raw_output, $passwordMatch);
-            preg_match('/Domain:\s*(\S+)/', $raw_output, $domainMatch);
+    //     // Initialize cURL
+    //     $curl = curl_init($api_endpoint);
 
-            $usernameCreated = $usernameMatch[1] ?? '';
-            $passwordCreated = $passwordMatch[1] ?? '';
-            $domainCreated   = $domainMatch[1] ?? '';
-            $ipAddress       = $decoded_result['data']['ip'] ?? '';
+    //     // Set cURL options
+    //     curl_setopt_array($curl, [
+    //         CURLOPT_SSL_VERIFYHOST => 0,
+    //         CURLOPT_SSL_VERIFYPEER => 0,
+    //         CURLOPT_RETURNTRANSFER => true,
+    //         CURLOPT_HTTPHEADER => ["Authorization: whm {$whm_username}:{$whm_token}"],
+    //         CURLOPT_POST => true,
+    //         CURLOPT_POSTFIELDS => http_build_query($account_data),
+    //         CURLOPT_TIMEOUT => 60,
+    //     ]);
 
-            if (stripos($reason, 'Account Creation Ok') !== false){
-                $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-                $insert = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
+    //     // Execute request
+    //     $result = curl_exec($curl);
+
+    //     // Check for cURL errors
+    //     if ($result === false) {
+    //         return [
+    //             'status' => 'error',
+    //             'message' => 'Unable to reach WHM server: ' . curl_error($curl)
+    //         ];
+    //     }
+
+    //     // Close cURL
+    //     curl_close($curl);
+
+    //     file_put_contents(__DIR__ . '/whm_log.txt', date('Y-m-d H:i:s') . " - $result\n", FILE_APPEND);
+
+
+    //     // Process the API response
+    //     if ($result) {
+
+    //         $decoded_result = json_decode($result, true);
+
+    //         // Access WHM metadata
+    //         $reason = $decoded_result['metadata']['reason'] ?? '';
+    //         $raw_output = $decoded_result['metadata']['output']['raw'] ?? '';
+
+    //         // Extract key values from raw output (regex)
+    //         preg_match('/UserName:\s*(\S+)/', $raw_output, $usernameMatch);
+    //         preg_match('/PassWord:\s*\(([^)]+)\)/', $raw_output, $passwordMatch);
+    //         preg_match('/Domain:\s*(\S+)/', $raw_output, $domainMatch);
+
+    //         $usernameCreated = $usernameMatch[1] ?? '';
+    //         $passwordCreated = $passwordMatch[1] ?? '';
+    //         $domainCreated   = $domainMatch[1] ?? '';
+    //         $ipAddress       = $decoded_result['data']['ip'] ?? '';
+
+    //         if (stripos($reason, 'Account Creation Ok') !== false){
+    //             $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+    //             $insert = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
                 
-                $autoLoginUrl = $this->createCpanelAutoLoginUrl($username, $domain);
+    //             $autoLoginUrl = $this->createCpanelAutoLoginUrl($username, $domain);
 
-                $url = $autoLoginUrl ?: "https://cloud.webhostingbliss.com:2087/";
+    //             $url = $autoLoginUrl ?: "https://cloud.webhostingbliss.com:2087/";
 
-                $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
+    //             $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
 
-                if ($insert){
-                    $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product = ?");
-                    $stmt->execute([$url, $this->userId, 'hosting']);
+    //             if ($insert){
+    //                 $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product = ?");
+    //                 $stmt->execute([$url, $this->userId, 'hosting']);
 
-                    return [
-                        'status' => 'success',
-                        'message' => 'Hosting account created successfully'
-                    ];
-                }
-            }else{
-                return [
-                    'status' => 'success',
-                    'message' => "Here is the result: " . json_encode($decoded_result)
-                ];
+    //                 return [
+    //                     'status' => 'success',
+    //                     'message' => 'Hosting account created successfully'
+    //                 ];
+    //             }
+    //         }else{
+    //             return [
+    //                 'status' => 'success',
+    //                 'message' => "Here is the result: " . json_encode($decoded_result)
+    //             ];
+    //         }
+    //     } else {
+    //         return [
+    //             'status' => 'error',
+    //             'message' => 'Failed to get API response.'
+    //         ];
+    //     }
+    // }
+
+    
+    private function regHosting($expiryDate, $productName, $billing, $cartId, $domain){
+    // Start transaction for data consistency
+        $this->pdo->beginTransaction();
+        
+        try {
+            $productId = uniqid('prod_');
+            $product = 'hosting';
+            $text = 'Cpanel';
+            $hostingName = $productName;
+
+            // Insert product record
+            $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+            $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, "", $text, $expiryDate]);
+
+            if (!$result){
+                throw new Exception('Error inserting product to database');
             }
-        } else {
+
+            // Delete from cart
+            $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+            $delete = $stmtDel->execute([$cartId, $this->userId]);
+
+            if (!$delete){
+                throw new Exception('Error deleting from cart');
+            }
+
+            // Get user information
+            $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+            $stmtUser->execute([$this->userId]);
+            $userRow = $stmtUser->fetch();
+
+            if (!$userRow) {
+                throw new Exception('User not found');
+            }
+
+            $userEmail = $userRow['email'];
+            $clientName = $userRow['name'];
+
+            // Generate unique cPanel username (max 16 characters)
+            $username = substr($domain, 0, strpos($domain, '.') ?: strlen($domain));
+            $username = preg_replace('/[^a-zA-Z0-9]/', '', $username); // Remove special chars
+            $username = substr($username, 0, 16);
+
+            // Ensure username uniqueness
+            $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
+            $checkStmt->execute([$hostingName]);
+            if ($checkStmt->fetchColumn() > 0) {
+                $username = substr($username, 0, 13) . rand(100, 999);
+            }
+
+            // Generate secure password
+            $password = $this->generateSecurePassword();
+
+            // Create cPanel account via WHM API
+            $apiResponse = $this->createCpanelAccount($username, $domain, $password, $hostingName, $userEmail);
+
+            if (!$apiResponse['success']) {
+                throw new Exception($apiResponse['message']);
+            }
+
+            // Encrypt password for storage (if needed)
+            $encryptedPassword = openssl_encrypt(
+                $password, 
+                'AES-256-CBC', 
+                $this->encryptionKey, 
+                0, 
+                $this->encryptionIV
+            );
+
+            // Insert hosting details
+            $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+            $insert = $stmt->execute([
+                $this->userId, 
+                $productId, 
+                $product, 
+                $hostingName, 
+                $billing, 
+                $domain, 
+                $encryptedPassword, 
+                $username, 
+                $expiryDate
+            ]);
+            
+            if (!$insert) {
+                throw new Exception('Error inserting hosting details');
+            }
+
+            // Send email notification
+            $this->sendHostingMessage(
+                $apiResponse['username'],
+                $password,
+                $apiResponse['domain'],
+                $apiResponse['ip'],
+                $userEmail,
+                $clientName
+            );
+
+            // Commit transaction
+            $this->pdo->commit();
+
+            return [
+                'status' => 'success',
+                'message' => 'Hosting account created successfully',
+                'data' => [
+                    'username' => $apiResponse['username'],
+                    'domain' => $apiResponse['domain'],
+                    'url' => ""
+                ]
+            ];
+
+        } catch (Exception $e) {
+            // Rollback on error
+            $this->pdo->rollBack();
+            
+            // Log error for debugging
+            error_log("Hosting registration error: " . $e->getMessage());
+            
             return [
                 'status' => 'error',
-                'message' => 'Failed to get API response.'
+                'message' => $e->getMessage()
             ];
         }
     }
-
+    
     public function adminCreateHosting(){
 
-        //T9erTsc671yw
-
+        try{
         $productId = uniqid('prod_');
         $product = 'hosting';
         $text = 'Cpanel';
-        $hostingName = "iruhostc_growth";
+        $hostingName = "growth";
         $billing = "month";
         $userId = "iru_6900bb928467e";
         $userEmail = "osemensilas@gmail.com";
@@ -668,141 +792,165 @@ class CallFlutter {
             $username .= rand(100, 999); // make it more unique
         }
 
-        // Create cPanel account via WHM API
-        $api_endpoint = "https://cloud.webhostingbliss.com:2087/json-api/createacct?api.version=1";
+        $apiResponse = $this->createCpanelAccount($username, $domain, $password, $hostingName, $userEmail);
 
-        // Account details
+        if (!$apiResponse['success']) {
+            throw new Exception($apiResponse['message']);
+        }
+
+        // Encrypt password for storage (if needed)
+        $encryptedPassword = openssl_encrypt(
+            $password, 
+            'AES-256-CBC', 
+            $this->encryptionKey, 
+            0, 
+            $this->encryptionIV
+        );
+
+        // Insert hosting details
+        $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $insert = $stmt->execute([
+            $userId, 
+            $productId, 
+            $product, 
+            $hostingName, 
+            $billing, 
+            $domain, 
+            $encryptedPassword, 
+            $username, 
+            $expiryDate
+        ]);
+        
+        if (!$insert) {
+            throw new Exception('Error inserting hosting details');
+        }
+        
+        $this->sendHostingMessage(
+            $apiResponse['username'],
+            $password,
+            $apiResponse['domain'],
+            $apiResponse['ip'],
+            $userEmail,
+            $clientName
+        );
+
+        // Commit transaction
+        $this->pdo->commit();
+
+        return [
+            'status' => 'success',
+            'message' => 'Hosting account created successfully',
+            'data' => [
+                'username' => $apiResponse['username'],
+                'domain' => $apiResponse['domain'],
+                'url' => ""
+            ]
+        ];
+
+        } catch (Exception $e) {
+            // Rollback on error
+            $this->pdo->rollBack();
+            
+            // Log error for debugging
+            error_log("Hosting registration error: " . $e->getMessage());
+            
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
+        }
+       
+    }
+
+    private function createCpanelAccount($username, $domain, $password, $plan, $email) {
+        $api_endpoint = "https://{$this->whmHostname}:2087/json-api/createacct?api.version=1";
+
         $account_data = [
             'username' => $username,
             'domain' => $domain,
             'password' => $password,
-            'plan' => $hostingName,
-            'contactemail' => $userEmail,
+            'plan' => $plan,
+            'contactemail' => $email,
         ];
 
-        // Initialize cURL
         $curl = curl_init($api_endpoint);
 
-        // Set cURL options
         curl_setopt_array($curl, [
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 2, // Set to 2 for production
+            CURLOPT_SSL_VERIFYPEER => true, // Set to true for production
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["Authorization: whm iruhostc:V6DJRXECR4K7IK0ZXV2ELRX8TMF9SVLS"],
+            CURLOPT_HTTPHEADER => [
+                "Authorization: whm {$this->whmUsername}:{$this->whmApiToken}"
+            ],
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => http_build_query($account_data),
             CURLOPT_TIMEOUT => 60,
         ]);
 
-        // Execute request
         $result = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-        print_r($result);
-
-        // Check for cURL errors
         if ($result === false) {
-            echo json_encode( [
-                'status' => 'error',
-                'message' => 'Unable to reach WHM server: ' . curl_error($curl)
-            ]);
+            $error = curl_error($curl);
+            curl_close($curl);
+            
+            return [
+                'success' => false,
+                'message' => 'Unable to reach WHM server: ' . $error
+            ];
         }
 
-        // Close cURL
         curl_close($curl);
 
-        file_put_contents(__DIR__ . '/whm_log.txt', date('Y-m-d H:i:s') . " - $result\n", FILE_APPEND);
+        // Log API response for debugging
+        $logEntry = date('Y-m-d H:i:s') . " - HTTP {$httpCode} - {$result}\n";
+        file_put_contents(__DIR__ . '/whm_log.txt', $logEntry, FILE_APPEND);
 
+        $decoded_result = json_decode($result, true);
 
-        // Process the API response
-        if ($result) {
-
-            $decoded_result = json_decode($result, true);
-
-            // Access WHM metadata
-            $reason = $decoded_result['metadata']['reason'] ?? '';
-            $raw_output = $decoded_result['metadata']['output']['raw'] ?? '';
-
-            // Extract key values from raw output (regex)
-            preg_match('/UserName:\s*(\S+)/', $raw_output, $usernameMatch);
-            preg_match('/PassWord:\s*\(([^)]+)\)/', $raw_output, $passwordMatch);
-            preg_match('/Domain:\s*(\S+)/', $raw_output, $domainMatch);
-
-            $usernameCreated = $usernameMatch[1] ?? '';
-            $passwordCreated = $passwordMatch[1] ?? '';
-            $domainCreated   = $domainMatch[1] ?? '';
-            $ipAddress       = $decoded_result['data']['ip'] ?? '';
-
-            if (stripos($reason, 'Account Creation Ok') !== false){
-                $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-                $insert = $stmt->execute([$userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
-                
-                $autoLoginUrl = $this->createCpanelAutoLoginUrl($username, $domain);
-
-                $url = $autoLoginUrl ?: "https://cloud.webhostingbliss.com:2087/";
-
-                $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
-
-                if ($insert){
-                    $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product = ?");
-                    $stmt->execute([$url, $userId, 'hosting']);
-
-                    echo json_encode ([
-                        'status' => 'success',
-                        'message' => 'Hosting account created successfully'
-                    ]);
-                }
-            }else{
-                return [
-                    'status' => 'success',
-                    'message' => "Here is the result: " . json_encode($decoded_result)
-                ];
-            }
-        } else {
-            echo json_encode( [
-                'status' => 'error',
-                'message' => 'Failed to get API response.'
-            ]);
+        if (!$decoded_result) {
+            return [
+                'success' => false,
+                'message' => 'Invalid JSON response from WHM API'
+            ];
         }
-    }
 
-    private function createCpanelAutoLoginUrl($username, $domain) {
-    // WHM API endpoint for creating user session
-        $api_endpoint = "https://{$this->cpanelHostname}:2087/json-api/create_user_session";
-        
-        $session_data = [
-            'api.version' => '1',
-            'user' => $username,
-            'service' => 'cpaneld'
+        // Check API response
+        $reason = $decoded_result['metadata']['reason'] ?? '';
+        $raw_output = $decoded_result['metadata']['output']['raw'] ?? '';
+
+        if (stripos($reason, 'Account Creation Ok') === false) {
+            return [
+                'success' => false,
+                'message' => $reason ?: 'Account creation failed: ' . ($raw_output ?: 'Unknown error')
+            ];
+        }
+
+        // Extract account details from raw output
+        preg_match('/UserName:\s*(\S+)/', $raw_output, $usernameMatch);
+        preg_match('/PassWord:\s*\(([^)]+)\)/', $raw_output, $passwordMatch);
+        preg_match('/Domain:\s*(\S+)/', $raw_output, $domainMatch);
+
+        $usernameCreated = $usernameMatch[1] ?? $username;
+        $passwordCreated = $passwordMatch[1] ?? $password;
+        $domainCreated = $domainMatch[1] ?? $domain;
+        $ipAddress = $decoded_result['data']['ip'] ?? '';
+
+        // Validate critical data was extracted
+        if (empty($usernameCreated) || empty($domainCreated)) {
+            return [
+                'success' => false,
+                'message' => 'Failed to extract account details from WHM response'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'username' => $usernameCreated,
+            'password' => $passwordCreated,
+            'domain' => $domainCreated,
+            'ip' => $ipAddress
         ];
-        
-        $curl = curl_init($api_endpoint);
-        
-        curl_setopt_array($curl, [
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ["Authorization: whm iruhostc:V6DJRXECR4K7IK0ZXV2ELRX8TMF9SVLS"],
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => http_build_query($session_data),
-            CURLOPT_TIMEOUT => 30,
-        ]);
-        
-        $result = curl_exec($curl);
-        curl_close($curl);
-        
-        if ($result) {
-            $decoded = json_decode($result, true);
-            
-            // Extract the session URL
-            $sessionUrl = $decoded['data']['url'] ?? '';
-            
-            if ($sessionUrl) {
-                return $sessionUrl;
-            }
-        }
-        
-        // Fallback to regular login URL if auto-login fails
-        return "https://cloud.webhostingbliss.com:2087/";
     }
 
     private function generateSecurePassword($length = 12){
