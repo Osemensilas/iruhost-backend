@@ -43,8 +43,7 @@ class CallFlutter {
         $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
         $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
         $this->resend = Resend::client($this->resendApiCode);
-        $this->whmApiToken = "iruap";
-        $this->server = "37.59.113.132";
+        $this->server = "163.245.208.132";
     }
 
     public function paymentSuccessful(){
