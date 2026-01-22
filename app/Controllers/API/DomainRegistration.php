@@ -157,7 +157,7 @@ class DomainRegistration{
         $action     = "/domains/lookup";
         $params     = [
             "domain"    => $domainName,
-            "regperiod" => "1",
+            "regperiod" => "3",
             "addons"    => [
                 "dnsmanagement"     => 0,
                 "emailforwarding"   => 1,
@@ -166,7 +166,7 @@ class DomainRegistration{
         ];
         $headers = [
             "username: osemensilas@gmail.com",
-            "token: ". base64_encode(hash_hmac("sha256", "7JxtY9NkcJwWACqi5jzJ5ZvAH0fj8K8L", "osemensilas@gmail.com:".gmdate("y-m-d H")))
+            "token: ". base64_encode(hash_hmac("sha256", "fr4yBqmZzDlfUIYIutjdPqP4mFCX47OA", "osemensilas@gmail.com:".gmdate("y-m-d H")))
         ];
 
         $curl = curl_init();
