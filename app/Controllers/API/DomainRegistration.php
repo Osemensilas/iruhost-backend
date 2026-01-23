@@ -153,18 +153,20 @@ class DomainRegistration{
         $tdl = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
-        $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
+        $endpoint   = "https://hoganhost.com.ng/client/modules/addons/DomainsReseller/api/index.php";
         $action     = "/domains/lookup";
         $params     = [
-            "searchTerm" => $sld,
-            "punnyCodeSearchTerm" => $sld,
-            "tldsToInclude" => [$tdl, ".com.ng", ".org.ng", ".net.ng", ".gov.ng", ".edu.ng", ".sch.ng", ".name.ng", ".mobi.ng", ".mil.ng", ".i.ng"],
-            "isIdnDomain" => true,
-            "premiumEnabled" => true,
+            "domain"    => $domainName,
+            "regperiod" => "3",
+            "addons"    => [
+                "dnsmanagement"     => 0,
+                "emailforwarding"   => 1,
+                "idprotection"      => 1,
+            ]
         ];
         $headers = [
             "username: osemensilas@gmail.com",
-            "token: " . base64_encode(hash_hmac("sha256", "1234567890QWERTYUIOPASDFGHJKLZXCVBNM", "osemensilas@gmail.com:" . gmdate("y-m-d H")))
+            "token: ". base64_encode(hash_hmac("sha256", "hh_live_f2f5aa29157bb53a1815fe0ae04b7c67", "osemensilas@gmail.com:".gmdate("y-m-d H")))
         ];
 
         $curl = curl_init();
