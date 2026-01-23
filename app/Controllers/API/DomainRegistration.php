@@ -165,15 +165,17 @@ class DomainRegistration{
             ]
         ];
         
-        // Fix 1: Correct hash_hmac parameter order
-        // Fix 2: Use capital Y for 4-digit year
         $username = "osemensilas@gmail.com";
         $apiKey = "lUHZjlIUtXT2lGI0OYSmZcvQYhZ0Q10G";
-        $dateString = gmdate("Y-m-d H"); // Changed y to Y
+        $dateString = gmdate("y-m-d H");
         
-        // The hash should be: hash_hmac(algorithm, data_to_hash, secret_key)
-        // Based on the examples, it should be: hash_hmac("sha256", "email:date", "api_key")
-        $token = base64_encode(hash_hmac("sha256", "{$username}:{$dateString}", $apiKey));
+        $token = base64_encode(
+            hash_hmac(
+                "sha256",
+                $apiKey,
+                "{$username}:{$dateString}"
+            )
+        );
         
         $headers = [
             "username: {$username}",
