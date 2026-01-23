@@ -168,7 +168,7 @@ class DomainRegistration{
         // Fix 1: Correct hash_hmac parameter order
         // Fix 2: Use capital Y for 4-digit year
         $username = "osemensilas@gmail.com";
-        $apiKey = "KkCNCFdBbQwHC5TPQ4yiTNzmoKgtqTBA";
+        $apiKey = "lUHZjlIUtXT2lGI0OYSmZcvQYhZ0Q10G";
         $dateString = gmdate("Y-m-d H"); // Changed y to Y
         
         // The hash should be: hash_hmac(algorithm, data_to_hash, secret_key)
