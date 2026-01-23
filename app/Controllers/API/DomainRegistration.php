@@ -150,7 +150,7 @@ class DomainRegistration{
     private function nigerianDomain($data){
         $domainName = $data;
 
-        $tdl = substr($domainName, strpos($domainName, '.') + 1);
+        $tld = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
         $endpoint   = "https://hoganhost.com.ng/client/modules/addons/DomainsReseller/api/index.php";
@@ -164,9 +164,20 @@ class DomainRegistration{
                 "idprotection"      => 1,
             ]
         ];
+        
+        // Fix 1: Correct hash_hmac parameter order
+        // Fix 2: Use capital Y for 4-digit year
+        $username = "osemensilas@gmail.com";
+        $apiKey = "hh_live_f2f5aa29157bb53a1815fe0ae04b7c67";
+        $dateString = gmdate("Y-m-d H"); // Changed y to Y
+        
+        // The hash should be: hash_hmac(algorithm, data_to_hash, secret_key)
+        // Based on the examples, it should be: hash_hmac("sha256", "email:date", "api_key")
+        $token = base64_encode(hash_hmac("sha256", "{$username}:{$dateString}", $apiKey));
+        
         $headers = [
-            "username: osemensilas@gmail.com",
-            "token: ". base64_encode(hash_hmac("sha256", "hh_live_f2f5aa29157bb53a1815fe0ae04b7c67", "osemensilas@gmail.com:".gmdate("y-m-d H")))
+            "username: {$username}",
+            "token: {$token}"
         ];
 
         $curl = curl_init();
@@ -178,9 +189,20 @@ class DomainRegistration{
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
         $response = curl_exec($curl);
+        
+        // Check for cURL errors
+        if(curl_errno($curl)){
+            echo 'cURL Error: ' . curl_error($curl);
+        }
+        
         curl_close($curl);
 
         print_r($response);
+        
+        // Also decode and print the response for debugging
+        $decoded = json_decode($response, true);
+        echo "\n\nDecoded Response:\n";
+        print_r($decoded);
     }
 
     public function existingCheck(){
