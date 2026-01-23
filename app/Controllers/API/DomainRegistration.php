@@ -154,7 +154,7 @@ class DomainRegistration{
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
         $endpoint   = "https://hoganhost.com.ng/client/modules/addons/DomainsReseller/api/index.php";
-        $action     = "/domains/lookup";
+        $action     = "domains/lookup";
         $params     = [
             "domain"    => $domainName,
             "regperiod" => "3",
