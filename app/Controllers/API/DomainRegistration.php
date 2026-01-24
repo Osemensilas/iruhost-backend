@@ -173,7 +173,8 @@ class DomainRegistration{
             hash_hmac(
                 "sha256",
                 $apiKey,
-                "{$username}:{$dateString}"
+                $username . ":" . $dateString,
+                false
             )
         );
         
