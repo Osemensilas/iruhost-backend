@@ -183,7 +183,7 @@ class DomainRegistration{
                 'regPrice' => $regPrice,
                 'renew' => $renewPrice,
                 'domain' => $domain,
-                'message' => ' (.ng not available yet, showing alternative TLDs)'
+                'message' => " ($tld not available yet, showing alternative TLDs)"
             ]);
         }
     }
