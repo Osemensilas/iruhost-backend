@@ -155,14 +155,11 @@ class DomainRegistration{
 
         $endpoint   = "https://hoganhost.com.ng/client/modules/addons/DomainsReseller/api/index.php";
         $action     = "/domains/lookup";
-        $params     = [
-            "domain"    => $domainName,
-            "regperiod" => "3",
-            "addons"    => [
-                "dnsmanagement"     => 0,
-                "emailforwarding"   => 1,
-                "idprotection"      => 1,
-            ]
+        $params = [
+            "searchTerm"       => $sld,
+            "tldsToInclude"    => [$tld],
+            "premiumEnabled"  => false,
+            "isIdnDomain"      => false
         ];
         
         $username = "osemensilas@gmail.com";
