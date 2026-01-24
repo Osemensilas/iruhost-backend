@@ -148,7 +148,7 @@ class DomainRegistration{
     }
 
     private function nigerianDomain($data){
-        $domainName = $data;
+        $domainName = strtolower(trim($data));
 
         $tld = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
@@ -157,9 +157,10 @@ class DomainRegistration{
         $action     = "/domains/lookup";
         $params = [
             "searchTerm"       => $sld,
-            "tldsToInclude[0]"    => $tld,
-            "premiumEnabled"  => false,
-            "isIdnDomain"      => false
+            "punnyCodeSearchTerm" => $sld,
+            "tldsToInclude[0]"    => [$tld],
+            "isIdnDomain" => false,
+            "premiumEnabled" => false,
         ];
         
         $username = "osemensilas@gmail.com";
