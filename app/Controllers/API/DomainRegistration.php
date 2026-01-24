@@ -96,7 +96,8 @@ class DomainRegistration{
                 'rrpCode' => $rrpCode,
                 'regPrice' => $regPrice,
                 'renew' => $renewPrice,
-                'domain' => $domain
+                'domain' => $domain,,
+                'message' => ''
             ]);
         }
     }
@@ -143,7 +144,8 @@ class DomainRegistration{
             'requested_domain' => $domainName,
             'rrpCode' => $rrpCode,
             'regPrice' => $regPrice,
-            'renewPrice' => $renewPrice
+            'renewPrice' => $renewPrice,
+            'message' => ''
         ]);
     }
 
