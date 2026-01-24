@@ -593,7 +593,7 @@ class ChatsController{
 
                     <p style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
                     Thank you for choosing <strong>IruHost</strong>.<br>
-                    Need help? Contact us at <a href='mailto:contact@iruhost.com' style='color:#007bff;'>contact@iruhost.com</a>
+                    Need help? Contact us at <a href='mailto:support@iruhost.com' style='color:#007bff;'>support@iruhost.com</a>
                     </p>
                 </div>
                 </div>
