@@ -153,7 +153,7 @@ class DomainRegistration{
         $tld = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
-        $endpoint   = "https://hoganhost.com.ng/client/modules/addons/DomainsReseller/api/index.php";
+        $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
         $action     = "/domains/lookup";
         $params = [
             "searchTerm"       => $sld,
