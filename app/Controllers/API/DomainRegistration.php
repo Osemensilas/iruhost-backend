@@ -153,57 +153,37 @@ class DomainRegistration{
         $tld = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
-        $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
-        $action     = "/domains/lookup";
-        $params = [
-            "searchTerm"       => $sld,
-            "punnyCodeSearchTerm" => $sld,
-            "tldsToInclude[0]"    => [$tld],
-            "isIdnDomain" => false,
-            "premiumEnabled" => false,
-        ];
-        
-        $username = "osemensilas@gmail.com";
-        $apiKey = "lUHZjlIUtXT2lGI0OYSmZcvQYhZ0Q10G";
-        $dateString = gmdate("y-m-d H");
-        
-        $token = base64_encode(
-            hash_hmac(
-                "sha256",
-                $apiKey,
-                $username . ":" . gmdate("y-m-d H")
-            )
-        );
-        
-        $headers = [
-            "username: {$username}",
-            "token: {$token}",
-            "Content-Type: application/x-www-form-urlencoded"
-        ];
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        $tdls = ['com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
 
-        $response = curl_exec($curl);
+        $myCharge = 3;
+
+        foreach($tdls as $tdl){
         
-        // Check for cURL errors
-        if(curl_errno($curl)){
-            echo 'cURL Error: ' . curl_error($curl);
+            $api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $api);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            $xml = simplexml_load_string($response);
+
+            $rrpCode = (int) $xml->Domains->Domain->RRPCode;
+            $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
+            $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
+            $domain = (string) $xml->Domains->Domain->Name;
+
+             echo json_encode([
+                'status' => 'success',
+                'rrpCode' => $rrpCode,
+                'regPrice' => $regPrice,
+                'renew' => $renewPrice,
+                'domain' => $domain,
+                'message' => '.ng not available yet, showing alternative TLDs'
+            ]);
         }
-        
-        curl_close($curl);
-
-        print_r($response);
-        
-        // Also decode and print the response for debugging
-        $decoded = json_decode($response, true);
-        echo "\n\nDecoded Response:\n";
-        print_r($decoded);
     }
 
     public function existingCheck(){
