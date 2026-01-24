@@ -288,6 +288,13 @@ class ChatsController{
         $message = $data["message"];
         $userId = $this->userId;
 
+        $parts = preg_split('/\s+/', trim($name));
+
+        $avatar = strtoupper(
+            substr($parts[0], 0, 1) . 
+            (isset($parts[1]) ? substr($parts[1], 0, 1) : '')
+        );
+
         if (empty($email) || empty($subject) || empty($department) || empty($priority) || empty($message)){
             echo json_encode([
                 'status' => 'error',
@@ -386,8 +393,8 @@ class ChatsController{
             ]);
         }
 
-        $insertChat = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, sender, `reciever_id`, `message`, `image`) VALUES (?,?,?,?,?,?)");
-        $insertResult = $insertChat->execute([$ticketId, $userId, $name, 'admin', $message, '']);
+        $insertChat = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, sender, `reciever_id`, `message`, `image`, `avatar`) VALUES (?,?,?,?,?,?,?)");
+        $insertResult = $insertChat->execute([$ticketId, $userId, $name, 'admin', $message, '', $avatar]);
 
         if (!$insertResult){
             echo json_encode([
@@ -435,8 +442,15 @@ class ChatsController{
         $userRow = $userStmt->fetch(PDO::FETCH_ASSOC);
         $name = $userRow['name'] ?? 'User';
 
-        $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, `sender`, `reciever_id`, `message`, `image`) VALUES (?,?,?,?,?,?)");
-        $result = $stmtTickets->execute([$ticketId, $this->userId, $name, 'admin', $message, '']);
+        $parts = preg_split('/\s+/', trim($name));
+
+        $avatar = strtoupper(
+            substr($parts[0], 0, 1) . 
+            (isset($parts[1]) ? substr($parts[1], 0, 1) : '')
+        );
+
+        $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, `sender`, `reciever_id`, `message`, `image`, `avatar`) VALUES (?,?,?,?,?,?,?)");
+        $result = $stmtTickets->execute([$ticketId, $this->userId, $name, 'admin', $message, '', $avatar]);
 
         if (!$result){
             echo json_encode([
