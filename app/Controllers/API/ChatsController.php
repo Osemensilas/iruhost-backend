@@ -386,6 +386,16 @@ class ChatsController{
             ]);
         }
 
+        $insertChat = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `user_id`, `reciever_id`, `message`, `image`) VALUES (?,?,?,?,?)");
+        $insertResult = $insertChat->execute([$ticketId, $userId, 'admin', $message, '']);
+
+        if (!$insertResult){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'We are upgrading our servers. Check back later'
+            ]);
+        }
+
         echo json_encode([
             'status' => 'success',
             'message' => 'Your support tick has been opened and active'
