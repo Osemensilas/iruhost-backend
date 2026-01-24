@@ -403,6 +403,8 @@ class ChatsController{
             ]);
         }
 
+        $this->sendEmail($message, $email, $name);
+
         echo json_encode([
             'status' => 'success',
             'message' => 'Your support tick has been opened and active'
@@ -454,6 +456,7 @@ class ChatsController{
 
         $userRow = $userStmt->fetch(PDO::FETCH_ASSOC);
         $name = $userRow['name'] ?? 'User';
+        $email = $userRow['email'] ?? '';
 
         $parts = preg_split('/\s+/', trim($name));
 
@@ -472,6 +475,8 @@ class ChatsController{
             ]);
             return;
         }
+
+        $this->sendEmail($message, $email, $name);
 
         echo json_encode([
             'status' => 'success',
@@ -566,16 +571,36 @@ class ChatsController{
             'status' => 'success',
             'message' => $row
         ]);
+    }
 
-        // $rows = [];
+    private function sendEmail($message, $email, $name){
+         try {
+            $this->resend->emails->send([
+                'from' => 'IruHost <support@iruhost.com>',
+                'to' => [$email, 'osemensilas@gmail.com'],
+                'subject' => 'Support Ticket Message',
+                'html' => "
+                <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+                <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+                    
+                    <p style='color: #333; line-height: 1.6;'>
+                    Your support ticket with the below message has been received. our support team will get back to you as soon as possible.
+                    </p>
 
-        // if ($stmtTickets->rowCount() > 0){
-        //     $rows = $stmtTickets->fetchAll(PDO::FETCH_ASSOC);
+                    <p style='color:#333; line-height:1.6;'>
+                    <em>{$message}</em>
+                    </p>
 
-        //     echo json_encode([
-        //         'status' => 'success',
-        //         'message' => $rows
-        //     ]);
-        // }
+                    <p style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
+                    Thank you for choosing <strong>IruHost</strong>.<br>
+                    Need help? Contact us at <a href='mailto:contact@iruhost.com' style='color:#007bff;'>contact@iruhost.com</a>
+                    </p>
+                </div>
+                </div>
+                "
+            ]);
+        } catch (Exception $e) {
+            error_log("Email sending failed: " . $e->getMessage());
+        }
     }
 }
