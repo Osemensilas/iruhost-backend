@@ -386,8 +386,8 @@ class ChatsController{
             ]);
         }
 
-        $insertChat = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `user_id`, `reciever_id`, `message`, `image`) VALUES (?,?,?,?,?)");
-        $insertResult = $insertChat->execute([$ticketId, $userId, 'admin', $message, '']);
+        $insertChat = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, sender, `reciever_id`, `message`, `image`) VALUES (?,?,?,?,?,?)");
+        $insertResult = $insertChat->execute([$ticketId, $userId, $name, 'admin', $message, '']);
 
         if (!$insertResult){
             echo json_encode([
@@ -421,8 +421,22 @@ class ChatsController{
             return;
         }
 
-        $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `user_id`, `reciever_id`, `message`, `image`) VALUES (?,?,?,?,?)");
-        $result = $stmtTickets->execute([$ticketId, $this->userId, 'admin', $message, '']);
+        $userStmt = $this->pdo->prepare("SELECT * FROM `users` WHERE user_id = ?");
+        $userStmt->execute([$this->userId]);
+
+        if ($userStmt->rowCount() === 0){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'User not found'
+            ]);
+            return;
+        }
+
+        $userRow = $userStmt->fetch(PDO::FETCH_ASSOC);
+        $name = $userRow['name'] ?? 'User';
+
+        $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, `sender`, `reciever_id`, `message`, `image`) VALUES (?,?,?,?,?,?)");
+        $result = $stmtTickets->execute([$ticketId, $this->userId, $name, 'admin', $message, '']);
 
         if (!$result){
             echo json_encode([

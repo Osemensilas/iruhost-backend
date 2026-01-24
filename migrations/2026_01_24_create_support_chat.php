@@ -5,7 +5,8 @@ return function ($pdo){
         CREATE TABLE IF NOT EXISTS support_chats (
             id INT AUTO_INCREMENT PRIMARY KEY,
             ticket_id VARCHAR(36) NOT NULL,
-            user_id VARCHAR(36) NOT NULL,
+            sender_id VARCHAR(36) NOT NULL,
+            sender VARCHAR(100) NOT NULL,
             reciever_id VARCHAR(255) NOT NULL,
             message VARCHAR(300) NOT NULL,
             image VARCHAR(255) NOT NULL,
