@@ -460,8 +460,8 @@ class ChatsController{
 
         $ticketId = $_GET['ticket_id'] ?? null;
 
-        $stmtTickets = $this->pdo->prepare("SELECT * FROM `support_chats` WHERE ticket_id = ? AND reciever_id = ?");
-        $result = $stmtTickets->execute([$ticketId, $this->userId]);
+        $stmtTickets = $this->pdo->prepare("SELECT * FROM `support_chats` WHERE ticket_id = ? AND reciever_id = ? OR sender_id = ?");
+        $result = $stmtTickets->execute([$ticketId, $this->userId, $this->userId]);
 
         if (!$result){
             echo json_encode([
