@@ -169,9 +169,8 @@ class DomainRegistration{
         $token = base64_encode(
             hash_hmac(
                 "sha256",
-                $apiKey,
                 $username . ":" . $dateString,
-                false
+                $apiKey
             )
         );
         
