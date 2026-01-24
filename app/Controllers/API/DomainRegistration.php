@@ -157,7 +157,7 @@ class DomainRegistration{
         $action     = "/domains/lookup";
         $params = [
             "searchTerm"       => $sld,
-            "tldsToInclude"    => [$tld],
+            "tldsToInclude[0]"    => $tld,
             "premiumEnabled"  => false,
             "isIdnDomain"      => false
         ];
@@ -169,14 +169,15 @@ class DomainRegistration{
         $token = base64_encode(
             hash_hmac(
                 "sha256",
-                $username . ":" . $dateString,
-                $apiKey
+                $apiKey,
+                $username . ":" . gmdate("y-m-d H")
             )
         );
         
         $headers = [
             "username: {$username}",
-            "token: {$token}"
+            "token: {$token}",
+            "Content-Type: application/x-www-form-urlencoded"
         ];
 
         $curl = curl_init();
