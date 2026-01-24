@@ -96,7 +96,7 @@ class DomainRegistration{
                 'rrpCode' => $rrpCode,
                 'regPrice' => $regPrice,
                 'renew' => $renewPrice,
-                'domain' => $domain,,
+                'domain' => $domain,
                 'message' => ''
             ]);
         }
@@ -183,7 +183,7 @@ class DomainRegistration{
                 'regPrice' => $regPrice,
                 'renew' => $renewPrice,
                 'domain' => $domain,
-                'message' => '.ng not available yet, showing alternative TLDs'
+                'message' => ' (.ng not available yet, showing alternative TLDs)'
             ]);
         }
     }
