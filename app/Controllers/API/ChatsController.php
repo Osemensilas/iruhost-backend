@@ -419,6 +419,9 @@ class ChatsController{
         $message = htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8');
         $image = '';
 
+        echo $ticketId;
+        echo $message;
+
         if (empty($ticketId) || empty($message)){
             echo json_encode([
                 'status' => 'error',
