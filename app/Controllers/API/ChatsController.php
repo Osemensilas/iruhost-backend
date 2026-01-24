@@ -460,7 +460,7 @@ class ChatsController{
 
         $ticketId = $_GET['ticket_id'] ?? null;
 
-        $stmtTickets = $this->pdo->prepare("SELECT * FROM `support_chats` WHERE ticket_id = ? AND user_id = ?");
+        $stmtTickets = $this->pdo->prepare("SELECT * FROM `support_chats` WHERE ticket_id = ? AND reciever_id = ?");
         $result = $stmtTickets->execute([$ticketId, $this->userId]);
 
         if (!$result){
