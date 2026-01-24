@@ -2,7 +2,7 @@
 
 return function ($pdo){
     $pdo->exec("
-        CREATE TABLE IF NOT EXISTS products (
+        CREATE TABLE IF NOT EXISTS hosting_products (
             id INT AUTO_INCREMENT PRIMARY KEY,
             user_id VARCHAR(36) NOT NULL,
             product_id VARCHAR(36) NOT NULL,
