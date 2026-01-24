@@ -422,4 +422,42 @@ class ChatsController{
             ]);
         }
     }
+
+    public function getUnresolvedTickets(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $ticketId = $_GET['ticket_id'] ?? null;
+
+        $stmtTickets = $this->pdo->prepare("SELECT * FROM `support` WHERE ticket_id = ? AND user_id = ?");
+        $result = $stmtTickets->execute([$ticketId, $this->userId]);
+
+        if (!$result){
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'ticket not found'
+            ]);
+            return;
+        }
+
+        $row = $stmtTickets->fetch(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => $row
+        ]);
+
+        // $rows = [];
+
+        // if ($stmtTickets->rowCount() > 0){
+        //     $rows = $stmtTickets->fetchAll(PDO::FETCH_ASSOC);
+
+        //     echo json_encode([
+        //         'status' => 'success',
+        //         'message' => $rows
+        //     ]);
+        // }
+    }
 }
