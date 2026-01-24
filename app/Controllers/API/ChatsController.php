@@ -415,10 +415,9 @@ class ChatsController{
             return;
         }
 
-        $data = json_decode(file_get_contents("php://input"), true);
-
-        $ticketId = $data["ticket_id"];
-        $message = $data["message"];
+        $ticketId = htmlspecialchars($_POST['ticket_id'] ?? '', ENT_QUOTES, 'UTF-8');;
+        $message = htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8');
+        $image = '';
 
         if (empty($ticketId) || empty($message)){
             echo json_encode([
@@ -426,6 +425,23 @@ class ChatsController{
                 'message' => 'All field required'
             ]);
             return;
+        }
+
+        if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
+            $uploadDir = __DIR__ . "../../../../public/uploads/";
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $filename   = time() . "_" . basename($_FILES['image']['name']);
+            $targetFile = $uploadDir . $filename;
+
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
+                $image = $filename;
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Image upload failed']);
+                return;
+            }
         }
 
         $userStmt = $this->pdo->prepare("SELECT * FROM `users` WHERE user_id = ?");
@@ -450,7 +466,7 @@ class ChatsController{
         );
 
         $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, `sender`, `reciever_id`, `message`, `image`, `avatar`) VALUES (?,?,?,?,?,?,?)");
-        $result = $stmtTickets->execute([$ticketId, $this->userId, $name, 'admin', $message, '', $avatar]);
+        $result = $stmtTickets->execute([$ticketId, $this->userId, $name, 'admin', $message, $image, $avatar]);
 
         if (!$result){
             echo json_encode([
