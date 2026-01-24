@@ -2,7 +2,7 @@
 
 return function ($pdo){
     $pdo->exec("
-        CREATE TABLE IF NOT EXISTS support_user_chats (
+        CREATE TABLE IF NOT EXISTS support_chats (
             id INT AUTO_INCREMENT PRIMARY KEY,
             user_id VARCHAR(36) NOT NULL,
             reciever_id VARCHAR(36) NOT NULL,
