@@ -429,9 +429,6 @@ class ChatsController{
 
         if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
             $uploadDir = __DIR__ . "../../../../public/uploads/";
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
 
             $filename   = time() . "_" . basename($_FILES['image']['name']);
             $targetFile = $uploadDir . $filename;
