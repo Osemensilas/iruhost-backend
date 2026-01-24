@@ -69,6 +69,7 @@ $router->post('/api/consult', [ChatsController::class, 'consult']);
 $router->post('/api/send-ticket', [ChatsController::class, 'openTicket']);
 $router->get('/api/user-tickets', [ChatsController::class, 'getTickets']);
 $router->get('/api/unresolved-tickets', [ChatsController::class, 'getUnresolvedTickets']);
+$router->post('/api/post-support-message', [ChatsController::class, 'postSupportReply']);
 $router->get('/api/get-dashboard', [UserProducts::class, 'getDashboardProducts']);
 $router->post('/api/get-user-domain-products', [UserProducts::class, 'getDomainProducts']);
 $router->get('/api/get-expiring', [UserProducts::class, 'expiringProduct']);

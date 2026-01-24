@@ -402,6 +402,42 @@ class ChatsController{
         ]);
     }
 
+    public function postSupportReply(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $ticketId = $data["ticket_id"];
+        $message = $data["message"];
+
+        if (empty($ticketId) || empty($message)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All field required'
+            ]);
+            return;
+        }
+
+        $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `user_id`, `reciever_id`, `message`, `image`) VALUES (?,?,?,?,?)");
+        $result = $stmtTickets->execute([$ticketId, $this->userId, 'admin', $message, '']);
+
+        if (!$result){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'no message found'
+            ]);
+            return;
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'message sent'
+        ]);
+    }
+
     public function getTickets(){
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
