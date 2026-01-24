@@ -2,7 +2,7 @@
 
 return function ($pdo){
     $pdo->exec("
-        CREATE TABLE user_domains (
+        CREATE TABLE IF NOT EXISTS user_domains (
             id INT NOT NULL AUTO_INCREMENT,
             user_id VARCHAR(100),
             domain VARCHAR(255) NOT NULL,
