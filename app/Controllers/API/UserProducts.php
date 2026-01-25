@@ -404,6 +404,9 @@ class UserProducts{
     }
 
     public function verifyRenewal(){
+
+        echo "Reached here";
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
@@ -415,7 +418,7 @@ class UserProducts{
         }
 
         $productId = $_GET['product_id'];
-        $amoutt = $_GET['amount'];
+        $amout = $_GET['amount'];
 
         if ($productId == "all"){
             $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ?");
