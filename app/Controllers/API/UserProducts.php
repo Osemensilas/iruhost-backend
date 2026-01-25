@@ -448,6 +448,8 @@ class UserProducts{
                 }
             }
 
+            print_r($expiring);
+
             if ($expiring['product'] === "domain"){
                 $domainName = $expiring['product_name'];
 
