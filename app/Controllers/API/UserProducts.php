@@ -27,7 +27,6 @@ class UserProducts{
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
         $this->userId = $_SESSION['user']['user_id'];
         $this->pdo = DB::connection();
-        $this->nameSiloKey = "3079601359d46e924bfbab85"; 
     }
 
     public function getDashboardProducts(){
