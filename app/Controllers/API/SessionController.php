@@ -3,12 +3,18 @@
 namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
+use Dotenv\Dotenv;
 class SessionController{
 
     protected $pdo;
-
+    private $publicKey;
     public function __construct(){
         $this->pdo = DB::connection();
+
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv->load();
+
+        $this->publicKey = $_ENV['FLUTTERWAVE_PUBLIC_KEY'] ?? null;
     }
     
     public function userSession(){
@@ -46,6 +52,8 @@ class SessionController{
             $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
             $stmt->execute([$user]);
 
+            $ref = uniqid("ref_");
+
             if ($stmt->rowCount() > 0){
                 $userData = $stmt->fetch();
 
@@ -54,6 +62,9 @@ class SessionController{
                     'user' => [
                         'name' => ($userData['name']),
                         'email' => $userData['email'],
+                        'user_id' => $userData['user_id'],
+                        'pbk' => $this->publicKey,
+                        'ref' => $ref,
                     ]
                     ]);
             }
