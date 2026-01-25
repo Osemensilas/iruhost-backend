@@ -14,8 +14,8 @@ class SessionController{
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
         $dotenv->load();
 
-        //$this->publicKey = $_ENV['FLUTTERWAVE_PUBLIC_KEY'] ?? null;
-        $this->publicKey = "FLWPUBK_TEST-ea3991777877ae8c494e5d206d286b33-X";
+        $this->publicKey = $_ENV['FLUTTERWAVE_PUBLIC_KEY'] ?? null;
+        //$this->publicKey = "FLWPUBK_TEST-ea3991777877ae8c494e5d206d286b33-X";
     }
     
     public function userSession(){
