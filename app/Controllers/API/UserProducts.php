@@ -87,23 +87,21 @@ class UserProducts{
 
                     $tdl = substr($domainName, strpos($domainName, '.') + 1);
                     $sld = substr($domainName, 0, strpos($domainName, '.'));
-
-                    echo "$this->enomUserId&PW=$this->enomApiToken";
                     
-                    // $url = "https://resellertest.enom.com/interface.asp?Command=GetTLDDetails&UID=$this->enomUserId&PW=$this->enomApiToken&TLD=$tdl&Responsetype=xml";
+                    $url = "https://reseller.enom.com/interface.asp?Command=GetTLDDetails&UID=$this->enomUserId&PW=$this->enomApiToken&TLD=$tdl&Responsetype=xml";
 
-                    // $ch = curl_init();
-                    // curl_setopt($ch, CURLOPT_URL, $url);
-                    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    // $response = curl_exec($ch);
-                    // curl_close($ch);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    $response = curl_exec($ch);
+                    curl_close($ch);
 
-                    // $xml = simplexml_load_string($response);
+                    $xml = simplexml_load_string($response);
 
-                    // print_r($xml);
+                    print_r($xml);
                 }
 
-                if ($row['product'] == "hosting"){
+                if ($row['product'] === "hosting"){
 
 
                     if ($row['product_name'] == "lite"){
