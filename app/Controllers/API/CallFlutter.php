@@ -1195,7 +1195,7 @@ class CallFlutter {
         }
 
         $cpanelUser = $productRow['url'];
-        $serverHostname = "cloud.webhostingbliss.com";
+        $serverHostname = "server.iruhost.com";
 
         $loginUrl = "https://{$serverHostname}:2083/login/?user={$cpanelUser}&goto_app=cpanel";
 
