@@ -446,7 +446,7 @@ class UserProducts{
                 if ($now >= $twoWeeksBefore) {
                     
                     if ($row['product'] === "domain"){
-                        $domainName = $expiring['product_name'];
+                        $domainName = $row['product_name'];
 
                         $tdl = substr($domainName, strpos($domainName, '.') + 1);
                         $sld = substr($domainName, 0, strpos($domainName, '.'));
@@ -522,7 +522,7 @@ class UserProducts{
                     }
 
                     if ($row['product'] === "hosting"){
-                        $hostingName = $expiring['product_name'];
+                        $hostingName = $row['product_name'];
                         
                         if ($hostingName == "lite"){
                             $price = 500;
