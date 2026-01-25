@@ -66,6 +66,13 @@ class UserProducts{
             return;
         }
 
+        $dollarRateStmt = $this->pdo->prepare("SELECT * FROM `currency` WHERE currency = ?");
+        $dollarRateStmt->execute(['naira']);
+
+        $dollarRate = $dollarRateStmt->fetch(PDO::FETCH_ASSOC);
+
+        $dollarValue = $dollarRate['value'];
+
         $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ?");
         $stmt->execute([$this->userId]);
 
@@ -98,7 +105,7 @@ class UserProducts{
                         $price = $tldRow['renewal'];
                     }
 
-                    $row['renewal_price'] = $price;
+                    $row['renewal_price'] = $price * $dollarValue;
                 }
 
                 if ($row['product'] === "hosting"){
