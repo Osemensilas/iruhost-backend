@@ -27,6 +27,7 @@ class UserProducts{
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
         $this->userId = $_SESSION['user']['user_id'];
         $this->pdo = DB::connection();
+        $this->nameSiloKey = "3079601359d46e924bfbab85"; 
     }
 
     public function getDashboardProducts(){
@@ -399,6 +400,67 @@ class UserProducts{
             'status' => 'success',
             'user' => $_SESSION['user']['name'],
             'products' => $products
+        ]);
+    }
+
+    public function verifyRenewal(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['user'])){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+            return;
+        }
+
+        $productId = $_GET['product_id'];
+        $amoutt = $_GET['amount'];
+
+        if ($productId == "all"){
+            $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ?");
+            $stmt->execute([$this->userId]);
+
+            $expiring = [];
+
+            if ($stmt->rowCount() > 0){
+                $rows = $stmt->fetchAll();
+            }
+
+            foreach($rows as $row){
+                $expiryDate = $row['expiry_date'];
+                $twoWeeksBefore = date('Y-m-d', strtotime('-2 weeks', strtotime($expiryDate)));
+        
+                $now = date('Y-m-d');
+
+                if ($now >= $twoWeeksBefore) {
+                    $expiring[] = $row;
+                }
+            }
+
+            echo json_encode([
+                'status' => 'success',
+                'user' => $_SESSION['user']['name'],
+                'products' => $expiring,
+            ]);
+
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE prooduct_id = ?");
+        $stmt->execute([$productId]);
+
+        if ($stmt->rowCount() > 0){
+            $row = $stmt->fetch();
+
+            $expiryDate = $row['expiry_date'];
+            
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'user' => $_SESSION['user']['name'],
+            'product' => $row
         ]);
     }
 }

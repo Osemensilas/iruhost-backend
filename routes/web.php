@@ -80,6 +80,7 @@ $router->get('/api/user-email', [UserProducts::class, 'emailList']);
 $router->get('/api/user-ssl', [UserProducts::class, 'sslList']);
 $router->get('/api/user-app', [UserProducts::class, 'appList']);
 $router->get('/api/get-iruap-domain', [UserProducts::class, 'getIruapDomain']);
+$router->get('/api/verify-renewal', [UserProducts::class, 'verifyRenewal']);
 $router->get('/api/get-signups', [AdminDashboard::class, 'signUps']);
 $router->get('/api/get-active-users', [AdminDashboard::class, 'activeUsers']);
 $router->get('/api/get-total-sales', [AdminDashboard::class, 'getTotalSalesNum']);
