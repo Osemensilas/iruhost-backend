@@ -88,7 +88,7 @@ class UserProducts{
                     $tdl = substr($domainName, strpos($domainName, '.') + 1);
                     $sld = substr($domainName, 0, strpos($domainName, '.'));
                     
-                    $url = "https://reseller.enom.com/interface.asp?Command=GetTLDDetails&UID=$this->enomUserId&PW=$this->enomApiToken&TLD=$tdl&Responsetype=xml";
+                    $url = "https://reseller.enom.com/interface.asp?Command=TLD_GetTLD&UID=$this->enomUserId&PW=$this->enomApiToken&Responsetype=xml";
 
                     $ch = curl_init();
                     curl_setopt($ch, CURLOPT_URL, $url);
