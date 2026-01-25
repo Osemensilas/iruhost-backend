@@ -700,34 +700,34 @@ class UserProducts{
                 if ($hostingName == "enterprise"){
                     $price = 9000;
                 }
-            }
 
-            if ($row['billing'] === "month") {
-                $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($row['expiry_date'])));
-            } elseif ($row['billing'] === "quarter") {
-                $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($row['expiry_date'])));
-            } elseif ($row['billing'] === "year") {
-                $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($row['expiry_date'])));
-            }
+                if ($row['billing'] === "month") {
+                    $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($row['expiry_date'])));
+                } elseif ($row['billing'] === "quarter") {
+                    $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($row['expiry_date'])));
+                } elseif ($row['billing'] === "year") {
+                    $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($row['expiry_date'])));
+                }
 
-            $stmtUpdate = $this->pdo->prepare("UPDATE `products` SET `expiry_date` = ? WHERE product_id = ?");
-            $result = $stmtUpdate->execute([$newExpiry, $row['product_id']]);
+                $stmtUpdate = $this->pdo->prepare("UPDATE `products` SET `expiry_date` = ? WHERE product_id = ?");
+                $result = $stmtUpdate->execute([$newExpiry, $row['product_id']]);
 
-            $transaction = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
-            $transaction->execute([
-                $this->userId,
-                $transactionId,
-                $txRef,
-                'hosting',
-                $hostingName,
-                $price,
-                "renewal of $hostingName",
-                'success'
-            ]);
+                $transaction = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
+                $transaction->execute([
+                    $this->userId,
+                    $transactionId,
+                    $txRef,
+                    'hosting',
+                    $hostingName,
+                    $price,
+                    "renewal of $hostingName",
+                    'success'
+                ]);
 
-            if (!$result) {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to update expiry date for ' . $domainName]);
-                return;
+                if (!$result) {
+                    echo json_encode(['status' => 'error', 'message' => 'Failed to update expiry date for ' . $domainName]);
+                    return;
+                }
             }
         }
 
