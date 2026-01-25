@@ -88,17 +88,17 @@ class UserProducts{
                     $tdl = substr($domainName, strpos($domainName, '.') + 1);
                     $sld = substr($domainName, 0, strpos($domainName, '.'));
                     
-                    $url = "https://reseller.enom.com/interface.asp?Command=GetContacts&UID=$this->enomUserId&PW=$this->enomApiToken&sld=$sld&tld=$tdl&Responsetype=xml";
+                    $getTdlStmt = $this->pdo->prepare("SELECT * FROM `tlds` WHERE tld = ?");
+                    $getTdlStmt->execute([$tdl]);
 
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    $response = curl_exec($ch);
-                    curl_close($ch);
+                    if ($getTdlStmt->rowCount() < 1){
+                        $price = 0;
+                    } else {
+                        $tldRow = $getTdlStmt->fetch(PDO::FETCH_ASSOC);
+                        $price = $tldRow['renewal'];
+                    }
 
-                    $xml = simplexml_load_string($response);
-
-                    print_r($xml);
+                    echo $price;
                 }
 
                 if ($row['product'] === "hosting"){
