@@ -431,10 +431,8 @@ class UserProducts{
             $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ?");
             $stmt->execute([$this->userId]);
 
-            $expiring = [];
-
             if ($stmt->rowCount() > 0){
-                $rows = $stmt->fetchAll();
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
 
             foreach($rows as $row){
@@ -449,7 +447,6 @@ class UserProducts{
                         $domainName = $row['product_name'];
 
                         $tdl = substr($domainName, strpos($domainName, '.') + 1);
-                        $sld = substr($domainName, 0, strpos($domainName, '.'));
                         
                         $ngTld = [
                             'ng',          // root country code
@@ -503,7 +500,7 @@ class UserProducts{
                         $stmtUpdate = $this->pdo->prepare("UPDATE `products` SET `expiry_date` = ? WHERE product_name = ?");
                         $result = $stmtUpdate->execute([$newExpiry, $domainName]);
 
-                        $transaction = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES ('?','?','?','?','?','?','?','?')");
+                        $transaction = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?,?)");
                         $transaction->execute([
                             $this->userId,
                             $transactionId,
@@ -571,7 +568,7 @@ class UserProducts{
                         $stmtUpdate = $this->pdo->prepare("UPDATE `products` SET `expiry_date` = ? WHERE product_name = ?");
                         $result = $stmtUpdate->execute([$newExpiry, $hostingName]);
 
-                        $transaction = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES ('?','?','?','?','?','?','?','?')");
+                        $transaction = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?,?)");
                         $transaction->execute([
                             $this->userId,
                             $transactionId,
@@ -603,13 +600,12 @@ class UserProducts{
         $stmt->execute([$productId]);
 
         if ($stmt->rowCount() > 0){
-            $row = $stmt->fetch();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($row['product'] === "domain"){
                 $domainName = $row['product_name'];
 
                 $tdl = substr($domainName, strpos($domainName, '.') + 1);
-                $sld = substr($domainName, 0, strpos($domainName, '.'));
                 
                 $ngTld = [
                     'ng',          // root country code
@@ -663,7 +659,7 @@ class UserProducts{
                 $stmtUpdate = $this->pdo->prepare("UPDATE `products` SET `expiry_date` = ? WHERE product_id = ?");
                 $result = $stmtUpdate->execute([$newExpiry, $row['product_id']]);
 
-                $transaction = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES ('?','?','?','?','?','?','?','?')");
+                $transaction = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?,?)");
                 $transaction->execute([
                     $this->userId,
                     $transactionId,
