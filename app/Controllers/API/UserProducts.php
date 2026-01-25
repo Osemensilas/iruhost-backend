@@ -485,17 +485,14 @@ class UserProducts{
                             }
                         }
 
-                        if ($row['billing'] === "month"){
+                        if ($row['billing'] === "month") {
                             $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($row['expiry_date'])));
-                        }
-
-                        if ($row['billing'] === "quarter"){
+                        } elseif ($row['billing'] === "quarter") {
                             $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($row['expiry_date'])));
-                        }
-
-                        if ($row['billing'] === "year"){
+                        } elseif ($row['billing'] === "year") {
                             $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($row['expiry_date'])));
                         }
+
 
                         $stmtUpdate = $this->pdo->prepare("UPDATE `products` SET `expiry_date` = ? WHERE product_name = ?");
                         $result = $stmtUpdate->execute([$newExpiry, $domainName]);
@@ -553,15 +550,11 @@ class UserProducts{
                             $price = 9000;
                         }
 
-                        if ($row['billing'] === "month"){
+                        if ($row['billing'] === "month") {
                             $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($row['expiry_date'])));
-                        }
-
-                        if ($row['billing'] === "quarter"){
+                        } elseif ($row['billing'] === "quarter") {
                             $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($row['expiry_date'])));
-                        }
-
-                        if ($row['billing'] === "year"){
+                        } elseif ($row['billing'] === "year") {
                             $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($row['expiry_date'])));
                         }
 
@@ -644,15 +637,11 @@ class UserProducts{
                     }
                 }
 
-                if ($row['billing'] === "month"){
+                if ($row['billing'] === "month") {
                     $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($row['expiry_date'])));
-                }
-
-                if ($row['billing'] === "quarter"){
+                } elseif ($row['billing'] === "quarter") {
                     $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($row['expiry_date'])));
-                }
-
-                if ($row['billing'] === "year"){
+                } elseif ($row['billing'] === "year") {
                     $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($row['expiry_date'])));
                 }
 
@@ -713,15 +702,11 @@ class UserProducts{
                 }
             }
 
-            if ($row['billing'] === "month"){
+            if ($row['billing'] === "month") {
                 $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($row['expiry_date'])));
-            }
-
-            if ($row['billing'] === "quarter"){
+            } elseif ($row['billing'] === "quarter") {
                 $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($row['expiry_date'])));
-            }
-
-            if ($row['billing'] === "year"){
+            } elseif ($row['billing'] === "year") {
                 $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($row['expiry_date'])));
             }
 
