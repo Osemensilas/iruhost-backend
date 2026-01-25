@@ -154,38 +154,64 @@ class DomainRegistration{
 
         $tld = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
-
-
-        $tdls = ['com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
-
-        $myCharge = 3;
-
-        foreach($tdls as $tdl){
         
-            $api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
+        $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
+        $action     = "/domains/lookup";
+        $params     = [
+            "searchTerm" => $sld,
+            "punnyCodeSearchTerm" => $sld,
+            "tldsToInclude" => [".$tld", ".org.ng"],
+            "isIdnDomain" => false,
+            "premiumEnabled" => false,
+        ];
+        $headers = [
+            "username: osemensilas@gmail.com",
+            "token: " . base64_encode(hash_hmac("sha256", "sKUcg0MeTqQyVvySlVcuk6Erx1G84Al5", "osemensilas@example.com:" . gmdate("y-m-d H")))
+        ];
 
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $api);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            $response = curl_exec($ch);
-            curl_close($ch);
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-            $xml = simplexml_load_string($response);
+        $response = curl_exec($curl);
+        curl_close($curl);
 
-            $rrpCode = (int) $xml->Domains->Domain->RRPCode;
-            $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
-            $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
-            $domain = (string) $xml->Domains->Domain->Name;
+        print_r($response); 
 
-             echo json_encode([
-                'status' => 'success',
-                'rrpCode' => $rrpCode,
-                'regPrice' => $regPrice,
-                'renew' => $renewPrice,
-                'domain' => $domain,
-                'message' => " ($tld not available yet, showing alternative TLDs)"
-            ]);
-        }
+        // $tdls = ['com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
+
+        // $myCharge = 3;
+
+        // foreach($tdls as $tdl){
+        
+        //     $api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
+
+        //     $ch = curl_init();
+        //     curl_setopt($ch, CURLOPT_URL, $api);
+        //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        //     $response = curl_exec($ch);
+        //     curl_close($ch);
+
+        //     $xml = simplexml_load_string($response);
+
+        //     $rrpCode = (int) $xml->Domains->Domain->RRPCode;
+        //     $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
+        //     $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
+        //     $domain = (string) $xml->Domains->Domain->Name;
+
+        //      echo json_encode([
+        //         'status' => 'success',
+        //         'rrpCode' => $rrpCode,
+        //         'regPrice' => $regPrice,
+        //         'renew' => $renewPrice,
+        //         'domain' => $domain,
+        //         'message' => " ($tld not available yet, showing alternative TLDs)"
+        //     ]);
+        // }
     }
 
     public function existingCheck(){
