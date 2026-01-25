@@ -70,6 +70,7 @@ class UserProducts{
         $stmt->execute([$this->userId]);
 
         $expiring = [];
+        $price = 0;
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
