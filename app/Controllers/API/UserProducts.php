@@ -81,7 +81,7 @@ class UserProducts{
             
                 $now = date('Y-m-d');
 
-                if ($row['product'] == "domain"){
+                if ($row['product'] === "domain"){
 
                     $domainName = $row['product_name'];
 
