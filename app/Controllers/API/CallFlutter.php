@@ -1226,8 +1226,6 @@ class CallFlutter {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        print_r($response);
-
         if ($httpCode == 200) {
             $result = json_decode($response, true);
             
