@@ -488,15 +488,15 @@ class UserProducts{
                             }
                         }
 
-                        if ($expiring['billing'] === "month"){
+                        if ($row['billing'] === "month"){
                             $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($expiring['expiry_date'])));
                         }
 
-                        if ($expiring['billing'] === "quarter"){
+                        if ($row['billing'] === "quarter"){
                             $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($expiring['expiry_date'])));
                         }
 
-                        if ($expiring['billing'] === "year"){
+                        if ($row['billing'] === "year"){
                             $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($expiring['expiry_date'])));
                         }
 
