@@ -489,15 +489,15 @@ class UserProducts{
                         }
 
                         if ($row['billing'] === "month"){
-                            $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($expiring['expiry_date'])));
+                            $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($row['expiry_date'])));
                         }
 
                         if ($row['billing'] === "quarter"){
-                            $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($expiring['expiry_date'])));
+                            $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($row['expiry_date'])));
                         }
 
                         if ($row['billing'] === "year"){
-                            $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($expiring['expiry_date'])));
+                            $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($row['expiry_date'])));
                         }
 
                         $stmtUpdate = $this->pdo->prepare("UPDATE `products` SET `expiry_date` = ? WHERE product_name = ?");
@@ -557,15 +557,15 @@ class UserProducts{
                         }
 
                         if ($row['billing'] === "month"){
-                            $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($expiring['expiry_date'])));
+                            $newExpiry = date('Y-m-d', strtotime('+1 month', strtotime($row['expiry_date'])));
                         }
 
                         if ($row['billing'] === "quarter"){
-                            $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($expiring['expiry_date'])));
+                            $newExpiry = date('Y-m-d', strtotime('+3 months', strtotime($row['expiry_date'])));
                         }
 
                         if ($row['billing'] === "year"){
-                            $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($expiring['expiry_date'])));
+                            $newExpiry = date('Y-m-d', strtotime('+1 year', strtotime($row['expiry_date'])));
                         }
 
                         $stmtUpdate = $this->pdo->prepare("UPDATE `products` SET `expiry_date` = ? WHERE product_name = ?");
