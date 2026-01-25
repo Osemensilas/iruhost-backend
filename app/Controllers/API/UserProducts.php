@@ -183,7 +183,8 @@ class UserProducts{
             echo json_encode([
                 'status' => 'success',
                 'user' => $_SESSION['user']['name'],
-                'products' => $expiring
+                'products' => $expiring,
+                'total_price' => array_sum(array_column($expiring, 'renewal_price')),
             ]);
         }
     }
