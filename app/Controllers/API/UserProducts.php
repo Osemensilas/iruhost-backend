@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers\Api;
+use Dotenv\Dotenv;
 use App\Core\DB;
 use PDO;
 
@@ -10,8 +11,20 @@ class UserProducts{
     protected $userId;
     protected $pdo;
     protected $nameSiloKey;
+    protected $enomUserId;
+    protected $enomApiToken;
 
     public function __construct(){
+
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv->load();
+
+        if (!isset($_ENV['ENOM_USER_ID'])) {
+            die("Dotenv failed to load. Path: " . __DIR__ . '/../../../');
+        }
+
+        $this->enomUserId = $_ENV['ENOM_USER_ID'] ?? null;
+        $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
         $this->userId = $_SESSION['user']['user_id'];
         $this->pdo = DB::connection();
         $this->nameSiloKey = "3079601359d46e924bfbab85"; 
@@ -66,6 +79,64 @@ class UserProducts{
                 $twoWeeksBefore = date('Y-m-d', strtotime('-2 weeks', strtotime($expiryDate)));
             
                 $now = date('Y-m-d');
+
+                if ($row['product'] == "domain"){
+
+                    $domainName = $row['product_name'];
+
+                    $tdl = substr($domainName, strpos($domainName, '.') + 1);
+                    $sld = substr($domainName, 0, strpos($domainName, '.'));
+
+                    $url = "https://resellertest.enom.com/interface.asp?Command=GetTLDDetails&UID=$this->enomUserId&PW=$this->enomApiToken&TLD=$tdl&Responsetype=xml";
+
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+
+                    $xml = simplexml_load_string($response);
+
+                    print_r($xml);
+                }
+
+                if ($row['product'] == "hosting"){
+
+
+                    if ($row['product_name'] == "lite"){
+                        $price = 500;
+                    }
+
+                    if ($row['product_name'] == "essential"){
+                        $price = 850;
+                    }
+
+                    if ($row['product_name'] == "standard"){
+                        $price = 1200;
+                    }
+
+                    if ($row['product_name'] == "plus"){
+                        $price = 1600;
+                    }
+                
+                    if ($row['product_name'] == "starter"){
+                        $price = 2400;
+                    }
+
+                    if ($row['product_name'] == "growth"){
+                        $price = 3500;
+                    }
+
+                    if ($row['product_name'] == "pro"){
+                        $price = 5000;
+                    }
+
+                    if ($row['product_name'] == "enterprise"){
+                        $price = 9000;
+                    }
+
+                    $row['renewal_price'] = $price;
+                }
 
                 if ($now >= $twoWeeksBefore) {
                     $expiring[] = $row;
