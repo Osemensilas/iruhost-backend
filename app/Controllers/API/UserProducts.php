@@ -97,8 +97,6 @@ class UserProducts{
                         $tldRow = $getTdlStmt->fetch(PDO::FETCH_ASSOC);
                         $price = $tldRow['renewal'];
                     }
-
-                    echo $price;
                 }
 
                 if ($row['product'] === "hosting"){
