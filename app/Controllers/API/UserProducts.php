@@ -589,7 +589,7 @@ class UserProducts{
             return;
         }
 
-        $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE prooduct_id = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE product_id = ?");
         $stmt->execute([$productId]);
 
         if ($stmt->rowCount() > 0){
