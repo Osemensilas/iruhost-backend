@@ -405,8 +405,6 @@ class UserProducts{
 
     public function verifyRenewal(){
 
-        echo "Reached here";
-        
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
