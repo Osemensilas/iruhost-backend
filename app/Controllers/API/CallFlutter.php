@@ -1184,7 +1184,6 @@ class CallFlutter {
         }
 
         $data = json_decode(file_get_contents("php://input"), true);
-
         $productId = $data['productId'];
 
         $getProduct = $this->pdo->prepare("SELECT * FROM products WHERE product_id = ?");
@@ -1192,13 +1191,54 @@ class CallFlutter {
 
         if ($getProduct->rowCount() > 0){
             $productRow = $getProduct->fetch();
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Product not found']);
+            return;
         }
 
         $cpanelUser = $productRow['url'];
         $serverHostname = "server.iruhost.com";
+        
+        // WHM API credentials (store these securely, preferably in environment variables)
+        $whmUsername = $this->whmUsername; // Generate this from WHM
+        $whmApiToken = $this->whmApiToken; // Generate this from WHM
 
-        $loginUrl = "https://{$serverHostname}:2083/login/?user={$cpanelUser}&goto_app=cpanel";
+        // Create auto-login session using WHM API
+        $apiUrl = "https://{$serverHostname}:2087/json-api/create_user_session";
+        
+        $postData = [
+            'api.version' => 1,
+            'user' => $cpanelUser,
+            'service' => 'cpaneld'
+        ];
 
-        echo json_encode(['success' => true, 'url' => $loginUrl]);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: whm {$whmUsername}:{$whmApiToken}"
+        ]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Set to true in production with proper SSL
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        print_r($response);
+
+        if ($httpCode == 200) {
+            $result = json_decode($response, true);
+            
+            if (isset($result['data']['url'])) {
+                $loginUrl = $result['data']['url'];
+                echo json_encode(['success' => true, 'url' => $loginUrl]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to generate login URL']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'API request failed']);
+        }
     }
 }
