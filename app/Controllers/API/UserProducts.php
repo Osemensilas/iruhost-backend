@@ -95,17 +95,46 @@ class UserProducts{
                     $tdl = substr($domainName, strpos($domainName, '.') + 1);
                     $sld = substr($domainName, 0, strpos($domainName, '.'));
                     
-                    $getTdlStmt = $this->pdo->prepare("SELECT * FROM `tlds` WHERE tld = ?");
-                    $getTdlStmt->execute([$tdl]);
+                    $ngTld = [
+                        'ng',          // root country code
+                        'com.ng',      // for commercial entities
+                        'org.ng',      // for non-profits
+                        'gov.ng',      // for government institutions
+                        'edu.ng',      // for accredited educational institutions
+                        'net.ng',      // for network providers and ISPs
+                        'sch.ng',      // for primary and secondary schools
+                        'name.ng',     // for individuals
+                        'mobi.ng',     // for mobile services and websites
+                        'mil.ng',      // for military institutions
+                        'i.ng',        // for personal or individual projects
+                    ];
 
-                    if ($getTdlStmt->rowCount() < 1){
-                        $price = 0;
-                    } else {
-                        $tldRow = $getTdlStmt->fetch(PDO::FETCH_ASSOC);
-                        $price = $tldRow['renewal'];
+                    if (in_array($tdl, $ngTld)){
+                        $getTdlStmt = $this->pdo->prepare("SELECT * FROM `tlds` WHERE tld = ?");
+                        $getTdlStmt->execute([$tdl]);
+
+                        if ($getTdlStmt->rowCount() < 1){
+                            $price = 0;
+                        } else {
+                            $tldRow = $getTdlStmt->fetch(PDO::FETCH_ASSOC);
+                            $price = $tldRow['renewal'];
+                        }
+
+                        $row['renewal_price'] = $price;
+                    }else{
+                    
+                        $getTdlStmt = $this->pdo->prepare("SELECT * FROM `tlds` WHERE tld = ?");
+                        $getTdlStmt->execute([$tdl]);
+
+                        if ($getTdlStmt->rowCount() < 1){
+                            $price = 0;
+                        } else {
+                            $tldRow = $getTdlStmt->fetch(PDO::FETCH_ASSOC);
+                            $price = $tldRow['renewal'];
+                        }
+
+                        $row['renewal_price'] = $price * $dollarValue;
                     }
-
-                    $row['renewal_price'] = $price * $dollarValue;
                 }
 
                 if ($row['product'] === "hosting"){
