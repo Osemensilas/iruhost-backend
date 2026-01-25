@@ -397,7 +397,7 @@ class DomainRegistration{
         $tdl = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
-        $url = "https://reseller.enom.com/interface.asp?command=GetHosts&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tdl&ResponseType=XML";
+        $url = "https://reseller.enom.com/interface.asp?command=TLD_GetTLD&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&ResponseType=XML";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
