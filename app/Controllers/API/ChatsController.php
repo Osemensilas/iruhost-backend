@@ -393,8 +393,8 @@ class ChatsController{
             ]);
         }
 
-        $insertChat = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, sender, `reciever_id`, `message`, `image`, `avatar`) VALUES (?,?,?,?,?,?,?)");
-        $insertResult = $insertChat->execute([$ticketId, $userId, $name, 'admin', $message, '', $avatar]);
+        $insertChat = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, sender, `reciever_id`, `message`, `status`, `image`, `avatar`) VALUES (?,?,?,?,?,?,?,?)");
+        $insertResult = $insertChat->execute([$ticketId, $userId, $name, 'admin', $message, 'not opened', '', $avatar]);
 
         if (!$insertResult){
             echo json_encode([
@@ -465,8 +465,8 @@ class ChatsController{
             (isset($parts[1]) ? substr($parts[1], 0, 1) : '')
         );
 
-        $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, `sender`, `reciever_id`, `message`, `image`, `avatar`) VALUES (?,?,?,?,?,?,?)");
-        $result = $stmtTickets->execute([$ticketId, $this->userId, $name, 'admin', $message, $image, $avatar]);
+        $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, `sender`, `reciever_id`, `message`, `status`, `image`, `avatar`) VALUES (?,?,?,?,?,?,?,?)");
+        $result = $stmtTickets->execute([$ticketId, $this->userId, $name, 'admin', $message, 'not opened', $image, $avatar]);
 
         if (!$result){
             echo json_encode([
