@@ -199,16 +199,19 @@ class AdminOps{
 
         $tickets = $getUnresolvedTickets->fetchAll(PDO::FETCH_ASSOC);
 
+        $tickets['new_message'] = false;
+
         foreach($tickets as $ticket){
-            $ticket['new_message'] = false;
 
             $getMessageStat = $this->pdo->prepare("SELECT status FROM `support_chats` WHERE ticket_id = ? AND status = ? LIMIT 1");
             $getMessageStat->execute([$ticket['ticket_id'], 'not opened']);
 
             if ($getMessageStat->rowCount() > 0) {
-                $ticket['new_message'] = true;
+                $tickets['new_message'] = true;
             }
         }
+
+        print_r($tickets);
 
         unset($ticket);
 
