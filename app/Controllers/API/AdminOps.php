@@ -3,14 +3,23 @@
 namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
+use PHPMailer\PHPMailer\Exception;
+use Resend;
+use Dotenv\Dotenv;
 
 class AdminOps{
     protected $adminId;
     protected $pdo;
+    protected $resend;
+    protected $resendApiCode;
 
     public function __construct(){
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv->load();
         $this->adminId = $_SESSION['admin']['user_id'];
         $this->pdo =  DB::connection();
+
+        $this->resend = Resend::client($this->resendApiCode);
     }
 
     public function addBlogs(){
@@ -285,6 +294,99 @@ class AdminOps{
         }
     }
 
+    public function postSupportChats(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $ticketId = htmlspecialchars($_POST['ticket_id'] ?? '', ENT_QUOTES, 'UTF-8');;
+        $message = htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8');
+        $image = '';
+
+        if (empty($ticketId) || empty($message)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All field required'
+            ]);
+            return;
+        }
+
+        if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
+            $uploadDir = __DIR__ . "../../../../public/uploads/";
+
+            $filename   = time() . "_" . basename($_FILES['image']['name']);
+            $targetFile = $uploadDir . $filename;
+
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
+                $image = $filename;
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Image upload failed']);
+                return;
+            }
+        }
+
+        $userStmt = $this->pdo->prepare("SELECT * FROM `users` WHERE user_id = ? AND role = ?");
+        $userStmt->execute([$this->adminId, 'admin']);
+
+        if ($userStmt->rowCount() === 0){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'User not found'
+            ]);
+            return;
+        }
+
+        $userRow = $userStmt->fetch(PDO::FETCH_ASSOC);
+        $name = $userRow['name'] ?? 'User';
+        $email = $userRow['email'] ?? '';
+
+        $parts = preg_split('/\s+/', trim($name));
+
+        $avatar = strtoupper(
+            substr($parts[0], 0, 1) . 
+            (isset($parts[1]) ? substr($parts[1], 0, 1) : '')
+        );
+
+        $getUserStmt = $this->pdo->prepare("SELECT * FROM `support` WHERE ticket_id = ?");
+        $getUserStmt->execute([$ticketId]);
+
+        if ($getUserStmt->rowCount() === 0){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Ticket not found'
+            ]);
+            return;
+        }
+
+        $ticketRow = $getUserStmt->fetch(PDO::FETCH_ASSOC);
+        $userId = $ticketRow['user_id'];
+
+        $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, `sender`, `reciever_id`, `message`, `status`, `image`, `avatar`) VALUES (?,?,?,?,?,?,?,?)");
+        $result = $stmtTickets->execute([$ticketId, $this->adminId, $name, $userId, $message, 'not opened', $image, $avatar]);
+
+        if (!$result){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'no message found'
+            ]);
+            return;
+        }
+
+
+        $this->sendEmail($message, $email, $name);
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'message sent'
+        ]);
+    }
+
     public function getChat(){
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
@@ -497,6 +599,37 @@ class AdminOps{
             'status' => 'success',
             'message' => 'TLD added successfully'
         ]);
+    }
+
+    private function sendEmail($message, $email, $name){
+         try {
+            $this->resend->emails->send([
+                'from' => 'IruHost <support@iruhost.com>',
+                'to' => [$email, 'osemensilas@gmail.com'],
+                'subject' => 'Support Ticket Message',
+                'html' => "
+                <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+                <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+                    
+                    <p style='color: #333; line-height: 1.6;'>
+                    Your support ticket with the below message has been received. our support team will get back to you as soon as possible.
+                    </p>
+
+                    <p style='color:#333; line-height:1.6;'>
+                    <em>{$message}</em>
+                    </p>
+
+                    <p style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
+                    Thank you for choosing <strong>IruHost</strong>.<br>
+                    Need help? Contact us at <a href='mailto:support@iruhost.com' style='color:#007bff;'>support@iruhost.com</a>
+                    </p>
+                </div>
+                </div>
+                "
+            ]);
+        } catch (Exception $e) {
+            error_log("Email sending failed: " . $e->getMessage());
+        }
     }
 
     public function adminTest(){

@@ -93,6 +93,7 @@ $router->get('/api/admin-get-support-tickets', [AdminOps::class, 'getSupportTick
 $router->post('/api/send-admin-chat', [AdminOps::class, 'sendChat']);
 $router->get('/api/admin-unresolved-tickets', [AdminOps::class, 'unresolvedTickets']);
 $router->get('/api/admin-get-support-chats', [AdminOps::class, 'supportChats']);
+$router->post('/api/admin-post-support-message', [AdminOps::class, 'postSupportChats']);
 $router->post('/api/add-tld', [AdminOps::class, 'addTld']);
 $router->post('/api/update-admin-chat', [AdminOps::class, 'updateChats']);
 $router->get('/api/run-migrations', [AdminOps::class, 'updateMigrations']);
