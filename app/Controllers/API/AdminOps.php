@@ -416,7 +416,7 @@ class AdminOps{
         foreach($rows as $row){
             if ($row['status'] === 'not opened'){
                 $stmtUpdate = $this->pdo->prepare("UPDATE `support_chats` SET `status`= ? WHERE ticket_id = ?");
-                $stmtUpdate->prepare(['opened', $ticketId]);
+                $stmtUpdate->execute(['opened', $ticketId]);
 
                 if ($stmtUpdate->rowCount() < 1){
                     echo json_encode([
