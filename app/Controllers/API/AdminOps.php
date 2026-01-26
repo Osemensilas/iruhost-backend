@@ -442,7 +442,21 @@ class AdminOps{
 
         $ticketId = $data['ticket_id'];
 
-        echo $ticketId;
+        $stmtUpdate = $this->pdo->prepare("UPDATE `support` SET `status`= ? WHERE ticket_id = ?");
+        $result = $stmtUpdate->execute(['resolved', $ticketId]);
+
+        if (!$result){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'status could not be updated'
+            ]);
+            return;
+        }
+
+        echo json_encode([
+            'status' => 'status',
+            'message' => 'status updated successfully'
+        ]);
     }
 
     public function getChat(){
