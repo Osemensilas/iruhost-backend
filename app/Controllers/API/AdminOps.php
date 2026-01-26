@@ -203,11 +203,12 @@ class AdminOps{
 
             $ticket['new_message'] = false;
 
-            $stmt = $this->pdo->prepare("SELECT 1 FROM support_chats WHERE ticket_id = ? AND status = 'not opened' LIMIT 1");
-            $stmt->execute([$ticket['ticket_id']]);
+            $stmt = $this->pdo->prepare("SELECT 1 FROM support_chats WHERE ticket_id = ? AND status = ? LIMIT 1");
+            $stmt->execute([$ticket['ticket_id'], 'not opened']);
 
             if ($stmt->rowCount() > 0) {
                 $ticket['new_message'] = true;
+                print_r($ticket['ticket_id']);
             }
         }
 
