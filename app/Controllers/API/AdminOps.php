@@ -244,7 +244,7 @@ class AdminOps{
 
             echo json_encode([
                 'status' => 'success',
-                'result' => $ticket
+                'message' => $ticket
             ]);
         }
     }
