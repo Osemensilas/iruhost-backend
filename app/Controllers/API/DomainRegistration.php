@@ -157,7 +157,7 @@ class DomainRegistration{
 
         header('Content-Type: application/json');
 
-        print_r(__DIR__);
+        print_r(__DIR__ . '/../');
 
         // --- Configuration ---
         // $cacheDir = __DIR__ . "/cache/"; // cache folder
