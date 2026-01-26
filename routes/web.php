@@ -89,6 +89,7 @@ $router->post('/api/add-blog', [AdminOps::class, 'addBlogs']);
 $router->get('/api/admin-get-chats', [AdminOps::class, 'getChats']);
 $router->get('/api/admin-get-visitor-chats', [AdminOps::class, 'getVisitorChats']);
 $router->get('/api/get-admin-chat', [AdminOps::class, 'getChat']);
+$router->get('/api/admin-get-support-tickets', [AdminOps::class, 'getSupportTickets']);
 $router->post('/api/send-admin-chat', [AdminOps::class, 'sendChat']);
 $router->post('/api/add-tld', [AdminOps::class, 'addTld']);
 $router->post('/api/update-admin-chat', [AdminOps::class, 'updateChats']);
