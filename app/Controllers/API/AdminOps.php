@@ -187,7 +187,7 @@ class AdminOps{
         }
 
         $getUnresolvedTickets = $this->pdo->prepare("SELECT * FROM `support` WHERE status = ?");
-        $getUnresolvedTickets->execute(['uresolved']);
+        $getUnresolvedTickets->execute(['unresolved']);
 
         if ($getUnresolvedTickets->rowCount() === 0){
             echo json_encode([
