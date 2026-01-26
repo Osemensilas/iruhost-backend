@@ -204,12 +204,14 @@ class AdminOps{
             $getMessageStat->execute([$ticket['ticket_id'], 'not opened']);
 
             if ($getMessageStat->rowCount() > 0){
-                $messageRow = $getMessageStat->fetchAll(PDO::FETCH_ASSOC);
+                $messageRows = $getMessageStat->fetchAll(PDO::FETCH_ASSOC);
 
-                if ($messageRow['status'] === 'opened'){
-                    $ticket['new_message'] = false;
-                } else {
-                    $ticket['new_message'] = true;
+                foreach ($messageRows as $messageRow){
+                    if ($messageRow['status'] === 'opened'){
+                        $ticket['new_message'] = false;
+                    } else {
+                        $ticket['new_message'] = true;
+                    }
                 }
             }
         }
