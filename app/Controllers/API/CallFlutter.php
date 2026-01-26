@@ -728,6 +728,17 @@ class CallFlutter {
                 throw new Exception('Error inserting hosting details');
             }
 
+            $productStmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product_id = ?");
+            $productStmtResult = $productStmt->execute([
+                $username,
+                $this->userId, 
+                $productId
+            ]);
+
+            if (!$productStmtResult){
+                throw new Exception('Error updating product url');
+            }
+
             // Send email notification
             $this->sendHostingMessage(
                 $apiResponse['username'],
@@ -786,8 +797,8 @@ class CallFlutter {
         $username = preg_replace('/[^a-zA-Z0-9]/', '', $username); // Remove special chars
         $username = substr($username, 0, 16);
 
-        $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
-        $checkStmt->execute([$hostingName]);
+        $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = ? AND product_name = ?");
+        $checkStmt->execute(['hosting', $hostingName]);
         if ($checkStmt->fetchColumn() > 0) {
             $username .= rand(100, 999); // make it more unique
         }
@@ -823,6 +834,17 @@ class CallFlutter {
         
         if (!$insert) {
             throw new Exception('Error inserting hosting details');
+        }
+
+        $productStmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product_id = ?");
+        $productStmtResult = $productStmt->execute([
+            $username,
+            $this->userId, 
+            $productId
+        ]);
+
+        if (!$productStmtResult){
+            throw new Exception('Error updating product url');
         }
         
         $this->sendHostingMessage(
