@@ -199,6 +199,21 @@ class AdminOps{
 
         $tickets = $getUnresolvedTickets->fetchAll(PDO::FETCH_ASSOC);
 
+        foreach($tickets as $ticket){
+            $getMessageStat = $this->pdo->prepare("SELECT * FROM `support_chats` WHERE ticket_id = ? AND status = ?");
+            $getMessageStat->execute([$ticket['ticket_id'], 'not opened']);
+
+            if ($getMessageStat->rowCount() > 0){
+                $messageRow = $getMessageStat->fetchAll(PDO::FETCH_ASSOC);
+
+                if ($messageRow['status'] === 'opened'){
+                    $ticket['new_message'] = false;
+                } else {
+                    $ticket['new_message'] = true;
+                }
+            }
+        }
+
         echo json_encode([
             'status' => 'success',
             'result' => $tickets
