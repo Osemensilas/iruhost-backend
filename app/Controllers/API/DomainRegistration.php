@@ -155,66 +155,49 @@ class DomainRegistration{
         $tld = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
-        echo shell_exec('which whois');
+        header('Content-Type: application/json');
 
-        
-        // $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
-        // $action     = "/domains/lookup";
-        // $params     = [
-        //     "searchTerm" => $sld,
-        //     "punnyCodeSearchTerm" => $sld,
-        //     "tldsToInclude" => [".$tld", ".org.ng"],
-        //     "isIdnDomain" => false,
-        //     "premiumEnabled" => false,
-        // ];
-        // $headers = [
-        //     "username: osemensilas@gmail.com",
-        //     "token: " . base64_encode(hash_hmac("sha256", "sKUcg0MeTqQyVvySlVcuk6Erx1G84Al5", "osemensilas@gmail.com:" . gmdate("y-m-d H")))
-        // ];
+        print_r(__DIR__);
 
-        // $curl = curl_init();
-        // curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
-        // curl_setopt($curl, CURLOPT_POST, true);
-        // curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
-        // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
-        // curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        // --- Configuration ---
+        // $cacheDir = __DIR__ . "/cache/"; // cache folder
+        // $cacheTime = 300; // 5 minutes cache in seconds
+        // $throttleTime = 1; // 1 second delay between queries
 
-        // $response = curl_exec($curl);
-        // curl_close($curl);
+        // $cacheFile = $cacheDir . md5($domainName) . ".txt";
 
-        // print_r($response); 
+        // if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTime)) {
+        //     $whois = file_get_contents($cacheFile);
+        // } else {
+        //     // Throttle queries
+        //     sleep($throttleTime);
 
-        // $tdls = ['com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
+        //     // Run WHOIS
+        //     $whois = shell_exec("whois " . escapeshellarg($domainName));
 
-        // $myCharge = 3;
+        //     if (!$whois) {
+        //         echo json_encode(['status' => 'error', 'message' => 'WHOIS lookup failed']);
+        //         exit;
+        //     }
 
-        // foreach($tdls as $tdl){
-        
-        //     $api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
-
-        //     $ch = curl_init();
-        //     curl_setopt($ch, CURLOPT_URL, $api);
-        //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        //     $response = curl_exec($ch);
-        //     curl_close($ch);
-
-        //     $xml = simplexml_load_string($response);
-
-        //     $rrpCode = (int) $xml->Domains->Domain->RRPCode;
-        //     $regPrice = (float) $xml->Domains->Domain->Prices->Registration + $myCharge;
-        //     $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
-        //     $domain = (string) $xml->Domains->Domain->Name;
-
-        //      echo json_encode([
-        //         'status' => 'success',
-        //         'rrpCode' => $rrpCode,
-        //         'regPrice' => $regPrice,
-        //         'renew' => $renewPrice,
-        //         'domain' => $domain,
-        //         'message' => " ($tld not available yet, showing alternative TLDs)"
-        //     ]);
+        //     // Save to cache
+        //     file_put_contents($cacheFile, $whois);
         // }
+
+        // $available = false;
+        // if (
+        //     stripos($whois, 'No Object Found') !== false ||
+        //     stripos($whois, 'not registered') !== false
+        // ) {
+        //     $available = true;
+        // }
+
+        // // --- Return JSON ---
+        // echo json_encode([
+        //     'status' => 'success',
+        //     'domain' => $domainName,
+        //     'available' => $available
+        // ]);
     }
 
     public function existingCheck(){
