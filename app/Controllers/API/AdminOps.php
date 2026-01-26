@@ -369,7 +369,7 @@ class AdminOps{
         $userId = $ticketRow['user_id'];
 
         $stmtTickets = $this->pdo->prepare("INSERT INTO `support_chats`(`ticket_id`, `sender_id`, `sender`, `reciever_id`, `message`, `status`, `image`, `avatar`) VALUES (?,?,?,?,?,?,?,?)");
-        $result = $stmtTickets->execute([$ticketId, $this->adminId, $name, $userId, $message, 'not opened', $image, $avatar]);
+        $result = $stmtTickets->execute([$ticketId, $this->adminId, 'admin', $userId, $message, 'not opened', $image, $avatar]);
 
         if (!$result){
             echo json_encode([
@@ -386,6 +386,49 @@ class AdminOps{
             'status' => 'success',
             'message' => 'message sent'
         ]);
+    }
+
+    public function updateChatsStatus(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $ticketId = $_GET['ticket_id'];
+
+        $checkStmt = $this->pdo->prepare("SELECT * FROM support_chats WHERE ticket_id = ? AND status = ?");
+        $checkStmt->execute([$ticketId, 'not opened']);
+
+        if ($checkStmt->rowCount() < 1){
+            json_encode([
+                'status' => 'no new message'
+            ]);
+            return;
+        }
+
+        $rows = $checkStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach($rows as $row){
+            if ($row['status'] === 'not opened'){
+                $stmtUpdate = $this->pdo->prepare("UPDATE `support_chats` SET `status`= ? WHERE ticket_id = ?");
+                $stmtUpdate->prepare(['opened', $ticketId]);
+
+                if ($stmtUpdate->rowCount() < 1){
+                    echo json_encode([
+                        'status' => 'success',
+                    ]);
+                }
+
+                echo json_encode([
+                    'status' => 'success',
+                ]);
+            }
+        }
     }
 
     public function getChat(){
