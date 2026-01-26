@@ -16,9 +16,10 @@ class AdminOps{
     public function __construct(){
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
         $dotenv->load();
+
         $this->adminId = $_SESSION['admin']['user_id'];
         $this->pdo =  DB::connection();
-
+        $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
         $this->resend = Resend::client($this->resendApiCode);
     }
 
