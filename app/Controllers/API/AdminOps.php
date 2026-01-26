@@ -419,14 +419,10 @@ class AdminOps{
                 $stmtUpdate->execute(['opened', $ticketId]);
 
                 if ($stmtUpdate->rowCount() < 1){
-                    echo json_encode([
-                        'status' => 'success',
-                    ]);
+                    return;
                 }
 
-                echo json_encode([
-                    'status' => 'success',
-                ]);
+                return;
             }
         }
     }
