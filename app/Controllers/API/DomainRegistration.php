@@ -155,7 +155,7 @@ class DomainRegistration{
         $tld = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
-        echo shell_exec('echo OK');
+        echo shell_exec('which whois');
 
         
         // $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
