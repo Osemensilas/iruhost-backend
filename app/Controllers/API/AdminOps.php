@@ -211,8 +211,6 @@ class AdminOps{
             }
         }
 
-        print_r($tickets);
-
         unset($ticket);
 
         echo json_encode([
