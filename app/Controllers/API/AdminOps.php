@@ -249,6 +249,42 @@ class AdminOps{
         }
     }
 
+    public function supportChats(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $ticketId = $_GET['ticket_id'] ?? null;
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `support_chats` WHERE ticket_id = ? ORDER BY id");
+        $result = $stmt->execute([$ticketId]);
+
+        if (!$result){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'no message found'
+            ]);
+            return;
+        }
+
+        $rows = [];
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => $rows
+            ]);
+        }
+    }
+
     public function getChat(){
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
