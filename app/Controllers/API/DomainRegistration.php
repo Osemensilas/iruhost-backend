@@ -154,33 +154,36 @@ class DomainRegistration{
 
         $tld = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
+
+        echo shell_exec('echo OK');
+
         
-        $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
-        $action     = "/domains/lookup";
-        $params     = [
-            "searchTerm" => $sld,
-            "punnyCodeSearchTerm" => $sld,
-            "tldsToInclude" => [".$tld", ".org.ng"],
-            "isIdnDomain" => false,
-            "premiumEnabled" => false,
-        ];
-        $headers = [
-            "username: osemensilas@gmail.com",
-            "token: " . base64_encode(hash_hmac("sha256", "sKUcg0MeTqQyVvySlVcuk6Erx1G84Al5", "osemensilas@gmail.com:" . gmdate("y-m-d H")))
-        ];
+        // $endpoint   = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
+        // $action     = "/domains/lookup";
+        // $params     = [
+        //     "searchTerm" => $sld,
+        //     "punnyCodeSearchTerm" => $sld,
+        //     "tldsToInclude" => [".$tld", ".org.ng"],
+        //     "isIdnDomain" => false,
+        //     "premiumEnabled" => false,
+        // ];
+        // $headers = [
+        //     "username: osemensilas@gmail.com",
+        //     "token: " . base64_encode(hash_hmac("sha256", "sKUcg0MeTqQyVvySlVcuk6Erx1G84Al5", "osemensilas@gmail.com:" . gmdate("y-m-d H")))
+        // ];
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        // $curl = curl_init();
+        // curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
+        // curl_setopt($curl, CURLOPT_POST, true);
+        // curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
+        // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        // curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        // curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-        $response = curl_exec($curl);
-        curl_close($curl);
+        // $response = curl_exec($curl);
+        // curl_close($curl);
 
-        print_r($response); 
+        // print_r($response); 
 
         // $tdls = ['com', 'org', 'net', 'xyz', 'io', 'co', 'ai', 'info', 'us', 'me'];
 
