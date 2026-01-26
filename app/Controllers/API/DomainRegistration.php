@@ -4,6 +4,7 @@ namespace App\Controllers\API;
 use Dotenv\Dotenv;
 use App\Core\DB;
 use PDO;
+use PDOException;
 
 class DomainRegistration{
 
@@ -152,12 +153,11 @@ class DomainRegistration{
     private function nigerianDomain($data){
         $domainName = strtolower(trim($data));
 
-        $tld = substr($domainName, strpos($domainName, '.') + 1);
-        $sld = substr($domainName, 0, strpos($domainName, '.'));
-
+        // Validate domain format
         if (!preg_match('/^[a-z0-9-]+\.ng$/', $domainName) &&
             !preg_match('/^[a-z0-9-]+\.[a-z0-9-]+\.ng$/', $domainName)
         ) {
+            http_response_code(400);
             echo json_encode([
                 'status' => 'error',
                 'message' => 'Invalid .ng domain format'
@@ -167,65 +167,196 @@ class DomainRegistration{
 
         header('Content-Type: application/json');
 
+        // Extract TLD
+        $tld = substr($domainName, strpos($domainName, '.') + 1);
+
+        // Setup cache directory
         $checkFolder = __DIR__ . '/../../public/domain-check';
-
-        if (!is_dir($checkFolder)) {
-            mkdir($checkFolder, 0775, true);
-        }
-
-        $cacheDir = "$checkFolder/cache/"; 
+        $cacheDir = "$checkFolder/cache/";
         
         if (!is_dir($cacheDir)) {
-            mkdir($cacheDir, 0775, true);
+            if (!mkdir($cacheDir, 0775, true)) {
+                http_response_code(500);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Failed to create cache directory'
+                ]);
+                return;
+            }
         }
 
-        //--- Configuration ---
-        $cacheTime = 300; // 5 minutes cache in seconds
-        $throttleTime = 1; // 1 second delay between queries
+        // Configuration
+        $cacheTime = 300; // 5 minutes
+        $throttleTime = 1; // 1 second
+        $maxRequestsPerHour = 100; // Rate limit per IP
+        
+        // Rate limiting per IP
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $rateLimitFile = $cacheDir . 'rate_' . md5($ip) . '.json';
+        
+        if (!$this->checkRateLimit($rateLimitFile, $maxRequestsPerHour)) {
+            http_response_code(429);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Rate limit exceeded. Please try again later.'
+            ]);
+            return;
+        }
 
         $cacheFile = $cacheDir . md5($domainName) . ".txt";
 
+        // Check cache
         if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTime)) {
             $whois = file_get_contents($cacheFile);
+            error_log("WHOIS cache hit for: $domainName from IP: $ip");
         } else {
+            // Additional domain validation before shell command
+            if (!filter_var($domainName, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+                http_response_code(400);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Invalid domain name'
+                ]);
+                return;
+            }
+
+            // Log the query
+            error_log("WHOIS query for: $domainName from IP: $ip");
+
             // Throttle queries
             sleep($throttleTime);
 
-            // Run WHOIS
-            $whois = shell_exec('/bin/whois ' . escapeshellarg($domainName));
+            // Run WHOIS with timeout
+            $whois = shell_exec('timeout 10 /bin/whois ' . escapeshellarg($domainName) . ' 2>&1');
 
             if (!$whois) {
-                echo json_encode(['status' => 'error', 'message' => 'WHOIS lookup failed']);
-                exit;
+                http_response_code(503);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'WHOIS lookup failed'
+                ]);
+                error_log("WHOIS lookup failed for: $domainName");
+                return;
             }
 
-            // Save to cache
-            file_put_contents($cacheFile, $whois);
+            // Save to cache with file locking
+            $this->saveToCacheWithLock($cacheFile, $whois);
         }
 
-        $available = false;
-        if (
+        // Check availability
+        $available = (
             stripos($whois, 'No Object Found') !== false ||
-            stripos($whois, 'not registered') !== false
-        ) {
-            $available = true;
+            stripos($whois, 'not registered') !== false ||
+            stripos($whois, 'No entries found') !== false ||
+            stripos($whois, 'Status: Available') !== false
+        );
 
-            $stmtPrices = $this->pdo->prepare("SELECT * FROM nigerian_tlds WHERE tld = ?");
-            $stmtPrices->execute([$tld]);
-
-            if ($stmtPrices->rowCount() > 0){
-                $tldRow = $stmtPrices->fetch(PDO::FETCH_ASSOC);
-            }
-        }
-
-        // --- Return JSON ---
-        echo json_encode([
+        // Initialize response
+        $response = [
             'status' => 'success',
             'domain' => $domainName,
             'available' => $available,
-            'registration' => $tldRow['registration'],
-            'renewal' => $tldRow['renewal'],
-        ]);
+            'registration' => null,
+            'renewal' => null,
+            'whois_date' => date('Y-m-d H:i:s')
+        ];
+
+        // Fetch pricing only if available
+        if ($available) {
+            try {
+                $stmtPrices = $this->pdo->prepare("SELECT registration, renewal FROM nigerian_tlds WHERE tld = ?");
+                $stmtPrices->execute([$tld]);
+                
+                $tldRow = $stmtPrices->fetch(PDO::FETCH_ASSOC);
+                
+                if ($tldRow) {
+                    $response['registration'] = $tldRow['registration'];
+                    $response['renewal'] = $tldRow['renewal'];
+                } else {
+                    // TLD not found in database
+                    $response['message'] = 'TLD pricing not available';
+                    error_log("TLD pricing not found for: $tld");
+                }
+            } catch (PDOException $e) {
+                error_log("Database error in nigerianDomain: " . $e->getMessage());
+                // Don't expose database errors to client
+                $response['message'] = 'Unable to fetch pricing information';
+            }
+        }
+
+        echo json_encode($response);
+    }
+
+    /**
+     * Check and update rate limit for IP address
+     * 
+     * @param string $rateLimitFile Path to rate limit file
+     * @param int $maxRequests Maximum requests allowed per hour
+     * @return bool True if within limit, false if exceeded
+     */
+    private function checkRateLimit($rateLimitFile, $maxRequests){
+        $now = time();
+        $oneHourAgo = $now - 3600;
+        
+        $requests = [];
+        
+        // Read existing rate limit data
+        if (file_exists($rateLimitFile)) {
+            $data = file_get_contents($rateLimitFile);
+            $requests = json_decode($data, true) ?: [];
+            
+            // Filter out requests older than 1 hour
+            $requests = array_filter($requests, function($timestamp) use ($oneHourAgo) {
+                return $timestamp > $oneHourAgo;
+            });
+        }
+        
+        // Check if limit exceeded
+        if (count($requests) >= $maxRequests) {
+            return false;
+        }
+        
+        // Add current request
+        $requests[] = $now;
+        
+        // Save updated rate limit data with file locking
+        $fp = fopen($rateLimitFile, 'w');
+        if ($fp) {
+            if (flock($fp, LOCK_EX)) {
+                fwrite($fp, json_encode($requests));
+                flock($fp, LOCK_UN);
+            }
+            fclose($fp);
+        }
+        
+        return true;
+    }
+
+    /**
+     * Save data to cache file with file locking to prevent race conditions
+     * 
+     * @param string $cacheFile Path to cache file
+     * @param string $data Data to save
+     * @return bool True on success, false on failure
+     */
+    private function saveToCacheWithLock($cacheFile, $data){
+        $fp = fopen($cacheFile, 'w');
+        
+        if (!$fp) {
+            error_log("Failed to open cache file: $cacheFile");
+            return false;
+        }
+        
+        if (flock($fp, LOCK_EX)) {
+            fwrite($fp, $data);
+            flock($fp, LOCK_UN);
+            fclose($fp);
+            return true;
+        }
+        
+        fclose($fp);
+        error_log("Failed to acquire lock on cache file: $cacheFile");
+        return false;
     }
 
     public function existingCheck(){
