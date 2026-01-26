@@ -208,7 +208,6 @@ class AdminOps{
 
             if ($stmt->rowCount() > 0) {
                 $ticket['new_message'] = true;
-                print_r($ticket['ticket_id']);
             }
         }
 
