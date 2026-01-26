@@ -225,6 +225,30 @@ class AdminOps{
         ]);
     }
 
+    public function unresolvedTickets(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `support` WHERE status = ? AND ticket_id = ?");
+        $stmt->execute(['unresolved', $_GET['ticket_id']]);
+
+        if ($stmt->rowCount() > 0){
+            $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'result' => $ticket
+            ]);
+        }
+    }
+
     public function getChat(){
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
