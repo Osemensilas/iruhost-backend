@@ -155,49 +155,77 @@ class DomainRegistration{
         $tld = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
 
+        if (!preg_match('/^[a-z0-9-]+\.ng$/', $domainName) &&
+            !preg_match('/^[a-z0-9-]+\.[a-z0-9-]+\.ng$/', $domainName)
+        ) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid .ng domain format'
+            ]);
+            return;
+        }
+
         header('Content-Type: application/json');
 
-        print_r(__DIR__ . '/../');
+        $checkFolder = __DIR__ . '/../../public/domain-check';
 
-        // --- Configuration ---
-        // $cacheDir = __DIR__ . "/cache/"; // cache folder
-        // $cacheTime = 300; // 5 minutes cache in seconds
-        // $throttleTime = 1; // 1 second delay between queries
+        if (!is_dir($checkFolder)) {
+            mkdir($checkFolder, 0775, true);
+        }
 
-        // $cacheFile = $cacheDir . md5($domainName) . ".txt";
+        $cacheDir = "$checkFolder/cache/"; 
+        
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0775, true);
+        }
 
-        // if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTime)) {
-        //     $whois = file_get_contents($cacheFile);
-        // } else {
-        //     // Throttle queries
-        //     sleep($throttleTime);
+        //--- Configuration ---
+        $cacheTime = 300; // 5 minutes cache in seconds
+        $throttleTime = 1; // 1 second delay between queries
 
-        //     // Run WHOIS
-        //     $whois = shell_exec("whois " . escapeshellarg($domainName));
+        $cacheFile = $cacheDir . md5($domainName) . ".txt";
 
-        //     if (!$whois) {
-        //         echo json_encode(['status' => 'error', 'message' => 'WHOIS lookup failed']);
-        //         exit;
-        //     }
+        if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTime)) {
+            $whois = file_get_contents($cacheFile);
+        } else {
+            // Throttle queries
+            sleep($throttleTime);
 
-        //     // Save to cache
-        //     file_put_contents($cacheFile, $whois);
-        // }
+            // Run WHOIS
+            $whois = shell_exec('/bin/whois ' . escapeshellarg($domainName));
 
-        // $available = false;
-        // if (
-        //     stripos($whois, 'No Object Found') !== false ||
-        //     stripos($whois, 'not registered') !== false
-        // ) {
-        //     $available = true;
-        // }
+            if (!$whois) {
+                echo json_encode(['status' => 'error', 'message' => 'WHOIS lookup failed']);
+                exit;
+            }
 
-        // // --- Return JSON ---
-        // echo json_encode([
-        //     'status' => 'success',
-        //     'domain' => $domainName,
-        //     'available' => $available
-        // ]);
+            // Save to cache
+            file_put_contents($cacheFile, $whois);
+        }
+
+        $available = false;
+        if (
+            stripos($whois, 'No Object Found') !== false ||
+            stripos($whois, 'not registered') !== false
+        ) {
+            $available = true;
+
+            $stmtPrices = $this->pdo->prepare("SELECT * FROM nigerian_tlds WHERE tld = ?");
+            $stmtPrices->execute([$tld]);
+
+            if ($stmtPrices->rowCount() > 0){
+                $tldRow = $stmtPrices->fetch(PDO::FETCH_ASSOC);
+            }
+        }
+
+        // --- Return JSON ---
+        echo json_encode([
+            'status' => 'success',
+            'domain' => $domainName,
+            'available' => $available,
+            'registration' => $tldRow['registration'],
+            'renewal' => $tldRow['renewal'],
+        ]);
     }
 
     public function existingCheck(){
