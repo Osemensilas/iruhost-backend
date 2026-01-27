@@ -485,9 +485,11 @@ class CallFlutter {
         if (!$response) {
             return [
                 'status' => 'error',
-                'message' => 'Failed to connect to eNom API'
+                'message' => 'Failed to connect to whogohost API'
             ];
         }
+
+        print_r($response);
     }
 
     private function regSsl($productName, $billing, $cartId, $domain){
