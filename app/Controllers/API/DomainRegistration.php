@@ -229,16 +229,7 @@ class DomainRegistration{
             // Run WHOIS with timeout
             $whois = shell_exec('/bin/whois ' . escapeshellarg($domainName) . ' 2>&1');
 
-            if (stripos($whois, 'Interrupted by signal') !== false) {
-                error_log("WHOIS timeout for: $domainName");
-
-                http_response_code(503);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'WHOIS server timeout. Please try again.'
-                ]);
-                return;
-            }
+            echo $whois;
             
             if (!$whois) {
                 http_response_code(503);
@@ -275,7 +266,7 @@ class DomainRegistration{
         // Fetch pricing only if available
         if ($available) {
             try {
-                $stmtPrices = $this->pdo->prepare("SELECT registration, renewal FROM nigerian_tlds WHERE tld = ?");
+                $stmtPrices = $this->pdo->prepare("SELECT * FROM nigerian_tlds WHERE tld = ?");
                 $stmtPrices->execute([$tld]);
                 
                 $tldRow = $stmtPrices->fetch(PDO::FETCH_ASSOC);
