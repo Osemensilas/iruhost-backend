@@ -10,8 +10,8 @@ class DomainRegistration{
 
     protected $enomUserId;
     protected $enomApiToken;
-
     protected $pdo;
+    protected $devCoteApiKey;
 
     public function __construct(){
 
@@ -25,6 +25,7 @@ class DomainRegistration{
         $this->enomUserId = $_ENV['ENOM_USER_ID'] ?? null;
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
         $this->pdo = DB::connection();
+        $this->devCoteApiKey = "9X7F8F6e8W8x6V8w7l7j9XAX8Y8C7S8K8T6a716X8Q9N7l";
 
     }
     public function domainSearch(){
@@ -150,263 +151,43 @@ class DomainRegistration{
         ]);
     }
 
-    private function nigerianDomain($data){
-        $domainName = strtolower(trim($data));
+    private function nigerianDomain($domainName){
+        $domainName = strtolower(trim($domainName));
 
-        // Validate domain format
-        if (!preg_match('/^[a-z0-9-]+\.ng$/', $domainName) &&
-            !preg_match('/^[a-z0-9-]+\.[a-z0-9-]+\.ng$/', $domainName)
-        ) {
-            http_response_code(400);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Invalid .ng domain format'
-            ]);
-            return;
-        }
-
-        header('Content-Type: application/json');
-
-        // Extract TLD
         $tld = substr($domainName, strpos($domainName, '.') + 1);
 
-        // Setup cache directory
-        $checkFolder = __DIR__ . '/../../public/domain-check';
-        $cacheDir = "$checkFolder/cache/";
-        
-        if (!is_dir($cacheDir)) {
-            if (!mkdir($cacheDir, 0775, true)) {
-                http_response_code(500);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Failed to create cache directory'
-                ]);
-                return;
-            }
-        }
+        $url = "https://api.dynadot.com/restful/v2/domains/$domainName/search";
 
-        // Configuration
-        $cacheTime = 300; // 5 minutes
-        $throttleTime = 1; // 1 second
-        $maxRequestsPerHour = 100; // Rate limit per IP
-        
-        // Rate limiting per IP
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-        $rateLimitFile = $cacheDir . 'rate_' . md5($ip) . '.json';
-        
-        if (!$this->checkRateLimit($rateLimitFile, $maxRequestsPerHour)) {
-            http_response_code(429);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: Bearer $this->devCoteApiKey",
+            "Accept: application/json"
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15); // optional timeout
+
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if (!$result || $httpCode >= 400) {
+            http_response_code(503);
             echo json_encode([
                 'status' => 'error',
-                'message' => 'Rate limit exceeded. Please try again later.'
+                'message' => 'Dynadot API request failed'
             ]);
             return;
         }
 
-        $cacheFile = $cacheDir . md5($domainName) . ".txt";
+        $data = json_decode($result, true);
 
-        // Check cache
-        if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTime)) {
-            $whois = file_get_contents($cacheFile);
-            error_log("WHOIS cache hit for: $domainName from IP: $ip");
-        } else {
-            // Additional domain validation before shell command
-            if (!filter_var($domainName, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-                http_response_code(400);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Invalid domain name'
-                ]);
-                return;
-            }
-
-            // Log the query
-            error_log("WHOIS query for: $domainName from IP: $ip");
-
-            // Throttle queries
-            sleep($throttleTime);
-
-            // Run WHOIS with timeout
-            $cmd = '/bin/whois ' . escapeshellarg($domainName);
-            $descriptorspec = [
-                1 => ['pipe', 'w'], // stdout
-                2 => ['pipe', 'w']  // stderr
-            ];
-
-            $process = proc_open($cmd, $descriptorspec, $pipes);
-
-            $whois = '';
-            $start = time();
-            $timeout = 8; // seconds (recommended for .ng)
-
-            if (is_resource($process)) {
-                stream_set_blocking($pipes[1], false);
-                stream_set_blocking($pipes[2], false);
-
-                while (true) {
-                    $whois .= stream_get_contents($pipes[1]);
-                    $error  = stream_get_contents($pipes[2]);
-
-                    if (!empty($error)) {
-                        break;
-                    }
-
-                    if (time() - $start > $timeout) {
-                        proc_terminate($process);
-                        break;
-                    }
-
-                    $status = proc_get_status($process);
-                    if (!$status['running']) {
-                        break;
-                    }
-
-                    usleep(100000);
-                }
-
-                proc_close($process);
-            }
-
-            echo $whois;
-
-            if (!$whois || strlen(trim($whois)) < 30) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Domain registry timeout. Please try again.'
-                ]);
-                return;
-            }
-
-            
-            if (!$whois) {
-                http_response_code(503);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'WHOIS lookup failed'
-                ]);
-                error_log("WHOIS lookup failed for: $domainName");
-                return;
-            }
-
-            // Save to cache with file locking
-            $this->saveToCacheWithLock($cacheFile, $whois);
-        }
-
-        // Check availability
-        $available = (
-            stripos($whois, 'No Object Found') !== false ||
-            stripos($whois, 'not registered') !== false ||
-            stripos($whois, 'No entries found') !== false ||
-            stripos($whois, 'Status: Available') !== false
-        );
-
-        // Initialize response
-        $response = [
+        echo json_encode([
             'status' => 'success',
             'domain' => $domainName,
-            'available' => $available,
-            'registration' => null,
-            'renewal' => null,
-            'whois_date' => date('Y-m-d H:i:s')
-        ];
-
-        // Fetch pricing only if available
-        if ($available) {
-            try {
-                $stmtPrices = $this->pdo->prepare("SELECT * FROM nigerian_tlds WHERE tld = ?");
-                $stmtPrices->execute([$tld]);
-                
-                $tldRow = $stmtPrices->fetch(PDO::FETCH_ASSOC);
-                
-                if ($tldRow) {
-                    $response['registration'] = $tldRow['registration'];
-                    $response['renewal'] = $tldRow['renewal'];
-                } else {
-                    // TLD not found in database
-                    $response['message'] = 'TLD pricing not available';
-                    error_log("TLD pricing not found for: $tld");
-                }
-            } catch (PDOException $e) {
-                error_log("Database error in nigerianDomain: " . $e->getMessage());
-                // Don't expose database errors to client
-                $response['message'] = 'Unable to fetch pricing information';
-            }
-        }
-
-        echo json_encode($response);
+            'dynadot' => $data
+        ]);
     }
 
-    /**
-     * Check and update rate limit for IP address
-     * 
-     * @param string $rateLimitFile Path to rate limit file
-     * @param int $maxRequests Maximum requests allowed per hour
-     * @return bool True if within limit, false if exceeded
-     */
-    private function checkRateLimit($rateLimitFile, $maxRequests){
-        $now = time();
-        $oneHourAgo = $now - 3600;
-        
-        $requests = [];
-        
-        // Read existing rate limit data
-        if (file_exists($rateLimitFile)) {
-            $data = file_get_contents($rateLimitFile);
-            $requests = json_decode($data, true) ?: [];
-            
-            // Filter out requests older than 1 hour
-            $requests = array_filter($requests, function($timestamp) use ($oneHourAgo) {
-                return $timestamp > $oneHourAgo;
-            });
-        }
-        
-        // Check if limit exceeded
-        if (count($requests) >= $maxRequests) {
-            return false;
-        }
-        
-        // Add current request
-        $requests[] = $now;
-        
-        // Save updated rate limit data with file locking
-        $fp = fopen($rateLimitFile, 'w');
-        if ($fp) {
-            if (flock($fp, LOCK_EX)) {
-                fwrite($fp, json_encode($requests));
-                flock($fp, LOCK_UN);
-            }
-            fclose($fp);
-        }
-        
-        return true;
-    }
-
-    /**
-     * Save data to cache file with file locking to prevent race conditions
-     * 
-     * @param string $cacheFile Path to cache file
-     * @param string $data Data to save
-     * @return bool True on success, false on failure
-     */
-    private function saveToCacheWithLock($cacheFile, $data){
-        $fp = fopen($cacheFile, 'w');
-        
-        if (!$fp) {
-            error_log("Failed to open cache file: $cacheFile");
-            return false;
-        }
-        
-        if (flock($fp, LOCK_EX)) {
-            fwrite($fp, $data);
-            flock($fp, LOCK_UN);
-            fclose($fp);
-            return true;
-        }
-        
-        fclose($fp);
-        error_log("Failed to acquire lock on cache file: $cacheFile");
-        return false;
-    }
 
     public function existingCheck(){
 
