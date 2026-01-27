@@ -198,12 +198,11 @@ class DomainRegistration{
 
             echo json_encode([
                 'status' => 'success',
-                'domain' => $domainName,
-                'dynadot' => $data,
-                'tld_type' => 'local',
                 'rrpCode' => $rrpCode,
                 'regPrice' => "6000",
                 'renew' => "6000",
+                'domain' => $domainName,
+                'tld_type' => 'local'
             ]);
         }
     }
