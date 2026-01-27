@@ -154,39 +154,47 @@ class DomainRegistration{
     private function nigerianDomain($domainName){
         $domainName = strtolower(trim($domainName));
 
-        $tld = substr($domainName, strpos($domainName, '.') + 1);
+        $sld = substr($domainName, 0, strpos($domainName, '.'));
+        $tlds = [
+            substr($domainName, strpos($domainName, '.') + 1), 'ng', 'com.ng', 'org.ng', 'gov.ng', 'edu.ng',
+            'net.ng', 'sch.ng', 'name.ng', 'mobi.ng', 'mil.ng', 'i.ng'
+        ];
 
-        $url = "https://api.dynadot.com/restful/v2/domains/$domainName/search";
+        foreach ($tlds as $tdl) {
+            $domainName = $sld . '.' . $tdl;
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: Bearer $this->devCoteApiKey",
-            "Accept: application/json"
-        ]);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15); // optional timeout
+            $url = "https://api.dynadot.com/restful/v2/domains/$domainName/search";
 
-        $result = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if (!$result || $httpCode >= 400) {
-            http_response_code(503);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Dynadot API request failed'
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Authorization: Bearer $this->devCoteApiKey",
+                "Accept: application/json"
             ]);
-            return;
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15); // optional timeout
+
+            $result = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if (!$result || $httpCode >= 400) {
+                http_response_code(503);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Dynadot API request failed'
+                ]);
+                return;
+            }
+
+            $data = json_decode($result, true);
+
+            echo json_encode([
+                'status' => 'success',
+                'domain' => $domainName,
+                'dynadot' => $data,
+                'tld_type' => 'local'
+            ]);
         }
-
-        $data = json_decode($result, true);
-
-        echo json_encode([
-            'status' => 'success',
-            'domain' => $domainName,
-            'dynadot' => $data,
-            'tld_type' => 'local'
-        ]);
     }
 
 
