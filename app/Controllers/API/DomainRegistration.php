@@ -227,9 +227,56 @@ class DomainRegistration{
             sleep($throttleTime);
 
             // Run WHOIS with timeout
-            $whois = shell_exec('/bin/whois ' . escapeshellarg($domainName) . ' 2>&1');
+            $cmd = '/bin/whois ' . escapeshellarg($domainName);
+            $descriptorspec = [
+                1 => ['pipe', 'w'], // stdout
+                2 => ['pipe', 'w']  // stderr
+            ];
+
+            $process = proc_open($cmd, $descriptorspec, $pipes);
+
+            $whois = '';
+            $start = time();
+            $timeout = 8; // seconds (recommended for .ng)
+
+            if (is_resource($process)) {
+                stream_set_blocking($pipes[1], false);
+                stream_set_blocking($pipes[2], false);
+
+                while (true) {
+                    $whois .= stream_get_contents($pipes[1]);
+                    $error  = stream_get_contents($pipes[2]);
+
+                    if (!empty($error)) {
+                        break;
+                    }
+
+                    if (time() - $start > $timeout) {
+                        proc_terminate($process);
+                        break;
+                    }
+
+                    $status = proc_get_status($process);
+                    if (!$status['running']) {
+                        break;
+                    }
+
+                    usleep(100000);
+                }
+
+                proc_close($process);
+            }
 
             echo $whois;
+
+            if (!$whois || strlen(trim($whois)) < 30) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Domain registry timeout. Please try again.'
+                ]);
+                return;
+            }
+
             
             if (!$whois) {
                 http_response_code(503);
