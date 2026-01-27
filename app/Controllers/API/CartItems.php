@@ -182,6 +182,8 @@ class CartItems {
         $totalEmailPrice = 0;
         $totalWebAppPrice = 0;
         $totalDomainTransferPrice = 0;
+        $mainTotal = 0;
+        $vat = 0;
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -211,6 +213,9 @@ class CartItems {
                     }
                 }
                 $totalPrice += round($row['amount'], 2);
+                $vat = $totalPrice * 0.075;
+
+                $mainTotal = $totalPrice + $vat;
             }
         }
         echo json_encode([
@@ -221,6 +226,8 @@ class CartItems {
             'totalHostingPrice' => round($totalHostingPrice, 2),
             'totalEmailPrice' => round($totalEmailPrice, 2),
             'totalWebAppPrice' => round($totalWebAppPrice, 2),
+            'vat' => round($vat, 2),
+            'main_total' => round($mainTotal, 2),
         ]);
     }
 
