@@ -93,7 +93,7 @@ class DomainRegistration{
             $renewPrice = (float) $xml->Domains->Domain->Prices->Renewal + $myCharge;
             $domain = (string) $xml->Domains->Domain->Name;
 
-             echo json_encode([
+            echo json_encode([
                 'status' => 'success',
                 'rrpCode' => $rrpCode,
                 'regPrice' => $regPrice,
@@ -201,7 +201,9 @@ class DomainRegistration{
                 'domain' => $domainName,
                 'dynadot' => $data,
                 'tld_type' => 'local',
-                'rrpCode' => $rrpCode
+                'rrpCode' => $rrpCode,
+                'regPrice' => "6000",
+                'renew' => "6000",
             ]);
         }
     }
