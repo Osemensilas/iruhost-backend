@@ -99,7 +99,7 @@ class DomainRegistration{
                 'regPrice' => $regPrice,
                 'renew' => $renewPrice,
                 'domain' => $domain,
-                'message' => ''
+                'tld_type' => 'international'
             ]);
         }
     }
@@ -184,7 +184,8 @@ class DomainRegistration{
         echo json_encode([
             'status' => 'success',
             'domain' => $domainName,
-            'dynadot' => $data
+            'dynadot' => $data,
+            'tld_type' => 'local'
         ]);
     }
 
