@@ -160,6 +160,8 @@ class DomainRegistration{
             'net.ng', 'sch.ng', 'name.ng', 'mobi.ng', 'mil.ng', 'i.ng'
         ];
 
+        $rrpCode = 0;
+
         foreach ($tlds as $tdl) {
             $domainName = $sld . '.' . $tdl;
 
@@ -188,11 +190,20 @@ class DomainRegistration{
 
             $data = json_decode($result, true);
 
+            print_r($data['data']['available']);
+
+            if ($data['data']['available'] === "Yes"){
+                $rrpCode = 210;
+            }else{
+                $rrpCode = 211;
+            }
+
             echo json_encode([
                 'status' => 'success',
                 'domain' => $domainName,
                 'dynadot' => $data,
-                'tld_type' => 'local'
+                'tld_type' => 'local',
+                'rrpCode' => $rrpCode
             ]);
         }
     }
