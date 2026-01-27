@@ -192,6 +192,20 @@ class DomainRegistration{
 
             if ($data['data']['available'] === "Yes"){
                 $rrpCode = 210;
+
+                $stmtPrices = $this->pdo->prepare("SELECT registration, renewal FROM nigerian_tlds WHERE tld = ?");
+                $stmtPrices->execute([$tdl]);
+                
+                $tldRow = $stmtPrices->fetch(PDO::FETCH_ASSOC);
+                
+                if ($tldRow) {
+                    $registration = $tldRow['registration'];
+                    $renew = $tldRow['renewal'];
+                } else {
+                    // TLD not found in database
+                    $response['message'] = 'TLD pricing not available';
+                    error_log("TLD pricing not found for: $tdl");
+                }
             }else{
                 $rrpCode = 211;
             }
@@ -199,8 +213,8 @@ class DomainRegistration{
             echo json_encode([
                 'status' => 'success',
                 'rrpCode' => $rrpCode,
-                'regPrice' => "6000",
-                'renew' => "6000",
+                'regPrice' => $registration,
+                'renew' => $renew,
                 'domain' => $domainName,
                 'tld_type' => 'local'
             ]);
