@@ -227,9 +227,18 @@ class DomainRegistration{
             sleep($throttleTime);
 
             // Run WHOIS with timeout
-            $whois = shell_exec('timeout 20 /bin/whois ' . escapeshellarg($domainName) . ' 2>&1');
+            $whois = shell_exec('/bin/whois ' . escapeshellarg($domainName) . ' 2>&1');
 
-            print_r($whois);
+            if (stripos($whois, 'Interrupted by signal') !== false) {
+                error_log("WHOIS timeout for: $domainName");
+
+                http_response_code(503);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'WHOIS server timeout. Please try again.'
+                ]);
+                return;
+            }
             
             if (!$whois) {
                 http_response_code(503);
