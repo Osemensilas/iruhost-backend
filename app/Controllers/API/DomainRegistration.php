@@ -208,6 +208,9 @@ class DomainRegistration{
                 }
             }else{
                 $rrpCode = 211;
+
+                $registration = 0;
+                $renew = 0;
             }
 
             echo json_encode([
