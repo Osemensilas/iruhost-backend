@@ -227,11 +227,10 @@ class DomainRegistration{
             sleep($throttleTime);
 
             // Run WHOIS with timeout
-            // Run WHOIS with longer timeout (20 seconds)
-            $whois = shell_exec('timeout 20 /bin/whois ' . escapeshellarg($domainName) . ' 2>/dev/null');
+            $whois = shell_exec('timeout 20 /bin/whois ' . escapeshellarg($domainName) . ' 2>&1');
 
             print_r($whois);
-
+            
             if (!$whois) {
                 http_response_code(503);
                 echo json_encode([
