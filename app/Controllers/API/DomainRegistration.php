@@ -229,6 +229,8 @@ class DomainRegistration{
             // Run WHOIS with timeout
             $whois = shell_exec('timeout 10 /bin/whois ' . escapeshellarg($domainName) . ' 2>&1');
 
+            print_r($whois);
+            
             if (!$whois) {
                 http_response_code(503);
                 echo json_encode([
