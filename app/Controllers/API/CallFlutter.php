@@ -90,18 +90,19 @@ class CallFlutter {
                     $cartId = $row['cart_id'];
                     $domain = $row['domain'];
 
+                    $tld = substr($domain, strpos($domain, '.') + 1);
 
-                    $domainResponse = $this->regDomain($productName, $billing, $cartId, $domain);
-                    $domain_status = $domainResponse['status'] ?? 'unknown';
-                    $domain_message = $domainResponse['message'] ?? 'unknown';
+                    $ngTld = ['ng', 'com.ng', 'org.ng', 'gov.ng', 'edu.ng', 'net.ng', 'sch.ng', 'name.ng', 'mobi.ng', 'mil.ng', 'i.ng'];
 
-                    
-
-                    // if ($rrpCode !== "200" || $rrpCode !== "1300"){
-                    //     $domain = 'Unsuccessful';
-
-                    //     $this->regDomain($productName, $billing, $cartId, $domain);
-                    // }
+                    if (in_array($tld, $ngTld)){
+                        $domainResponse = $this->regNgDomain($productName, $billing, $cartId, $domain);
+                        $domain_status = $domainResponse['status'] ?? 'unknown';
+                        $domain_message = $domainResponse['message'] ?? 'unknown';
+                    }else{
+                        $domainResponse = $this->regDomain($productName, $billing, $cartId, $domain);
+                        $domain_status = $domainResponse['status'] ?? 'unknown';
+                        $domain_message = $domainResponse['message'] ?? 'unknown';
+                    }
                 }else{
                     if ($row['product'] === 'SSL Registration'){
                         $productName = $row['product_name'];
@@ -430,6 +431,65 @@ class CallFlutter {
         ];
     }
 
+    private function regNgDomain($productName, $billing, $cartId, $domain){
+
+        $productId = uniqid('prod_');
+        $product = 'domain';
+        $text = 'Manage';
+        $url = "/manage-domain?domain=$productName";
+        $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
+
+        if (strpos($domain, '.') === false) {
+            return [
+                'status' => 'error',
+                'message' => 'Invalid domain format'
+            ];
+        }
+
+        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
+
+        if (!$result){
+            return [
+                'status' => 'error',
+                'message' => 'Domain not added to product rows'
+            ];
+        }
+
+        $endpoint   = "https://whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
+        $action     = "/order/domains/register";
+        $params     = [
+            "domain"    => $domain,
+            "regperiod" => "1",
+            "nameservers" => [
+                "ns1" => "server.iruhost.com",
+                "ns2" => "server.iruhost.com",
+            ],
+        ];
+        $headers = [
+            "username: osemensilas@gmail.com",
+            "token: ". base64_encode(hash_hmac("sha256", "sKUcg0MeTqQyVvySlVcuk6Erx1G84Al5", "osemensilas@gmail.com:".gmdate("y-m-d H")))
+        ];
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        if (!$response) {
+            return [
+                'status' => 'error',
+                'message' => 'Failed to connect to eNom API'
+            ];
+        }
+    }
+
     private function regSsl($productName, $billing, $cartId, $domain){
         $productId = uniqid('prod_');
         $product = 'SSL';
@@ -481,165 +541,6 @@ class CallFlutter {
             'message' => 'Unknown error occurred'
         ];
     }
-
-    // private function regHosting($expiryDate, $productName, $billing, $cartId, $domain){
-    //     $productId = uniqid('prod_');
-    //     $product = 'hosting';
-    //     $text = 'Cpanel';
-    //     $hostingName = $productName;
-
-    //     $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-    //     $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, "", $text, $expiryDate]);
-
-    //     if (!$result){
-    //         return [
-    //             'status' => 'error',
-    //             'message' => 'Error inserting to database'
-    //         ];
-    //     }
-
-    //     $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
-    //     $delete = $stmtDel->execute([$cartId, $this->userId]);
-
-    //     if (!$delete){
-    //         return [
-    //             'status' => 'error',
-    //             'message' => 'Error deleting from cart'
-    //         ];
-    //     }
-
-    //     $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
-    //     $stmtUser->execute([$this->userId]);
-    //     $userRow = $stmtUser->fetch();
-
-    //     if (!$userRow) {
-    //         return [
-    //             'status' => 'error',
-    //             'message' => 'User not found'
-    //         ];
-    //     }
-
-    //     $userEmail = $userRow['email'];
-    //     $clientName = $userRow['name'];
-
-    //     // Generate unique cPanel username (max 16 characters)
-    //     $username = substr($domain, 0, strpos($domain, '.'));
-    //     $username = substr($username, 0, 16);
-
-    //     $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
-    //     $checkStmt->execute([$hostingName]);
-    //     if ($checkStmt->fetchColumn() > 0) {
-    //         $username .= rand(100, 999); // make it more unique
-    //     }
-
-    //     // Generate secure password
-        
-    //     $password = $this->generateSecurePassword();
-
-    //     $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
-
-
-    //     // WHM API credentials
-    //     $whm_host = $this->whmHostname;
-    //     $whm_port = 2087;
-    //     $whm_username = $this->whmUsername;
-    //     $whm_token = $this->whmApiToken;
-
-    //     // Create cPanel account via WHM API
-    //     $api_endpoint = "https://server.iruhost.com:2087/json-api/createacct?api.version=1";
-
-    //     // Account details
-    //     $account_data = [
-    //         'username' => $username,
-    //         'domain' => $domain,
-    //         'password' => $password,
-    //         'plan' => $hostingName,
-    //         'contactemail' => $userRow['email'],
-    //     ];
-
-    //     // Initialize cURL
-    //     $curl = curl_init($api_endpoint);
-
-    //     // Set cURL options
-    //     curl_setopt_array($curl, [
-    //         CURLOPT_SSL_VERIFYHOST => 0,
-    //         CURLOPT_SSL_VERIFYPEER => 0,
-    //         CURLOPT_RETURNTRANSFER => true,
-    //         CURLOPT_HTTPHEADER => ["Authorization: whm {$whm_username}:{$whm_token}"],
-    //         CURLOPT_POST => true,
-    //         CURLOPT_POSTFIELDS => http_build_query($account_data),
-    //         CURLOPT_TIMEOUT => 60,
-    //     ]);
-
-    //     // Execute request
-    //     $result = curl_exec($curl);
-
-    //     // Check for cURL errors
-    //     if ($result === false) {
-    //         return [
-    //             'status' => 'error',
-    //             'message' => 'Unable to reach WHM server: ' . curl_error($curl)
-    //         ];
-    //     }
-
-    //     // Close cURL
-    //     curl_close($curl);
-
-    //     file_put_contents(__DIR__ . '/whm_log.txt', date('Y-m-d H:i:s') . " - $result\n", FILE_APPEND);
-
-
-    //     // Process the API response
-    //     if ($result) {
-
-    //         $decoded_result = json_decode($result, true);
-
-    //         // Access WHM metadata
-    //         $reason = $decoded_result['metadata']['reason'] ?? '';
-    //         $raw_output = $decoded_result['metadata']['output']['raw'] ?? '';
-
-    //         // Extract key values from raw output (regex)
-    //         preg_match('/UserName:\s*(\S+)/', $raw_output, $usernameMatch);
-    //         preg_match('/PassWord:\s*\(([^)]+)\)/', $raw_output, $passwordMatch);
-    //         preg_match('/Domain:\s*(\S+)/', $raw_output, $domainMatch);
-
-    //         $usernameCreated = $usernameMatch[1] ?? '';
-    //         $passwordCreated = $passwordMatch[1] ?? '';
-    //         $domainCreated   = $domainMatch[1] ?? '';
-    //         $ipAddress       = $decoded_result['data']['ip'] ?? '';
-
-    //         if (stripos($reason, 'Account Creation Ok') !== false){
-    //             $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-    //             $insert = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, $encryptedPassword, $username, $expiryDate]);
-                
-    //             $autoLoginUrl = $this->createCpanelAutoLoginUrl($username, $domain);
-
-    //             $url = $autoLoginUrl ?: "https://cloud.webhostingbliss.com:2087/";
-
-    //             $this->sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName);
-
-    //             if ($insert){
-    //                 $stmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product = ?");
-    //                 $stmt->execute([$url, $this->userId, 'hosting']);
-
-    //                 return [
-    //                     'status' => 'success',
-    //                     'message' => 'Hosting account created successfully'
-    //                 ];
-    //             }
-    //         }else{
-    //             return [
-    //                 'status' => 'success',
-    //                 'message' => "Here is the result: " . json_encode($decoded_result)
-    //             ];
-    //         }
-    //     } else {
-    //         return [
-    //             'status' => 'error',
-    //             'message' => 'Failed to get API response.'
-    //         ];
-    //     }
-    // }
-
     
     private function regHosting($expiryDate, $productName, $billing, $cartId, $domain){
     // Start transaction for data consistency
