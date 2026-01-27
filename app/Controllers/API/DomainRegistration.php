@@ -190,8 +190,6 @@ class DomainRegistration{
 
             $data = json_decode($result, true);
 
-            print_r($data['data']['available']);
-
             if ($data['data']['available'] === "Yes"){
                 $rrpCode = 210;
             }else{
