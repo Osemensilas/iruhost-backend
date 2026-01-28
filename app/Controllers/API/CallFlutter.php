@@ -466,6 +466,64 @@ class CallFlutter {
                 "ns1" => "server.iruhost.com",
                 "ns2" => "server.iruhost.com",
             ],
+            "contacts"  => [
+                    "registrant" => [
+                    "firstname" => "Osemen",
+                    "lastname" => "Silas",
+                    "fullname" => "Osemen Silas",
+                    "companyname"  => "Iruap Tech Studio Limited",
+                    "email"  => "osemensilas@gmail.com",
+                    "address1"  => "FCT Abuja",
+                    "address2"  => "",
+                    "city"  => "Duste",
+                    "state"  => "ABuja",
+                    "zipcode"  => "110001",
+                    "country"  => "Nigeria",
+                    "phonenumber" => "+2349054060454"
+                ],
+                "tech" => [
+                    "firstname" => "Osemen",
+                    "lastname" => "Oseobonoite",
+                    "fullname" => "Osemen Oseobonoite",
+                    "companyname"  => "Iruap Tech Studio Limited",
+                    "email"  => "osemensilas@gmail.com",
+                    "address1"  => "FCT Abuja",
+                    "address2"  => "",
+                    "city"  => "Dutse",
+                    "state"  => "Abuja",
+                    "zipcode"  => "901101",
+                    "country"  => "Nigeria",
+                    "phonenumber" => "+2349054060454"
+                ],
+                "billing" => [
+                    "firstname" => "Osemen",
+                    "lastname" => "Oseobonite",
+                    "fullname" => "Osemen Oseobonite",
+                    "companyname"  => "Iruap Tech Studio Limited",
+                    "email"  => "osemensilas@gmail.com",
+                    "address1"  => "FCT Abuja",
+                    "address2"  => "",
+                    "city"  => "Dutse",
+                    "state"  => "Abuja",
+                    "zipcode"  => "901101",
+                    "country"  => "Nigeria",
+                    "phonenumber" => "+2349054060454"
+                ],
+                "admin" => [
+                    "firstname" => "Osemen",
+                    "lastname" => "Oseobonoite",
+                    "fullname" => "Osemen Oseobonoite",
+                    "companyname"  => "Iruap Tech Studio Limited",
+                    "email"  => "osemensilas@gmail.com",
+                    "address1"  => "FCT Abuja",
+                    "address2"  => "",
+                    "city"  => "Dutse",
+                    "state"  => "Abuja",
+                    "zipcode"  => "901101",
+                    "country"  => "Nigeria",
+                    "phonenumber" => "+2349054060454"
+                ],
+            ]
         ];
         $headers = [
             "username: osemensilas@gmail.com",
