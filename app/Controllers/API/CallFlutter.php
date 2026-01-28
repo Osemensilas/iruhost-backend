@@ -96,8 +96,8 @@ class CallFlutter {
 
                     if (in_array($tld, $ngTld)){
                         $domainResponse = $this->regNgDomain($productName, $billing, $cartId, $domain);
-                        $domain_status = $domainResponse['status'] ?? 'unknown';
-                        $domain_message = $domainResponse['message'] ?? 'unknown';
+                        $ng_domain_status = $domainResponse['status'] ?? 'unknown';
+                        $ng_domain_message = $domainResponse['message'] ?? 'unknown';
                     }else{
                         $domainResponse = $this->regDomain($productName, $billing, $cartId, $domain);
                         $domain_status = $domainResponse['status'] ?? 'unknown';
@@ -189,11 +189,12 @@ class CallFlutter {
             'hosting_message' => $hosting_message,
             'ssl_message' => $ssl_message,
             'email_message' => $email_message,
-            'web_message' => $web_message
+            'web_message' => $web_message,
+            'ng_domain_status' => $ng_domain_status,
+            'ng_domain_message' => $ng_domain_message
         ]);
     }
 
-    // private function regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain){
         
     //     $productId = uniqid('prod_');
     //     $product = 'hosting';
@@ -490,6 +491,11 @@ class CallFlutter {
         }
 
         print_r($response);
+
+        return [
+            'status' => 'success',
+            'message' => 'Product added to cart and registered on enom'
+        ];
     }
 
     private function regSsl($productName, $billing, $cartId, $domain){
@@ -666,6 +672,88 @@ class CallFlutter {
             ];
 
         } catch (Exception $e) {
+            // Rollback on error
+            $this->pdo->rollBack();
+            
+            // Log error for debugging
+            error_log("Hosting registration error: " . $e->getMessage());
+            
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function adminRegNgDomain(){
+
+        try{
+            $domain = "osemensilas.com.ng";
+            $billing = 'year';
+            $productName = "osemensilas.com.ng";
+            $productId = uniqid('prod_');
+            $product = 'domain';
+            $text = 'Manage';
+            $url = "/manage-domain?domain=$productName";
+            $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
+
+            if (strpos($domain, '.') === false) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Invalid domain format'
+                ];
+            }
+
+            $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+            $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
+
+            if (!$result){
+                return [
+                    'status' => 'error',
+                    'message' => 'Domain not added to product rows'
+                ];
+            }
+
+            $endpoint   = "https://whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
+            $action     = "/order/domains/register";
+            $params     = [
+                "domain"    => $domain,
+                "regperiod" => "1",
+                "nameservers" => [
+                    "ns1" => "server.iruhost.com",
+                    "ns2" => "server.iruhost.com",
+                ],
+            ];
+            $headers = [
+                "username: osemensilas@gmail.com",
+                "token: ". base64_encode(hash_hmac("sha256", "sKUcg0MeTqQyVvySlVcuk6Erx1G84Al5", "osemensilas@gmail.com:".gmdate("y-m-d H")))
+            ];
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+            $response = curl_exec($curl);
+            curl_close($curl);
+
+            if (!$response) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Failed to connect to whogohost API'
+                ];
+            }
+
+            print_r($response);
+
+            return [
+                'status' => 'success',
+                'message' => 'Product added to cart and registered on enom'
+            ];
+        }catch (Exception $e) {
             // Rollback on error
             $this->pdo->rollBack();
             

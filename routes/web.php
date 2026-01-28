@@ -14,6 +14,7 @@ use App\Controllers\API\AdminDashboard;
 use App\Controllers\API\PanelEmailOperations;
 use App\Controllers\API\StaticController;
 
+$router->get('/api/admin-reg-domain', [CallFlutter::class, 'adminRegNgDomain']);
 $router->get('/api/session', [SessionController::class, 'userSession']);
 $router->get('/api/session-data', [SessionController::class, 'userData']);
 $router->get('/api/session-address', [SessionController::class, 'userAddress']);
