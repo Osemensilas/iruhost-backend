@@ -723,6 +723,64 @@ class CallFlutter {
                     "ns1" => "server.iruhost.com",
                     "ns2" => "server.iruhost.com",
                 ],
+                "contacts"  => [
+                    €œregistrant€ => [
+                    "firstname" => "example",
+                    "lastname" => "testing",
+                    "fullname" => "example testing",
+                    "companyname"  => "textmachine",
+                    "email"  => "exam@gmail.com",
+                    "address1"  => "4 office",
+                    "address2"  => "",
+                    "city"  => "Lag",
+                    "state"  => "Lagos",
+                    "zipcode"  => "110001",
+                    "country"  => "Nigeria",
+                    "phonenumber" => "+234.812345678"
+                ],
+                €œtech€ => [
+                    "firstname" => "example",
+                    "lastname" => "testing",
+                    "fullname" => "example testing",
+                    "companyname"  => "textmachine",
+                    "email"  => "exam@gmail.com",
+                    "address1"  => "4 office",
+                    "address2"  => "",
+                    "city"  => "Lag",
+                    "state"  => "Lagos",
+                    "zipcode"  => "110001",
+                    "country"  => "Nigeria",
+                    "phonenumber" => "+234.87546898"
+                ],
+                €œbilling€ => [
+                    "firstname" => "example",
+                    "lastname" => "testing",
+                    "fullname" => "example testing",
+                    "companyname"  => "textmachine",
+                    "email"  => "exam@gmail.com",
+                    "address1"  => "4 office",
+                    "address2"  => "",
+                    "city"  => "Lag",
+                    "state"  => "Lagos",
+                    "zipcode"  => "110001",
+                    "country"  => "Nigeria",
+                    "phonenumber" => "+234.812345678"
+                ],
+                €œadmin€ => [
+                    "firstname" => "example",
+                    "lastname" => "testing",
+                    "fullname" => "example testing",
+                    "companyname"  => "textmachine",
+                    "email"  => "exam@gmail.com",
+                    "address1"  => "4 office",
+                    "address2"  => "",
+                    "city"  => "Lag",
+                    "state"  => "Lagos",
+                    "zipcode"  => "110001",
+                    "country"  => "Nigeria",
+                    "phonenumber" => "+234.812345678"
+                ],
+            ]
             ];
             $headers = [
                 "username: osemensilas@gmail.com",
