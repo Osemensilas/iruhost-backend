@@ -793,7 +793,7 @@ class CallFlutter {
                     "city"  => "Duste",
                     "state"  => "ABuja",
                     "zipcode"  => "110001",
-                    "country"  => "Nigeria",
+                    "country"  => "NG",
                     "phonenumber" => "+2349054060454"
                 ],
                 "tech" => [
@@ -807,7 +807,7 @@ class CallFlutter {
                     "city"  => "Dutse",
                     "state"  => "Abuja",
                     "zipcode"  => "901101",
-                    "country"  => "Nigeria",
+                    "country"  => "NG",
                     "phonenumber" => "+2349054060454"
                 ],
                 "billing" => [
@@ -821,7 +821,7 @@ class CallFlutter {
                     "city"  => "Dutse",
                     "state"  => "Abuja",
                     "zipcode"  => "901101",
-                    "country"  => "Nigeria",
+                    "country"  => "NG",
                     "phonenumber" => "+2349054060454"
                 ],
                 "admin" => [
@@ -835,7 +835,7 @@ class CallFlutter {
                     "city"  => "Dutse",
                     "state"  => "Abuja",
                     "zipcode"  => "901101",
-                    "country"  => "Nigeria",
+                    "country"  => "NG",
                     "phonenumber" => "+2349054060454"
                 ],
             ]
