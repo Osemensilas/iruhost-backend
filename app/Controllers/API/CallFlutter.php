@@ -514,7 +514,7 @@ class CallFlutter {
                     "lastname" => "Oseobonoite",
                     "fullname" => "Osemen Oseobonoite",
                     "companyname"  => "Iruap Tech Studio Limited",
-                    "email"  => "osemensilas@gmail.com",
+                    "email"  => "contact@iruhost.com",
                     "address1"  => "FCT Abuja",
                     "address2"  => "",
                     "city"  => "Dutse",
@@ -748,7 +748,7 @@ class CallFlutter {
         try{
             $domain = "osemensilas.com.ng";
             $billing = 'year';
-            $productName = "osemensilas.com.ng";
+            $productName = "osemen.name.ng";
             $productId = uniqid('prod_');
             $product = 'domain';
             $text = 'Manage';
