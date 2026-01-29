@@ -746,7 +746,7 @@ class CallFlutter {
     public function adminRegNgDomain(){
 
         try{
-            $domain = "osemensilas.com.ng";
+            $domain = "osemen.name.ng";
             $billing = 'year';
             $productName = "osemen.name.ng";
             $productId = uniqid('prod_');
