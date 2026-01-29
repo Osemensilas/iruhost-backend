@@ -25,7 +25,8 @@ class CallFlutter {
     protected $resend;
     protected $resendApiCode;
     protected $server;
-
+    protected $whogohostUsername;
+    protected $whogohostApi;
     public function __construct(){
 
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
@@ -44,6 +45,8 @@ class CallFlutter {
         $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
         $this->resend = Resend::client($this->resendApiCode);
         $this->server = "163.245.208.132";
+        $this->whogohostUsername = $_ENV['WHOGOHOST_USERNAME'] ?? null;
+        $this->whogohostApi = $_ENV['WHOGOHOST_API'] ?? null;
     }
 
     public function paymentSuccessful(){
@@ -463,8 +466,8 @@ class CallFlutter {
             "domain"    => $domain,
             "regperiod" => "1",
             "nameservers" => [
-                "ns1" => "server.iruhost.com",
-                "ns2" => "server.iruhost.com",
+                "ns1" => "ns1.iruhost.com",
+                "ns2" => "ns2.iruhost.com",
             ],
             "contacts"  => [
                     "registrant" => [
@@ -526,8 +529,8 @@ class CallFlutter {
             ]
         ];
         $headers = [
-            "username: osemensilas@gmail.com",
-            "token: ". base64_encode(hash_hmac("sha256", "sKUcg0MeTqQyVvySlVcuk6Erx1G84Al5", "osemensilas@gmail.com:".gmdate("y-m-d H")))
+            "username: " . $this->whogohostUsername,
+            "token: ". base64_encode(hash_hmac("sha256", $this->whogohostApi, "osemensilas@gmail.com:".gmdate("y-m-d H")))
         ];
 
         $curl = curl_init();
@@ -548,7 +551,12 @@ class CallFlutter {
             ];
         }
 
-        print_r($response);
+        if ($response !== "success"){
+            return [
+                'status' => 'error',
+                'message' => 'Failed to connect to whogohost API'
+            ];
+        }
 
         return [
             'status' => 'success',
@@ -863,7 +871,12 @@ class CallFlutter {
                 ];
             }
 
-            print_r($response);
+            if ($response !== "success"){
+                return [
+                    'status' => 'error',
+                    'message' => 'Failed to connect to whogohost API'
+                ];
+            }
 
             return [
                 'status' => 'success',
