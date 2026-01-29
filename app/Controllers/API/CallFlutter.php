@@ -778,8 +778,8 @@ class CallFlutter {
                 "domain"    => $domain,
                 "regperiod" => "1",
                 "nameservers" => [
-                    "ns1" => "server.iruhost.com",
-                    "ns2" => "server.iruhost.com",
+                    "ns1" => "ns1.iruhost.com",
+                    "ns2" => "ns2.iruhost.com",
                 ],
                 "contacts"  => [
                     "registrant" => [
