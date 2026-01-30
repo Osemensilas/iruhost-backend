@@ -12,6 +12,9 @@ class DomainRegistration{
     protected $enomApiToken;
     protected $pdo;
     protected $devCoteApiKey;
+    protected $server;
+    protected $whogohostUsername;
+    protected $whogohostApi;
 
     public function __construct(){
 
@@ -26,6 +29,9 @@ class DomainRegistration{
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
         $this->pdo = DB::connection();
         $this->devCoteApiKey = "9X7F8F6e8W8x6V8w7l7j9XAX8Y8C7S8K8T6a716X8Q9N7l";
+        $this->server = $_ENV['IP'] ?? null;
+        $this->whogohostUsername = $_ENV['WHOGOHOST_USERNAME'] ?? null;
+        $this->whogohostApi = $_ENV['WHOGOHOST_API'] ?? null;
 
     }
     public function domainSearch(){
@@ -407,6 +413,37 @@ class DomainRegistration{
 
         $tdl = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
+
+        $tlds = ['ng', 'com.ng', 'org.ng', 'gov.ng', 'edu.ng', 'net.ng', 'sch.ng', 'name.ng', 'mobi.ng', 'mil.ng', 'i.ng'];
+
+        if (in_array($tdl, $tlds)){
+            $endpoint = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
+            $action = "/domains/$domainName/nameservers";
+            $params = [
+                "domain"    => $domainName,
+            ];
+
+            $headers = [
+                "username: " . $this->whogohostUsername,
+                "token: " . base64_encode(hash_hmac("sha256", "$this->whogohostApi", "$this->whogohostUsername:".gmdate("y-m-d H"))),
+            ];
+
+            $curl = curl_init();
+
+            curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
+            curl_setopt($curl, CURLOPT_POST, true);  // Note: This should be changed to curl_setopt($curl, CURLOPT_HTTPGET, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));  // Note: This line is typically unnecessary for a GET request
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+            $response = curl_exec($curl);
+            curl_close($curl);
+
+            print_r($response);
+            
+            return;
+        }
 
         $url = "https://reseller.enom.com/interface.asp?command=GetHosts&uid=$this->enomUserId&pw=$this->enomApiToken&SLD=$sld&TLD=$tdl&ResponseType=XML";
 

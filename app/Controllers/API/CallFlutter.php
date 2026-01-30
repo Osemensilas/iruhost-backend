@@ -530,7 +530,7 @@ class CallFlutter {
         ];
         $headers = [
             "username: " . $this->whogohostUsername,
-            "token: ". base64_encode(hash_hmac("sha256", $this->whogohostApi, "osemensilas@gmail.com:".gmdate("y-m-d H")))
+            "token: ". base64_encode(hash_hmac("sha256", $this->whogohostApi, "$this->whogohostUsername:".gmdate("y-m-d H")))
         ];
 
         $curl = curl_init();
