@@ -181,18 +181,18 @@ class CallFlutter {
             }
         }
 
-        $paymentId = $data['id'];
-        $status = $data['status'];
-        $ref = $data['ref'];
-        $userId = $this->userId;
-        $amount = $totalPrice;
-        $details = "Payment for $content";
+        // $paymentId = $data['id'];
+        // $status = $data['status'];
+        // $ref = $data['ref'];
+        // $userId = $this->userId;
+        // $amount = $totalPrice;
+        // $details = "Payment for $content";
 
-        $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?)");
-        $transactionStmt->execute([$userId, $paymentId, $ref, $amount, $details, $status]);
+        // $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?)");
+        // $transactionStmt->execute([$userId, $paymentId, $ref, $amount, $details, $status]);
 
-        $domain_status = $hosting_status = $ssl_status = $email_status = $web_status = 'not processed';
-        $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
+        // $domain_status = $hosting_status = $ssl_status = $email_status = $web_status = 'not processed';
+        // $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
 
         // echo json_encode([
         //     'status' => 'successful',
