@@ -62,6 +62,13 @@ class CallFlutter {
         $totalPrice = 0;
         $content = '';
 
+        if ($stmt->rowCount() < 1){
+            echo json_encode([
+                "status" => "empty", 
+                "message" => "No item in cart"
+            ]);
+        }
+
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         //https://www.iruhost.com/checkout?status=successful&tx_ref=ref_697dbdd689438&transaction_id=1971804486
@@ -73,7 +80,7 @@ class CallFlutter {
                 $totalPrice += round($row['amount'], 2);
                 $content .= rtrim($row['product_name'], ',');
 
-                if ($row['product'] == 'Domain Registration'){
+                if ($row['product'] === 'Domain Registration'){
                     $productName = $row['product_name'];
                     $billing = $row['billing'];
                     $cartId = $row['cart_id'];
@@ -92,77 +99,77 @@ class CallFlutter {
                         $domain_status = $domainResponse['status'] ?? 'unknown';
                         $domain_message = $domainResponse['message'] ?? 'unknown';
                     }
-                }else{
-                    if ($row['product'] == 'SSL Registration'){
-                        $productName = $row['product_name'];
-                        $billing = $row['billing'];
-                        $cartId = $row['cart_id'];
-                        $domain = $row['domain'];
-                        $sslResponse = $this->regSsl($productName, $billing, $cartId, $domain);
-                        $ssl_status = $sslResponse['status'] ?? 'unknown';
-                        $ssl_message = $sslResponse['message'] ?? 'unknown';
-                    }else{
-                        if ($row['product'] == 'Hosting Registration'){
-                            $productName = strtolower($row['product_name']);
-                            $billing = $row['billing'];
-                            $cartId = $row['cart_id'];
-                            $domain = $row['domain'];
-                            $url = '/cpanel-login';
+                }
+                
+                if ($row['product'] === 'SSL Registration'){
+                    $productName = $row['product_name'];
+                    $billing = $row['billing'];
+                    $cartId = $row['cart_id'];
+                    $domain = $row['domain'];
+                    $sslResponse = $this->regSsl($productName, $billing, $cartId, $domain);
+                    $ssl_status = $sslResponse['status'] ?? 'unknown';
+                    $ssl_message = $sslResponse['message'] ?? 'unknown';
+                }
+                
+                if ($row['product'] === 'Hosting Registration'){
+                    $productName = strtolower($row['product_name']);
+                    $billing = $row['billing'];
+                    $cartId = $row['cart_id'];
+                    $domain = $row['domain'];
+                    $url = '/cpanel-login';
 
-                            if ($row['billing'] === 'year'){
-                                $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
-                            }
-                            if ($row['billing'] === 'quarter'){
-                                $expiryDate = date('Y-m-d H:i:s', strtotime('+3 months'));
-                            }
-                            if($row['billing'] === 'month'){
-                                $expiryDate = date('Y-m-d H:i:s', strtotime('+1 month'));
-                            }
-
-                            $hostingResponse = $this->regHosting($expiryDate, $productName, $billing, $cartId, $domain);
-                            $hosting_status = $hostingResponse['status'] ?? 'unknown';
-                            $hosting_message = $hostingResponse['message'] ?? 'unknown';
-                            //$iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
-                        } else{
-                            if ($row['product'] == 'Email Registration'){
-                                $productName = $row['product_name'];
-                                $billing = $row['billing'];
-                                $cartId = $row['cart_id'];
-                                $domain = $row['domain'];
-                                $emailResponse = $this->regEmail($productName, $billing, $cartId, $domain);
-                                $email_status = $emailResponse['status'] ?? 'unknown';
-                                $email_message = $emailResponse['message'] ?? 'unknown';
-                            }else{
-                                if ($row['product'] == 'Web application'){
-                                    $productName = $row['product_name'];
-                                    $cartId = $row['cart_id'];
-                                    $domain = $row['domain'];
-                                    $webResponse = $this->webApp($productName, $cartId, $domain);
-                                    $web_status = $webResponse['status'] ?? 'unknown';
-                                    $web_message = $webResponse['message'] ?? 'unknown';
-                                }else{
-                                    if ($row['product'] == 'Domain Transfer'){
-                                        $productName = $row['product_name'];
-                                        $billing = $row['billing'];
-                                        $cartId = $row['cart_id'];
-                                        $authCode = $row['domain'];
-
-                                        $url = "";
-                        
-                                        $ch = curl_init();
-                                        curl_setopt($ch, CURLOPT_URL, $url);
-                                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                                        $response = curl_exec($ch);
-                                        curl_close($ch);
-
-                                        $domainResponse = $this->regDomain($productName, $billing, $cartId, $authCode);
-                                        $domain_status = $domainResponse['status'] ?? 'unknown';
-                                        $domain_message = $domainResponse['message'] ?? 'unknown';
-                                    }
-                                }
-                            }
-                        }
+                    if ($row['billing'] === 'year'){
+                        $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
                     }
+                    if ($row['billing'] === 'quarter'){
+                        $expiryDate = date('Y-m-d H:i:s', strtotime('+3 months'));
+                    }
+                    if($row['billing'] === 'month'){
+                        $expiryDate = date('Y-m-d H:i:s', strtotime('+1 month'));
+                    }
+
+                    $hostingResponse = $this->regHosting($expiryDate, $productName, $billing, $cartId, $domain);
+                    $hosting_status = $hostingResponse['status'] ?? 'unknown';
+                    $hosting_message = $hostingResponse['message'] ?? 'unknown';
+                    //$iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
+                } 
+                
+                if ($row['product'] === 'Email Registration'){
+                    $productName = $row['product_name'];
+                    $billing = $row['billing'];
+                    $cartId = $row['cart_id'];
+                    $domain = $row['domain'];
+                    $emailResponse = $this->regEmail($productName, $billing, $cartId, $domain);
+                    $email_status = $emailResponse['status'] ?? 'unknown';
+                    $email_message = $emailResponse['message'] ?? 'unknown';
+                }
+                
+                if ($row['product'] === 'Web application'){
+                    $productName = $row['product_name'];
+                    $cartId = $row['cart_id'];
+                    $domain = $row['domain'];
+                    $webResponse = $this->webApp($productName, $cartId, $domain);
+                    $web_status = $webResponse['status'] ?? 'unknown';
+                    $web_message = $webResponse['message'] ?? 'unknown';
+                }
+                
+                if ($row['product'] === 'Domain Transfer'){
+                    $productName = $row['product_name'];
+                    $billing = $row['billing'];
+                    $cartId = $row['cart_id'];
+                    $authCode = $row['domain'];
+
+                    $url = "";
+    
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+
+                    $domainResponse = $this->regDomain($productName, $billing, $cartId, $authCode);
+                    $domain_status = $domainResponse['status'] ?? 'unknown';
+                    $domain_message = $domainResponse['message'] ?? 'unknown';
                 }
             }
         }
