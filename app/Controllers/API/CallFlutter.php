@@ -70,8 +70,6 @@ class CallFlutter {
             
             foreach($rows as $row){
 
-                print_r($row);
-
                 $totalPrice += round($row['amount'], 2);
                 $content .= rtrim($row['product_name'], ',');
 
@@ -111,8 +109,6 @@ class CallFlutter {
                             $domain = $row['domain'];
                             $url = '/cpanel-login';
 
-                            echo $productName;
-
                             if ($row['billing'] === 'year'){
                                 $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
                             }
@@ -122,6 +118,8 @@ class CallFlutter {
                             if($row['billing'] === 'month'){
                                 $expiryDate = date('Y-m-d H:i:s', strtotime('+1 month'));
                             }
+
+                            echo $row['billing'];
 
                             $hostingResponse = $this->regHosting($expiryDate, $productName, $billing, $cartId, $domain);
                             $hosting_status = $hostingResponse['status'] ?? 'unknown';
