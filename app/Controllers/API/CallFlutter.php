@@ -73,7 +73,7 @@ class CallFlutter {
                 $totalPrice += round($row['amount'], 2);
                 $content .= rtrim($row['product_name'], ',');
 
-                if ($row['product'] === 'Domain Registration'){
+                if ($row['product'] == 'Domain Registration'){
                     $productName = $row['product_name'];
                     $billing = $row['billing'];
                     $cartId = $row['cart_id'];
@@ -93,7 +93,7 @@ class CallFlutter {
                         $domain_message = $domainResponse['message'] ?? 'unknown';
                     }
                 }else{
-                    if ($row['product'] === 'SSL Registration'){
+                    if ($row['product'] == 'SSL Registration'){
                         $productName = $row['product_name'];
                         $billing = $row['billing'];
                         $cartId = $row['cart_id'];
@@ -102,7 +102,7 @@ class CallFlutter {
                         $ssl_status = $sslResponse['status'] ?? 'unknown';
                         $ssl_message = $sslResponse['message'] ?? 'unknown';
                     }else{
-                        if ($row['product'] === 'Hosting Registration'){
+                        if ($row['product'] == 'Hosting Registration'){
                             $productName = strtolower($row['product_name']);
                             $billing = $row['billing'];
                             $cartId = $row['cart_id'];
@@ -124,7 +124,7 @@ class CallFlutter {
                             $hosting_message = $hostingResponse['message'] ?? 'unknown';
                             //$iruHosting = $this->regIruHost($expiryDate, $url, $productName, $billing, $cartId, $domain);
                         } else{
-                            if ($row['product'] === 'Email Registration'){
+                            if ($row['product'] == 'Email Registration'){
                                 $productName = $row['product_name'];
                                 $billing = $row['billing'];
                                 $cartId = $row['cart_id'];
@@ -133,7 +133,7 @@ class CallFlutter {
                                 $email_status = $emailResponse['status'] ?? 'unknown';
                                 $email_message = $emailResponse['message'] ?? 'unknown';
                             }else{
-                                if ($row['product'] === 'Web application'){
+                                if ($row['product'] == 'Web application'){
                                     $productName = $row['product_name'];
                                     $cartId = $row['cart_id'];
                                     $domain = $row['domain'];
@@ -141,7 +141,7 @@ class CallFlutter {
                                     $web_status = $webResponse['status'] ?? 'unknown';
                                     $web_message = $webResponse['message'] ?? 'unknown';
                                 }else{
-                                    if ($row['product'] === 'Domain Transfer'){
+                                    if ($row['product'] == 'Domain Transfer'){
                                         $productName = $row['product_name'];
                                         $billing = $row['billing'];
                                         $cartId = $row['cart_id'];
