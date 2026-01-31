@@ -64,6 +64,8 @@ class CallFlutter {
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        echo $stmt->rowCount();
+
         if ($stmt->rowCount() > 0){
 
             foreach($rows as $row){
@@ -71,8 +73,6 @@ class CallFlutter {
                 $content .= rtrim($row['product_name'], ',');
             }
         }
-
-        print_r($rows);
 
         //https://www.iruhost.com/checkout?status=successful&tx_ref=ref_697dbdd689438&transaction_id=1971804486
 
@@ -90,6 +90,7 @@ class CallFlutter {
         $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
 
         if ($stmt->rowCount() > 0){
+            print_r($rows);
             foreach($rows as $row){
                 if ($row['product'] === 'Domain Registration'){
                     $productName = $row['product_name'];
