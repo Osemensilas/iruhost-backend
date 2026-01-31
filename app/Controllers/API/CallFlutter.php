@@ -64,38 +64,15 @@ class CallFlutter {
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($stmt->rowCount() > 0){
-
-            foreach($rows as $row){
-                $totalPrice += round($row['amount'], 2);
-                $content .= rtrim($row['product_name'], ',');
-            }
-        }
-
         //https://www.iruhost.com/checkout?status=successful&tx_ref=ref_697dbdd689438&transaction_id=1971804486
-
-        $paymentId = $data['id'];
-        $status = $data['status'];
-        $ref = $data['ref'];
-        $userId = $this->userId;
-        $amount = $totalPrice;
-        $details = "Payment for $content";
-
-        $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?)");
-        $transactionStmt->execute([$userId, $paymentId, $ref, $amount, $details, $status]);
-
-        $domain_status = $hosting_status = $ssl_status = $email_status = $web_status = 'not processed';
-        $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
-
-        print_r($rows);
 
         if ($stmt->rowCount() > 1){
             
             foreach($rows as $row){
-                echo '<pre>';
-                var_dump($row);
-                echo '</pre>';
-                exit;
+                
+                $totalPrice += round($row['amount'], 2);
+                $content .= rtrim($row['product_name'], ',');
+
                 if ($row['product'] === 'Domain Registration'){
                     $productName = $row['product_name'];
                     $billing = $row['billing'];
@@ -189,6 +166,19 @@ class CallFlutter {
                 }
             }
         }
+
+        $paymentId = $data['id'];
+        $status = $data['status'];
+        $ref = $data['ref'];
+        $userId = $this->userId;
+        $amount = $totalPrice;
+        $details = "Payment for $content";
+
+        $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?)");
+        $transactionStmt->execute([$userId, $paymentId, $ref, $amount, $details, $status]);
+
+        $domain_status = $hosting_status = $ssl_status = $email_status = $web_status = 'not processed';
+        $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
 
         echo json_encode([
             'status' => 'successful',
