@@ -72,6 +72,10 @@ class CallFlutter {
             }
         }
 
+        print_r($rows);
+
+        //https://www.iruhost.com/checkout?status=successful&tx_ref=ref_697dbdd689438&transaction_id=1971804486
+
         $paymentId = $data['id'];
         $status = $data['status'];
         $ref = $data['ref'];
@@ -123,7 +127,6 @@ class CallFlutter {
                             $domain = $row['domain'];
                             $url = '/cpanel-login';
 
-                            print_r($row);
                             if ($row['billing'] === 'year'){
                                 $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
                             }
