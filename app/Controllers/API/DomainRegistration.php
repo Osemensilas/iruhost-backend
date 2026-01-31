@@ -342,7 +342,7 @@ class DomainRegistration{
             $endpoint = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
             $action = "/domains/$domainName/nameservers";
             $params = [
-                "domain"    => "example.com",
+                "domain"    => $domainName,
                 "nameservers" => [
                     "ns1.iruhost.com",
                     "ns2.iruhost.com",
