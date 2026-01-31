@@ -67,6 +67,7 @@ class CallFlutter {
                 "status" => "empty", 
                 "message" => "No item in cart"
             ]);
+            return;
         }
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
