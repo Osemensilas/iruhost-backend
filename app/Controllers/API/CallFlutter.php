@@ -70,6 +70,11 @@ class CallFlutter {
             
             foreach($rows as $row){
                 
+                echo '<pre>';
+                var_dump($row);
+                echo '</pre>';
+                exit;
+
                 $totalPrice += round($row['amount'], 2);
                 $content .= rtrim($row['product_name'], ',');
 
