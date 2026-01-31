@@ -617,8 +617,6 @@ class CallFlutter {
     private function regHosting($expiryDate, $productName, $billing, $cartId, $domain){
     // Start transaction for data consistency
         $this->pdo->beginTransaction();
-
-        echo $productName;
         
         try {
             $productId = uniqid('prod_');
