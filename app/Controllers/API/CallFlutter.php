@@ -67,6 +67,7 @@ class CallFlutter {
         if ($stmt->rowCount() > 0){
 
             foreach($rows as $row){
+                print_r($row);
                 $totalPrice += round($row['amount'], 2);
                 $content .= rtrim($row['product_name'], ',');
             }
