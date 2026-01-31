@@ -624,116 +624,118 @@ class CallFlutter {
             $text = 'Cpanel';
             $hostingName = $productName;
 
-            // Insert product record
-            $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-            $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, "", $text, $expiryDate]);
+            echo "Hello World";
 
-            if (!$result){
-                throw new Exception('Error inserting product to database');
-            }
+            // // Insert product record
+            // $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+            // $result = $stmt->execute([$this->userId, $productId, $product, $hostingName, $billing, $domain, "", $text, $expiryDate]);
 
-            // Delete from cart
-            $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
-            $delete = $stmtDel->execute([$cartId, $this->userId]);
+            // if (!$result){
+            //     throw new Exception('Error inserting product to database');
+            // }
 
-            if (!$delete){
-                throw new Exception('Error deleting from cart');
-            }
+            // // Delete from cart
+            // $stmtDel = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
+            // $delete = $stmtDel->execute([$cartId, $this->userId]);
 
-            // Get user information
-            $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
-            $stmtUser->execute([$this->userId]);
-            $userRow = $stmtUser->fetch();
+            // if (!$delete){
+            //     throw new Exception('Error deleting from cart');
+            // }
 
-            if (!$userRow) {
-                throw new Exception('User not found');
-            }
+            // // Get user information
+            // $stmtUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+            // $stmtUser->execute([$this->userId]);
+            // $userRow = $stmtUser->fetch();
 
-            $userEmail = $userRow['email'];
-            $clientName = $userRow['name'];
+            // if (!$userRow) {
+            //     throw new Exception('User not found');
+            // }
 
-            // Generate unique cPanel username (max 16 characters)
-            $username = substr($domain, 0, strpos($domain, '.') ?: strlen($domain));
-            $username = preg_replace('/[^a-zA-Z0-9]/', '', $username); // Remove special chars
-            $username = substr($username, 0, 16);
+            // $userEmail = $userRow['email'];
+            // $clientName = $userRow['name'];
 
-            // Ensure username uniqueness
-            $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = ? AND product_name = ?");
-            $checkStmt->execute(['hosting', $hostingName]);
-            if ($checkStmt->fetchColumn() > 0) {
-                $username = substr($username, 0, 13) . rand(100, 999);
-            }
+            // // Generate unique cPanel username (max 16 characters)
+            // $username = substr($domain, 0, strpos($domain, '.') ?: strlen($domain));
+            // $username = preg_replace('/[^a-zA-Z0-9]/', '', $username); // Remove special chars
+            // $username = substr($username, 0, 16);
 
-            // Generate secure password
-            $password = $this->generateSecurePassword();
+            // // Ensure username uniqueness
+            // $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = ? AND product_name = ?");
+            // $checkStmt->execute(['hosting', $hostingName]);
+            // if ($checkStmt->fetchColumn() > 0) {
+            //     $username = substr($username, 0, 13) . rand(100, 999);
+            // }
 
-            // Create cPanel account via WHM API
-            $apiResponse = $this->createCpanelAccount($username, $domain, $password, $hostingName, $userEmail);
+            // // Generate secure password
+            // $password = $this->generateSecurePassword();
 
-            if (!$apiResponse['success']) {
-                throw new Exception($apiResponse['message']);
-            }
+            // // Create cPanel account via WHM API
+            // $apiResponse = $this->createCpanelAccount($username, $domain, $password, $hostingName, $userEmail);
 
-            // Encrypt password for storage (if needed)
-            $encryptedPassword = openssl_encrypt(
-                $password, 
-                'AES-256-CBC', 
-                $this->encryptionKey, 
-                0, 
-                $this->encryptionIV
-            );
+            // if (!$apiResponse['success']) {
+            //     throw new Exception($apiResponse['message']);
+            // }
 
-            // Insert hosting details
-            $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-            $insert = $stmt->execute([
-                $this->userId, 
-                $productId, 
-                $product, 
-                $hostingName, 
-                $billing, 
-                $domain, 
-                $encryptedPassword, 
-                $username, 
-                $expiryDate
-            ]);
+            // // Encrypt password for storage (if needed)
+            // $encryptedPassword = openssl_encrypt(
+            //     $password, 
+            //     'AES-256-CBC', 
+            //     $this->encryptionKey, 
+            //     0, 
+            //     $this->encryptionIV
+            // );
+
+            // // Insert hosting details
+            // $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+            // $insert = $stmt->execute([
+            //     $this->userId, 
+            //     $productId, 
+            //     $product, 
+            //     $hostingName, 
+            //     $billing, 
+            //     $domain, 
+            //     $encryptedPassword, 
+            //     $username, 
+            //     $expiryDate
+            // ]);
             
-            if (!$insert) {
-                throw new Exception('Error inserting hosting details');
-            }
+            // if (!$insert) {
+            //     throw new Exception('Error inserting hosting details');
+            // }
 
-            $productStmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product_id = ?");
-            $productStmtResult = $productStmt->execute([
-                $username,
-                $this->userId, 
-                $productId
-            ]);
+            // $productStmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product_id = ?");
+            // $productStmtResult = $productStmt->execute([
+            //     $username,
+            //     $this->userId, 
+            //     $productId
+            // ]);
 
-            if (!$productStmtResult){
-                throw new Exception('Error updating product url');
-            }
+            // if (!$productStmtResult){
+            //     throw new Exception('Error updating product url');
+            // }
 
-            // Send email notification
-            $this->sendHostingMessage(
-                $apiResponse['username'],
-                $password,
-                $apiResponse['domain'],
-                $apiResponse['ip'],
-                $userEmail,
-                $clientName
-            );
+            // // Send email notification
+            // $this->sendHostingMessage(
+            //     $apiResponse['username'],
+            //     $password,
+            //     $apiResponse['domain'],
+            //     $apiResponse['ip'],
+            //     $userEmail,
+            //     $clientName
+            // );
 
-            // Commit transaction
-            $this->pdo->commit();
+            // // Commit transaction
+            // $this->pdo->commit();
 
-            return [
-                'status' => 'success',
-                'message' => 'Hosting account created successfully',
-                'data' => [
-                    'username' => $apiResponse['username'],
-                    'domain' => $apiResponse['domain'],
-                    'url' => ""
-                ]
-            ];
+            // return [
+            //     'status' => 'success',
+            //     'message' => 'Hosting account created successfully',
+            //     'data' => [
+            //         'username' => $apiResponse['username'],
+            //         'domain' => $apiResponse['domain'],
+            //         'url' => ""
+            //     ]
+            // ];
 
         } catch (Exception $e) {
             // Rollback on error
