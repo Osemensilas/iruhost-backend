@@ -64,8 +64,6 @@ class CallFlutter {
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        print_r($rows);
-
         if ($stmt->rowCount() > 0){
 
             foreach($rows as $row){
@@ -90,6 +88,7 @@ class CallFlutter {
         $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
 
         if ($stmt->rowCount() > 1){
+            print_r($rows);
             foreach($rows as $row){
                 echo '<pre>';
                 var_dump($row);
