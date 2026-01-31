@@ -342,19 +342,23 @@ class DomainRegistration{
             $endpoint = "https://www.whogohost.com/host/modules/addons/DomainsReseller/api/index.php";
             $action = "/domains/$domainName/nameservers";
             $params = [
-                "domain"    => $domainName,
+                "domain"    => "example.com",
+                "nameservers" => [
+                    "ns1.iruhost.com",
+                    "ns2.iruhost.com",
+                ],
             ];
 
             $headers = [
-                "username: " . $this->whogohostUsername,
-                "token: " . base64_encode(hash_hmac("sha256", "$this->whogohostApi", "$this->whogohostUsername:".gmdate("y-m-d H"))),
+                "username: $this->whogohostUsername",
+                "token: ". base64_encode(hash_hmac("sha256", "$this->whogohostApi", "$this->whogohostUsername:".gmdate("y-m-d H")))
             ];
 
             $curl = curl_init();
 
             curl_setopt($curl, CURLOPT_URL, "{$endpoint}{$action}");
-            curl_setopt($curl, CURLOPT_POST, true);  // Note: This should be changed to curl_setopt($curl, CURLOPT_HTTPGET, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));  // Note: This line is typically unnecessary for a GET request
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params));
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
