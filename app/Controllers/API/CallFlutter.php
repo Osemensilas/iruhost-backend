@@ -69,8 +69,6 @@ class CallFlutter {
         if ($stmt->rowCount() > 0){
             
             foreach($rows as $row){
-                
-                print_r($row);
 
                 $totalPrice += round($row['amount'], 2);
                 $content .= rtrim($row['product_name'], ',');
@@ -100,6 +98,7 @@ class CallFlutter {
                         $billing = $row['billing'];
                         $cartId = $row['cart_id'];
                         $domain = $row['domain'];
+                        echo $productName;
                         $sslResponse = $this->regSsl($productName, $billing, $cartId, $domain);
                         $ssl_status = $sslResponse['status'] ?? 'unknown';
                         $ssl_message = $sslResponse['message'] ?? 'unknown';
