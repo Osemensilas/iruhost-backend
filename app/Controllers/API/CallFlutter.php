@@ -119,8 +119,6 @@ class CallFlutter {
                                 $expiryDate = date('Y-m-d H:i:s', strtotime('+1 month'));
                             }
 
-                            echo $row['billing'];
-
                             $hostingResponse = $this->regHosting($expiryDate, $productName, $billing, $cartId, $domain);
                             $hosting_status = $hostingResponse['status'] ?? 'unknown';
                             $hosting_message = $hostingResponse['message'] ?? 'unknown';
@@ -619,6 +617,8 @@ class CallFlutter {
     private function regHosting($expiryDate, $productName, $billing, $cartId, $domain){
     // Start transaction for data consistency
         $this->pdo->beginTransaction();
+
+        echo $productName;
         
         try {
             $productId = uniqid('prod_');
