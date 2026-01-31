@@ -87,8 +87,10 @@ class CallFlutter {
         $domain_status = $hosting_status = $ssl_status = $email_status = $web_status = 'not processed';
         $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
 
+        print_r($rows);
+
         if ($stmt->rowCount() > 1){
-            print_r($rows);
+            
             foreach($rows as $row){
                 echo '<pre>';
                 var_dump($row);
