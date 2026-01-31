@@ -64,6 +64,8 @@ class CallFlutter {
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        print_r($rows);
+
         if ($stmt->rowCount() > 0){
 
             foreach($rows as $row){
