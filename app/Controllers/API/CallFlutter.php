@@ -1043,7 +1043,7 @@ class CallFlutter {
         try {
             $this->resend->emails->send([
                 'from' => 'IruHost <contact@iruhost.com>',
-                'to' => [$userEmail],
+                'to' => $userEmail,
                 'subject' => 'Your cPanel Account Information',
                 'html' => "
                 <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
