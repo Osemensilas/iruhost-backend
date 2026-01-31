@@ -100,7 +100,6 @@ class CallFlutter {
                         $billing = $row['billing'];
                         $cartId = $row['cart_id'];
                         $domain = $row['domain'];
-                        echo $productName;
                         $sslResponse = $this->regSsl($productName, $billing, $cartId, $domain);
                         $ssl_status = $sslResponse['status'] ?? 'unknown';
                         $ssl_message = $sslResponse['message'] ?? 'unknown';
@@ -111,6 +110,8 @@ class CallFlutter {
                             $cartId = $row['cart_id'];
                             $domain = $row['domain'];
                             $url = '/cpanel-login';
+
+                            echo $productName;
 
                             if ($row['billing'] === 'year'){
                                 $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
