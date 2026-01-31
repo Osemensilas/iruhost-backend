@@ -658,8 +658,8 @@ class CallFlutter {
             $username = substr($username, 0, 16);
 
             // Ensure username uniqueness
-            $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = 'hosting' AND product_name = ?");
-            $checkStmt->execute([$hostingName]);
+            $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = ? AND product_name = ?");
+            $checkStmt->execute(['hosting', $hostingName]);
             if ($checkStmt->fetchColumn() > 0) {
                 $username = substr($username, 0, 13) . rand(100, 999);
             }
