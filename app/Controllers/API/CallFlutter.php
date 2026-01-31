@@ -91,6 +91,10 @@ class CallFlutter {
 
         if ($stmt->rowCount() > 1){
             foreach($rows as $row){
+                echo '<pre>';
+                var_dump($row);
+                echo '</pre>';
+                exit;
                 if ($row['product'] === 'Domain Registration'){
                     $productName = $row['product_name'];
                     $billing = $row['billing'];
@@ -198,8 +202,6 @@ class CallFlutter {
             'ssl_message' => $ssl_message,
             'email_message' => $email_message,
             'web_message' => $web_message,
-            'ng_domain_status' => $ng_domain_status,
-            'ng_domain_message' => $ng_domain_message
         ]);
     }
 
