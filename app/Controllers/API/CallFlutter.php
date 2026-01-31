@@ -64,8 +64,6 @@ class CallFlutter {
 
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        print_r($rows);
-
         if ($stmt->rowCount() > 0){
 
             foreach($rows as $row){
@@ -124,6 +122,8 @@ class CallFlutter {
                             $cartId = $row['cart_id'];
                             $domain = $row['domain'];
                             $url = '/cpanel-login';
+
+                            print_r($row);
                             if ($row['billing'] === 'year'){
                                 $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
                             }
