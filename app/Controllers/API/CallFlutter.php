@@ -93,6 +93,17 @@ class CallFlutter {
                     $billing = $row['billing'];
                     $cartId = $row['cart_id'];
                     $domain = $row['domain'];
+                    $product = "domain";
+
+                    $paymentId = $data['id'];
+                    $status = $data['status'];
+                    $ref = $data['ref'];
+                    $userId = $this->userId;
+                    $amount = $row['amount'];
+                    $details = "Payment for $content";
+
+                    $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
+                    $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
 
                     $tld = substr($domain, strpos($domain, '.') + 1);
 
@@ -114,6 +125,18 @@ class CallFlutter {
                     $billing = $row['billing'];
                     $cartId = $row['cart_id'];
                     $domain = $row['domain'];
+                    $product = "ssl certificate";
+
+                    $paymentId = $data['id'];
+                    $status = $data['status'];
+                    $ref = $data['ref'];
+                    $userId = $this->userId;
+                    $amount = $row['amount'];
+                    $details = "Payment for $content";
+
+                    $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
+                    $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
+
                     $sslResponse = $this->regSsl($productName, $billing, $cartId, $domain);
                     $ssl_status = $sslResponse['status'] ?? 'unknown';
                     $ssl_message = $sslResponse['message'] ?? 'unknown';
@@ -125,6 +148,17 @@ class CallFlutter {
                     $cartId = $row['cart_id'];
                     $domain = $row['domain'];
                     $url = '/cpanel-login';
+                    $product = "hosting";
+
+                    $paymentId = $data['id'];
+                    $status = $data['status'];
+                    $ref = $data['ref'];
+                    $userId = $this->userId;
+                    $amount = $row['amount'];
+                    $details = "Payment for $content";
+
+                    $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
+                    $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
 
                     if ($row['billing'] === 'year'){
                         $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
@@ -147,6 +181,18 @@ class CallFlutter {
                     $billing = $row['billing'];
                     $cartId = $row['cart_id'];
                     $domain = $row['domain'];
+                    $product = "email";
+
+                    $paymentId = $data['id'];
+                    $status = $data['status'];
+                    $ref = $data['ref'];
+                    $userId = $this->userId;
+                    $amount = $row['amount'];
+                    $details = "Payment for $content";
+
+                    $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
+                    $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
+
                     $emailResponse = $this->regEmail($productName, $billing, $cartId, $domain);
                     $email_status = $emailResponse['status'] ?? 'unknown';
                     $email_message = $emailResponse['message'] ?? 'unknown';
@@ -156,6 +202,18 @@ class CallFlutter {
                     $productName = $row['product_name'];
                     $cartId = $row['cart_id'];
                     $domain = $row['domain'];
+                    $product = "web application";
+
+                    $paymentId = $data['id'];
+                    $status = $data['status'];
+                    $ref = $data['ref'];
+                    $userId = $this->userId;
+                    $amount = $row['amount'];
+                    $details = "Payment for $content";
+
+                    $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
+                    $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
+
                     $webResponse = $this->webApp($productName, $cartId, $domain);
                     $web_status = $webResponse['status'] ?? 'unknown';
                     $web_message = $webResponse['message'] ?? 'unknown';
@@ -166,6 +224,17 @@ class CallFlutter {
                     $billing = $row['billing'];
                     $cartId = $row['cart_id'];
                     $authCode = $row['domain'];
+                    $product = "domain";
+
+                    $paymentId = $data['id'];
+                    $status = $data['status'];
+                    $ref = $data['ref'];
+                    $userId = $this->userId;
+                    $amount = $row['amount'];
+                    $details = "Payment for $content";
+
+                    $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
+                    $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
 
                     $url = "";
     
@@ -181,17 +250,6 @@ class CallFlutter {
                 }
             }
         }
-
-        $paymentId = $data['id'];
-        $status = $data['status'];
-        $ref = $data['ref'];
-        $userId = $this->userId;
-        $amount = $totalPrice;
-        $details = "Payment for $content";
-        $productComb = "$productComb";
-
-        $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?)");
-        $transactionStmt->execute([$userId, $paymentId, $ref, $productComb, $amount, $details, $status]);
 
         $domain_status = $hosting_status = $ssl_status = $email_status = $web_status = 'not processed';
         $domain_message = $hosting_message = $ssl_message = $email_message = $web_message = 'not processed';
