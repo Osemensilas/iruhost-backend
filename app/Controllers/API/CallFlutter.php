@@ -65,7 +65,8 @@ class CallFlutter {
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         //https://www.iruhost.com/checkout?status=successful&tx_ref=ref_697dbdd689438&transaction_id=1971804486
-
+        print_r($rows);
+        
         if ($stmt->rowCount() > 1){
             
             foreach($rows as $row){
