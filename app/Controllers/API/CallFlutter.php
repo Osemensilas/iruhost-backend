@@ -582,15 +582,6 @@ class CallFlutter {
 
             // Generate unique cPanel username (max 16 characters)
             $username = substr($domain, 0, strpos($domain, '.') ?: strlen($domain));
-            $username = preg_replace('/[^a-zA-Z0-9]/', '', $username); // Remove special chars
-            $username = substr($username, 0, 16);
-
-            // Ensure username uniqueness
-            $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM products WHERE product = ? AND product_name = ?");
-            $checkStmt->execute(['hosting', $hostingName]);
-            if ($checkStmt->fetchColumn() > 0) {
-                $username = substr($username, 0, 13) . rand(100, 999);
-            }
 
             // Generate secure password
             $password = $this->generateSecurePassword();
