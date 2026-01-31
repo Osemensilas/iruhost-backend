@@ -86,7 +86,6 @@ class CallFlutter {
 
                 $totalPrice += round($row['amount'], 2);
                 $content .= rtrim($row['product_name'], ',');
-                $productComb .= rtrim($row['product'], ',');
 
                 if ($row['product'] === 'Domain Registration'){
                     $productName = $row['product_name'];
@@ -100,7 +99,7 @@ class CallFlutter {
                     $ref = $data['ref'];
                     $userId = $this->userId;
                     $amount = $row['amount'];
-                    $details = "Payment for $content";
+                    $details = "Payment for $productName";
 
                     $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
                     $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
@@ -132,7 +131,7 @@ class CallFlutter {
                     $ref = $data['ref'];
                     $userId = $this->userId;
                     $amount = $row['amount'];
-                    $details = "Payment for $content";
+                    $details = "Payment for $productName";
 
                     $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
                     $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
@@ -155,7 +154,7 @@ class CallFlutter {
                     $ref = $data['ref'];
                     $userId = $this->userId;
                     $amount = $row['amount'];
-                    $details = "Payment for $content";
+                    $details = "Payment for $productName";
 
                     $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
                     $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
@@ -188,7 +187,7 @@ class CallFlutter {
                     $ref = $data['ref'];
                     $userId = $this->userId;
                     $amount = $row['amount'];
-                    $details = "Payment for $content";
+                    $details = "Payment for $productName";
 
                     $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
                     $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
@@ -209,7 +208,7 @@ class CallFlutter {
                     $ref = $data['ref'];
                     $userId = $this->userId;
                     $amount = $row['amount'];
-                    $details = "Payment for $content";
+                    $details = "Payment for $productName";
 
                     $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
                     $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
@@ -231,7 +230,7 @@ class CallFlutter {
                     $ref = $data['ref'];
                     $userId = $this->userId;
                     $amount = $row['amount'];
-                    $details = "Payment for $content";
+                    $details = "Payment for $productName";
 
                     $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
                     $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
