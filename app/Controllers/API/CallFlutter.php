@@ -89,6 +89,7 @@ class CallFlutter {
 
 
         foreach($rows as $row){
+            print_r($row);
             if ($row['product'] === 'Domain Registration'){
                 $productName = $row['product_name'];
                 $billing = $row['billing'];
