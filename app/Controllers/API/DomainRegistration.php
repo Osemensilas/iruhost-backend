@@ -131,6 +131,69 @@ class DomainRegistration{
 
         $tdl = substr($domainName, strpos($domainName, '.') + 1);
         $sld = substr($domainName, 0, strpos($domainName, '.'));
+
+        $tlds = ['ng', 'com.ng', 'org.ng', 'gov.ng', 'edu.ng', 'net.ng', 'sch.ng', 'name.ng', 'mobi.ng', 'mil.ng', 'i.ng'];
+
+        if (in_array($tdl, $tlds)){
+
+            $url = "https://api.dynadot.com/restful/v2/domains/$domainName/search";
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Authorization: Bearer $this->devCoteApiKey",
+                "Accept: application/json"
+            ]);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15); // optional timeout
+
+            $result = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if (!$result || $httpCode >= 400) {
+                http_response_code(503);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Dynadot API request failed'
+                ]);
+                return;
+            }
+
+            $data = json_decode($result, true);
+
+            if ($data['data']['available'] === "Yes"){
+                $rrpCode = 210;
+
+                $stmtPrices = $this->pdo->prepare("SELECT registration, renewal FROM nigerian_tlds WHERE tld = ?");
+                $stmtPrices->execute([$tdl]);
+                
+                $tldRow = $stmtPrices->fetch(PDO::FETCH_ASSOC);
+                
+                if ($tldRow) {
+                    $registration = $tldRow['registration'];
+                    $renew = $tldRow['renewal'];
+                } else {
+                    // TLD not found in database
+                    $response['message'] = 'TLD pricing not available';
+                    error_log("TLD pricing not found for: $tdl");
+                }
+            }else{
+                // TLD not found in database
+                $response['message'] = 'TLD pricing not available';
+                error_log("TLD pricing not found for: $tdl");
+            }
+
+            echo json_encode([
+                'status' => 'success',
+                'requested_domain' => $domainName,
+                'rrpCode' => $rrpCode,
+                'regPrice' => $registration,
+                'renewPrice' => $renew,
+                'message' => ''
+            ]);
+
+            return;
+        }
         $myCharge = 3;
 
         $api = "https://reseller.enom.com/interface.asp?command=check&sld=$sld&tld=$tdl&uid=$this->enomUserId&pw=$this->enomApiToken&responsetype=xml&version=2&includeprice=1";
