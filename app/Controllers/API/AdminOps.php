@@ -498,14 +498,56 @@ class AdminOps{
         $recieverId = $data['reciever'];
         $message = $data["msg"];
 
+        $getReciver = $this->prepare("SELECT * FROM users WHERE user_id = ?");
+        $getReciver->execute([$recieverId]);
+
+        if ($getReciver->rowCount() < 1){
+            echo json_encode(['status' => 'error', 'message' => 'Error fetching reciever']);
+            return;
+        }
+
+        $recieverRow = $getReciver->fetch(PDO::FETCH_ASSOC);
+
+        $recieverEmail = $recieverRow['email'];
+
         $stmt = $this->pdo->prepare("INSERT INTO `chats`(`user_id`, `reciever_id`, `message`, `status`, `image`) VALUES (?,?,?,?,?)");
         $result = $stmt->execute(['admin', $recieverId, $message, 'new', '']);
+
+        $this->sendMailToReciever($recieverEmail, $message);
 
         if ($result){
             echo json_encode([
                 'status' => 'success',
                 'messgae' => 'message sent'
             ]);
+        }
+    }
+
+    private sendMailToReciever($recieverEmail, $message){
+        try {
+            $this->resend->emails->send([
+                'from' => 'IruHost <contact@iruhost.com>',
+                'to' => [$recieverEmail],
+                'subject' => 'New Message from IruHost',
+                'html' => "
+                <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+                    <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+                
+                        <p style='color: #333; line-height: 1.6;'>
+                        {$message}
+                        </p>
+
+                        <p style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
+                        Thank you for contacting <strong>IruHost</strong>.<br>
+                        Need help? Contact us at <a href='mailto:contact@iruhost.com' style='color:#007bff;'>contact@iruhost.com</a>
+                        </p>
+                    </div>
+                </div>
+                "
+            ]);
+
+        } catch (\Exception $e) {
+            
         }
     }
 
