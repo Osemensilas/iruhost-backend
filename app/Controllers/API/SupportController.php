@@ -53,8 +53,8 @@ class SupportController{
             return;
         }
 
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email, $email]);
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ? AND role = ?");
+        $stmt->execute([$email, 'support']);
 
         if ($stmt->rowCount() > 0){
             $row = $stmt->fetch();
