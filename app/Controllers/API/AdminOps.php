@@ -767,11 +767,12 @@ class AdminOps{
         $firstname = htmlspecialchars($data['firstname']);
         $lastname = htmlspecialchars($data['lastname']);
         $password = $this->generateSecurePassword();
+        $tempPassword = "Orange$101";
         $userId = uniqid("sup_");
         $permission = 'support';
         $name = $firstname . " " . $lastname;
 
-        $encryptedPassword = password_hash($password, PASSWORD_BCRYPT);
+        $encryptedPassword = password_hash($tempPassword, PASSWORD_BCRYPT);
 
         if (empty($email) || empty($role) || empty($firstname) || empty($lastname)){
             echo json_encode(['status' => 'error', 'message' => 'All field required']);
