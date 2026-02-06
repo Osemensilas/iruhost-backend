@@ -13,6 +13,7 @@ use App\Controllers\API\UserProducts;
 use App\Controllers\API\AdminDashboard;
 use App\Controllers\API\PanelEmailOperations;
 use App\Controllers\API\StaticController;
+use App\Controllers\API\SupportController;
 
 $router->get('/api/admin-reg-domain', [CallFlutter::class, 'adminRegNgDomain']);
 $router->get('/api/session', [SessionController::class, 'userSession']);
@@ -108,6 +109,8 @@ $router->post('/api/get-related-blogs', [StaticController::class, 'relatedBlog']
 $router->post('/api/get-other-blogs', [StaticController::class, 'otherBlog']);
 $router->get('/api/get-blog/{slug}', [StaticController::class, 'getBlogBySlug']);
 $router->post('/api/cpanel-login', [CallFlutter::class, 'autoCpanelLogin']);
+
+$router->post('/api/support-login', [SupportController::class, 'supportLogin']);
 
 $router->get('/api/expiring-products', [AdminDashboard::class, 'expiringProducts']);
 $router->get('/api/expiring-message', [AdminDashboard::class, 'expiringMessage']);

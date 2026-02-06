@@ -498,7 +498,7 @@ class AdminOps{
         $recieverId = $data['reciever'];
         $message = $data["msg"];
 
-        $getReciver = $this->prepare("SELECT * FROM users WHERE user_id = ?");
+        $getReciver = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
         $getReciver->execute([$recieverId]);
 
         if ($getReciver->rowCount() < 1){
@@ -523,7 +523,7 @@ class AdminOps{
         }
     }
 
-    private sendMailToReciever($recieverEmail, $message){
+    private function sendMailToReciever($recieverEmail, $message){
         try {
             $this->resend->emails->send([
                 'from' => 'IruHost <contact@iruhost.com>',
