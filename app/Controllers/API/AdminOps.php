@@ -798,8 +798,8 @@ class AdminOps{
         $this->sendSupportMessage($email, $name, $encryptedPassword);
 
         echo json_encode([
-            'status' => 'error', 
-            'message' => 'Invalid email address'
+            'status' => 'success', 
+            'message' => 'Admin added successfully'
         ]);
     }
 
