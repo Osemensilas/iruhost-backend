@@ -793,11 +793,9 @@ class AdminOps{
 
         $addAdmin = $this->pdo->prepare("INSERT INTO `users`(`user_id`, `role`, `permission`, `name`, `email`, `password`) 
         VALUES (?, ?, ?, ?, ?, ?)");
-        $result = $addAdmin->execute([$userId, $role, $permission, $name, $email, $encryptedPassword]);
+        $addAdmin->execute([$userId, $role, $permission, $name, $email, $encryptedPassword]);
 
-        if ($result){
-            $this->sendSupportMessage($email, $name, $encryptedPassword);
-        }
+        $this->sendSupportMessage($email, $name, $encryptedPassword);
 
         echo json_encode([
             'status' => 'error', 
