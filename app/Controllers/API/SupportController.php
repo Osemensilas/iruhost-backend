@@ -9,7 +9,7 @@ use Dotenv\Dotenv;
 
 class SupportController{
 
-    protected $supportId;
+    protected $adminId;
     protected $pdo;
     protected $resend;
     protected $resendApiCode;
@@ -19,7 +19,7 @@ class SupportController{
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
         $dotenv->load();
 
-        $this->supportId  = $_SESSION['support']['user_id'];
+        $this->adminId = $_SESSION['admin']['user_id'];
         $this->pdo =  DB::connection();
         $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
         $this->resend = Resend::client($this->resendApiCode);
@@ -67,7 +67,7 @@ class SupportController{
                     ]);
                     return;
                 }else{
-                    $_SESSION['support'] = [
+                    $_SESSION['admin'] = [
                         'user_id' => $row['user_id'],
                         'name' => $row['name'],
                         'email' => $email,
