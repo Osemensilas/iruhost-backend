@@ -790,10 +790,62 @@ class AdminOps{
         VALUES (?, ?, ?, ?, ?, ?)");
         $result = $addAdmin->execute([$userId, $role, $permission, $name, $email, $password]);
 
+        if ($result){
+            $this->sendSupportMessage($email, $name, $password);
+        }
+
         echo json_encode([
             'status' => 'error', 
             'message' => 'Invalid email address'
         ]);
+    }
+
+    private function sendSupportMessage($email, $name, $password) {
+        try {
+            $this->resend->emails->send([
+                'from' => 'Iruap Tech Studio Limited',
+                'to' => $email,
+                'subject' => 'Admin Account Creation',
+                'html' => "
+                <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+                <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+                    
+                    <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>Admin Access Granted</h2>
+                    
+                    <p style='color: #333;'>Hello <strong>{$name}</strong>,</p>
+                    
+                    <p style='color: #333; line-height: 1.6;'>
+                    You have been successfully added as an <strong>Administrator</strong> on the IruHost platform.
+                    </p>
+
+                    <p style='color: #333; line-height: 1.6;'>
+                    As an admin, you now have access to manage platform content, users, and system-related activities based on the permissions assigned to your account.
+                    </p>
+
+                    <table cellpadding='8' cellspacing='0' style='width:100%; border-collapse: collapse; margin: 20px 0;'>
+                    <tr style='background-color:#f0f4ff;'>
+                        <td style='width:35%; font-weight:bold; color:#333;'>Login URL:</td>
+                        <td><a href='https://support.iruhost.com' style='color:#007bff; text-decoration:none;'>https://support.iruhost.com</a></td>
+                    </tr>
+                    <tr>
+                        <td style='font-weight:bold; color:#333;'>Email:</td>
+                        <td style='color:#555;'>{$email}</td>
+                    </tr>
+                    <tr style='background-color:#f0f4ff;'>
+                        <td style='font-weight:bold; color:#333;'>Password:</td>
+                        <td style='color:#555;'>{$password}</td>
+                    </tr>
+                    </table>
+                    
+                </div>
+                </div>
+                "
+            ]);
+
+
+        } catch (\Exception $e) {
+            
+        }
     }
 
     private function generateSecurePassword($length = 12){
