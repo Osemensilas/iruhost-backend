@@ -85,6 +85,12 @@ class SupportController{
                 ]);
                 return;
             }
+        }else{
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'You do not have permission'
+            ]);
+            return;
         }
     }
 }
