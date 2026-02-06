@@ -793,7 +793,7 @@ class AdminOps{
 
         $addAdmin = $this->pdo->prepare("INSERT INTO `users`(`user_id`, `role`, `permission`, `name`, `email`, `password`) 
         VALUES (?, ?, ?, ?, ?, ?)");
-        $result = $addAdmin->execute([$userId, $role, $permission, $name, $email, $password]);
+        $result = $addAdmin->execute([$userId, $role, $permission, $name, $email, $encryptedPassword]);
 
         if ($result){
             $this->sendSupportMessage($email, $name, $encryptedPassword);
