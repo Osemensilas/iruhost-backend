@@ -12,7 +12,8 @@ class AdminOps{
     protected $pdo;
     protected $resend;
     protected $resendApiCode;
-
+    protected $encryptionKey;
+    protected $encryptionIV;
     public function __construct(){
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
         $dotenv->load();
@@ -21,6 +22,8 @@ class AdminOps{
         $this->pdo =  DB::connection();
         $this->resendApiCode = $_ENV['RESEND_API_KEY'] ?? null;
         $this->resend = Resend::client($this->resendApiCode);
+        $this->encryptionKey = hash('sha256', $_ENV['ENCRYPTION_KEY']);
+        $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
     }
 
     public function addBlogs(){
@@ -768,6 +771,8 @@ class AdminOps{
         $permission = 'support';
         $name = $firstname . " " . $lastname;
 
+        $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
+
         if (empty($email) || empty($role) || empty($firstname) || empty($lastname)){
             echo json_encode(['status' => 'error', 'message' => 'All field required']);
             return;
@@ -791,7 +796,7 @@ class AdminOps{
         $result = $addAdmin->execute([$userId, $role, $permission, $name, $email, $password]);
 
         if ($result){
-            $this->sendSupportMessage($email, $name, $password);
+            $this->sendSupportMessage($email, $name, $encryptedPassword);
         }
 
         echo json_encode([
