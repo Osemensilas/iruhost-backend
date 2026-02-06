@@ -101,6 +101,7 @@ $router->post('/api/close-support-chats', [AdminOps::class, 'closeSupportChat'])
 $router->post('/api/add-tld', [AdminOps::class, 'addTld']);
 $router->post('/api/update-admin-chat', [AdminOps::class, 'updateChats']);
 $router->get('/api/run-migrations', [AdminOps::class, 'updateMigrations']);
+$router->post('api/add-new-admin', [AdminOps::class, 'addNewAdmin']);
 $router->get('/api/get-blogs', [StaticController::class, 'getBlogs']);
 $router->get('/api/get-recent-blogs', [StaticController::class, 'recentBlogs']);
 $router->get('/api/get-todays-blogs', [StaticController::class, 'todayBlogs']);
