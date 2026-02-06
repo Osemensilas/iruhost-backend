@@ -746,7 +746,32 @@ class AdminOps{
         }
     }
 
-    public function adminTest(){
-        
+    public function addNewAdmin(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $email = htmlspecialchars($data['email']);
+        $role = htmlspecialchars($data['role']);
+        $firstname = htmlspecialchars($data['firstname']);
+        $lastname = htmlspecialchars($data['lastname']);
+
+        if (empty($email) || empty($role) || empty($firstname) || empty($lastname)){
+            echo json_encode(['status' => 'error', 'message' => 'All field required']);
+            return;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
+            return;
+        }
     }
 }
