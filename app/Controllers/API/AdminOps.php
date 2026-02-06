@@ -763,6 +763,10 @@ class AdminOps{
         $role = htmlspecialchars($data['role']);
         $firstname = htmlspecialchars($data['firstname']);
         $lastname = htmlspecialchars($data['lastname']);
+        $password = $this->generateSecurePassword();
+        $userId = uniqid("sup_");
+        $permission = 'support';
+        $name = $firstname . " " . $lastname;
 
         if (empty($email) || empty($role) || empty($firstname) || empty($lastname)){
             echo json_encode(['status' => 'error', 'message' => 'All field required']);
@@ -773,5 +777,50 @@ class AdminOps{
             echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
             return;
         }
+
+        $getAdmin = $this->pdo->prepare("SELECT * FROM users WHERE email = ? AND role = ?");
+        $getAdmin->execute([$email, $role]);
+
+        if ($getAdmin->rowCount() > 0){
+            echo json_encode(['status' => 'error', 'message' => 'Already Support']);
+            return;
+        }
+
+        $addAdmin = $this->pdo->prepare("INSERT INTO `users`(`user_id`, `role`, `permission`, `name`, `email`, `password`) 
+        VALUES (?, ?, ?, ?, ?, ?)");
+        $result = $addAdmin->execute([$userId, $role, $permission, $name, $email, $password]);
+
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Invalid email address'
+        ]);
+    }
+
+    private function generateSecurePassword($length = 12){
+        // Define character sets
+        $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        $numbers   = '0123456789';
+        $symbols   = '!@#$%^&*()-_=+<>?';
+
+        // Combine all character sets
+        $allChars = $uppercase . $lowercase . $numbers . $symbols;
+
+        // Ensure password contains at least one of each type
+        $password = '';
+        $password .= $uppercase[random_int(0, strlen($uppercase) - 1)];
+        $password .= $lowercase[random_int(0, strlen($lowercase) - 1)];
+        $password .= $numbers[random_int(0, strlen($numbers) - 1)];
+        $password .= $symbols[random_int(0, strlen($symbols) - 1)];
+
+        // Fill the rest of the password length with random characters
+        for ($i = strlen($password); $i < $length; $i++) {
+            $password .= $allChars[random_int(0, strlen($allChars) - 1)];
+        }
+
+        // Shuffle to avoid predictable placement
+        $password = str_shuffle($password);
+
+        return $password;
     }
 }
