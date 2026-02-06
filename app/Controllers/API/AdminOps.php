@@ -795,7 +795,7 @@ class AdminOps{
         VALUES (?, ?, ?, ?, ?, ?)");
         $addAdmin->execute([$userId, $role, $permission, $name, $email, $encryptedPassword]);
 
-        $this->sendSupportMessage($email, $name, $encryptedPassword);
+        $this->sendSupportMessage($email, $name, $password);
 
         echo json_encode([
             'status' => 'success', 
