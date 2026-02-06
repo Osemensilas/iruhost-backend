@@ -771,7 +771,7 @@ class AdminOps{
         $permission = 'support';
         $name = $firstname . " " . $lastname;
 
-        $encryptedPassword = openssl_encrypt($password, 'AES-256-CBC', $this->encryptionKey, 0, $this->encryptionIV);
+        $encryptedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         if (empty($email) || empty($role) || empty($firstname) || empty($lastname)){
             echo json_encode(['status' => 'error', 'message' => 'All field required']);
