@@ -110,11 +110,11 @@ class SupportController{
         $blogId = $data['blog_id'];
 
         $deleteBlog = $this->pdo->prepare("DELETE FROM `blogs` WHERE blog_id = ?");
+        $deleteBlog->execute([$blogId]);
 
          echo json_encode([
             'status' => 'success',
             'message' => 'Delete successful',
-            'blog_id' => $blogId
         ]);
     }
 }
