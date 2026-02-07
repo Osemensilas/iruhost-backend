@@ -165,7 +165,7 @@ class SupportController{
         echo json_encode([
             'status' => 'success', 
             'message' => 'User details fetch',
-            'name' => $row['fullname']
+            'name' => $row['name']
         ]);
     }
 }
