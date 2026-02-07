@@ -140,4 +140,32 @@ class SupportController{
             ]);
         }
     }
+
+    public function suportDetails(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+        $stmt->execute([$this->adminId]);
+
+        if ($stmt->rowCount() < 1){
+            echo json_encode(['status' => 'error', 'message' => 'User does not exist']);
+            return;
+        }
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'status' => 'success', 
+            'message' => 'User details fetch',
+            'name' => $row['fullname']
+        ]);
+    }
 }
