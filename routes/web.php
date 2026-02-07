@@ -113,6 +113,7 @@ $router->post('/api/cpanel-login', [CallFlutter::class, 'autoCpanelLogin']);
 
 $router->post('/api/support-login', [SupportController::class, 'supportLogin']);
 $router->post('/api/delete-blogs', [SupportController::class, 'deleteBlog']);
+$router->post('/api/support-logout', [SupportController::class, 'suportLogout']);
 
 $router->get('/api/expiring-products', [AdminDashboard::class, 'expiringProducts']);
 $router->get('/api/expiring-message', [AdminDashboard::class, 'expiringMessage']);

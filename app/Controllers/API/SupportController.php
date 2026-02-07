@@ -117,4 +117,27 @@ class SupportController{
             'message' => 'Delete successful',
         ]);
     }
+
+    public function suportLogout() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if ($data['action'] === "logout"){
+            session_unset();
+            session_destroy();
+            echo json_encode([
+                'status' => 'success', 
+                'message' => 'Logged out'
+            ]);
+        }
+    }
 }
