@@ -93,4 +93,28 @@ class SupportController{
             return;
         }
     }
+
+    public function deleteBlog(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+        
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $blogId = $data['blog_id'];
+
+        $deleteBlog = $this->pdo->prepare("DELETE FROM `blogs` WHERE blog_id = ?");
+
+         echo json_encode([
+            'status' => 'success',
+            'message' => 'Delete successful',
+            'blog_id' => $blogId
+        ]);
+    }
 }
