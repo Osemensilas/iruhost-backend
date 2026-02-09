@@ -451,8 +451,8 @@ class DomainRegistration{
             $params = [
                 "domain"    => $domainName,
                 "nameservers" => [
-                    "ns1.iruhost.com",
-                    "ns2.iruhost.com",
+                    $dns1,
+                    $dns2,
                 ],
             ];
 
