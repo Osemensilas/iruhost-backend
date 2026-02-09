@@ -82,7 +82,7 @@ class AuthController{
         if (strlen($password1) < 8){
             echo json_encode([
                 'status' => 'error',
-                'message' => 'Password should be at least 8 characters'
+                'message' => 'Password must be at least 8 characters'
             ]);
             return;
         }
