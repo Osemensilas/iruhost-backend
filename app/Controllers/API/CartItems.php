@@ -184,9 +184,14 @@ class CartItems {
         $totalDomainTransferPrice = 0;
         $mainTotal = 0;
         $vat = 0;
+        $hostingPresent = false;
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($rows['product'] === "Hosting Registration"){
+                $hostingPresent = true;
+            }
 
             foreach($rows as $row){
                 if ($row['product'] == 'Domain Registration'){
@@ -228,6 +233,7 @@ class CartItems {
             'totalWebAppPrice' => round($totalWebAppPrice, 2),
             'vat' => round($vat, 2),
             'main_total' => round($mainTotal, 2),
+            'hosting_present' => $hostingPresent,
         ]);
     }
 
