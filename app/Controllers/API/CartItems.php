@@ -186,12 +186,15 @@ class CartItems {
         $vat = 0;
         $hostingPresent = false;
 
+        $hostingCol = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ? AND product = ?");
+        $hostingCol->execute(["Hosting Registration"]);
+
+        if ($hostingCol->rowCount() > 0){
+            $hostingPresent = true;
+        }
+
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            if ($rows['product'] === "Hosting Registration"){
-                $hostingPresent = true;
-            }
 
             foreach($rows as $row){
                 if ($row['product'] == 'Domain Registration'){
