@@ -138,12 +138,29 @@ class AddToCart {
 
         $productId = uniqid('hosting_');
         $product = "Hosting Registration";
+        $renewPrice = $hostingPrice;
+
+        if ($hostingName === "Lite" && $hostingRenew === "month"){
+            $renewPrice = 500;
+        }
+
+        if ($hostingName === "Standard" && $hostingRenew === "month"){
+            $renewPrice = 850;
+        }
+
+        if ($hostingName === "Essential" && $hostingRenew === "month"){
+            $renewPrice = 1200;
+        }
+
+        if ($hostingName === "Plus" && $hostingRenew === "month"){
+            $renewPrice = 1600;
+        }
         
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
             (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         try{
-            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $hostingRenew, $domainName, $currency]);
+            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $renewPrice, $domainName, $currency]);
         
             echo json_encode([
                 'status' => 'success',
