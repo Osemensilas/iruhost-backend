@@ -173,6 +173,15 @@ class CartItems {
             return;
         }
 
+        $hostingPresent = false;
+
+        $hostingCol = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ? AND product = ?");
+        $hostingCol->execute([$this->userId, "Hosting Registration"]);
+
+        if ($hostingCol->rowCount() > 0){
+            $hostingPresent = true;
+        }
+
         $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ?");
         $stmt->execute([$this->userId]);
         $totalPrice = 0;
@@ -184,14 +193,6 @@ class CartItems {
         $totalDomainTransferPrice = 0;
         $mainTotal = 0;
         $vat = 0;
-        $hostingPresent = false;
-
-        $hostingCol = $this->pdo->prepare("SELECT * FROM cart WHERE user_id = ? AND product = ?");
-        $hostingCol->execute(["Hosting Registration"]);
-
-        if ($hostingCol->rowCount() > 0){
-            $hostingPresent = true;
-        }
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
