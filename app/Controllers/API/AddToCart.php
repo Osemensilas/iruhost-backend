@@ -160,7 +160,7 @@ class AddToCart {
             (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         try{
-            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $hostingPrice, $renewPrice, $domainName, $currency]);
+            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $renewPrice, $hostingRenew, $domainName, $currency]);
         
             echo json_encode([
                 'status' => 'success',
