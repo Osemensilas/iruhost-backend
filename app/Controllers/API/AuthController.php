@@ -47,7 +47,7 @@ class AuthController{
         
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $name = $data['firstname'] + " " + $data["lastname"] ?? null;
+        $name = $data['firstname'] . " " . $data["lastname"] ?? null;
         $email = $data['email'] ?? null;
         $password1 = $data['password1'] ?? null;
         $password2 = $data['password2'] ?? null;
