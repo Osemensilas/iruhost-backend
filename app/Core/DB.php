@@ -15,6 +15,8 @@ class DB {
             $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
             $dotenv->load();
 
+            print_r($_ENV); // Debug: Check if environment variables are loaded
+
             $hostname = $_ENV['DB_HOST'] ?? null;
             $username = $_ENV['DB_USERNAME'] ?? null;
             $password = $_ENV['DB_PASSWORD'] ?? null;
