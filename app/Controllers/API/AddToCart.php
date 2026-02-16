@@ -269,32 +269,32 @@ class AddToCart {
         $emailBilling = 'year';
         $emailDomain = $data['domain'];
 
-        if ($emailBilling === "Starter" && $currency === "NGN"){
+        if ($emailName === "Starter" && $currency === "NGN"){
             $emailPrice = 6000;
             $emailRenew = 6000;
         }
 
-        if ($emailBilling === "Professional" && $currency === "NGN"){
+        if ($emailName === "Professional" && $currency === "NGN"){
             $emailPrice = 18000;
             $emailRenew = 18000;
         }
 
-        if ($emailBilling === "Premium" && $currency === "NGN"){
+        if ($emailName === "Premium" && $currency === "NGN"){
             $emailPrice = 36000;
             $emailRenew = 36000;
         }
 
-        if ($emailBilling === "Starter" && $currency === "USD"){
+        if ($emailName === "Starter" && $currency === "USD"){
             $emailPrice = 10;
             $emailRenew = 10;
         }
 
-        if ($emailBilling === "Professional" && $currency === "USD"){
+        if ($emailName === "Professional" && $currency === "USD"){
             $emailPrice = 22;
             $emailRenew = 22;
         }
 
-        if ($emailBilling === "Premium" && $currency === "USD"){
+        if ($emailName === "Premium" && $currency === "USD"){
             $emailPrice = 36;
             $emailRenew = 36;
         }
