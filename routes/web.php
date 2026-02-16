@@ -52,7 +52,7 @@ $router->post('/api/add-to-cart', [AddToCart::class, 'addDomain']);
 $router->post('/api/transfer-to-cart', [AddToCart::class, 'tranferDomain']);
 $router->post('/api/add-to-cart-hosting', [AddToCart::class, 'addHosting']);
 $router->post('/api/add-to-cart-ssl', [AddToCart::class, 'addSSL']);
-$router->post('/api/add-to-cart-email', [AddToCart::class, 'addEmail']);
+$router->get('/api/add-to-cart-email', [AddToCart::class, 'addEmail']);
 $router->post('/api/add-website-to-cart', [AddToCart::class, 'addWebsite']);
 $router->post('/api/add-custom-website-to-cart', [AddToCart::class, 'addCustomWebsite']);
 $router->get('/api/cart-items', [CartItems::class, 'cartItems']);
