@@ -251,6 +251,9 @@ class AddToCart {
     }
 
     public function addEmail(){
+
+        echo "Adding email to cart...";
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
