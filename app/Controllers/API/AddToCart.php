@@ -315,11 +315,6 @@ class AddToCart {
             return;
         }
 
-        echo json_encode([
-            'status' => 'success',
-            'mesage' => 'Email not in cart'
-        ]);
-
         $stmt = $this->pdo->prepare("INSERT INTO `cart`
             (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
