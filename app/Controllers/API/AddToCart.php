@@ -252,61 +252,59 @@ class AddToCart {
 
     public function addEmail(){
 
-        echo "Adding email to cart...";
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
 
-        // if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        //     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-        //     return;
-        // }
+        $data = json_decode(file_get_contents("php://input"), true);
 
-        // $data = json_decode(file_get_contents("php://input"), true);
+        $emailName = $data['package'];
+        $emailPrice = "";
+        $emailRenew = "";
+        $currency = $data['currency'] ?? null;
+        $emailDuration = 1;
+        $emailId = uniqid("email_");
+        $emailProduct = 'Email Registration';
+        $emailBilling = 'year';
+        $emailDomain = $data['domain'];
 
-        // $emailName = $data['package'];
-        // $emailPrice = "";
-        // $emailRenew = "";
-        // $currency = $data['currency'] ?? null;
-        // $emailDuration = 1;
-        // $emailId = uniqid("email_");
-        // $emailProduct = 'Email Registration';
-        // $emailBilling = 'year';
-        // $emailDomain = $data['domain'];
+        print_r($data);
 
-        // print_r($data);
+        if ($emailBilling === "Starter" && $currency === "NGN"){
+            $emailPrice = 6000;
+            $emailRenew = 6000;
+        }
 
-        // if ($emailBilling === "Starter" && $currency === "NGN"){
-        //     $emailPrice = 6000;
-        //     $emailRenew = 6000;
-        // }
+        if ($emailBilling === "Professional" && $currency === "NGN"){
+            $emailPrice = 18000;
+            $emailRenew = 18000;
+        }
 
-        // if ($emailBilling === "Professional" && $currency === "NGN"){
-        //     $emailPrice = 18000;
-        //     $emailRenew = 18000;
-        // }
+        if ($emailBilling === "Premium" && $currency === "NGN"){
+            $emailPrice = 36000;
+            $emailRenew = 36000;
+        }
 
-        // if ($emailBilling === "Premium" && $currency === "NGN"){
-        //     $emailPrice = 36000;
-        //     $emailRenew = 36000;
-        // }
+        if ($emailBilling === "Starter" && $currency === "USD"){
+            $emailPrice = 10;
+            $emailRenew = 10;
+        }
 
-        // if ($emailBilling === "Starter" && $currency === "USD"){
-        //     $emailPrice = 10;
-        //     $emailRenew = 10;
-        // }
+        if ($emailBilling === "Professional" && $currency === "USD"){
+            $emailPrice = 22;
+            $emailRenew = 22;
+        }
 
-        // if ($emailBilling === "Professional" && $currency === "USD"){
-        //     $emailPrice = 22;
-        //     $emailRenew = 22;
-        // }
+        if ($emailBilling === "Premium" && $currency === "USD"){
+            $emailPrice = 36;
+            $emailRenew = 36;
+        }
 
-        // if ($emailBilling === "Premium" && $currency === "USD"){
-        //     $emailPrice = 36;
-        //     $emailRenew = 36;
-        // }
-
-        // if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
-        //     echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
-        //     return;
-        // }
+        if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
+            return;
+        }
 
         // $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE product_name = ? AND user_id = ?");
         // $stmt->execute([$emailName, $this->userId]);
