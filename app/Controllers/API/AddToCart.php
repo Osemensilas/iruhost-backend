@@ -331,23 +331,23 @@ class AddToCart {
             'mesage' => 'Email not in cart'
         ]);
 
-        // $stmt = $this->pdo->prepare("INSERT INTO `cart`
-        //     (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
-        //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $this->pdo->prepare("INSERT INTO `cart`
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
-        // try {
-        //     $stmt->execute([$this->userId, $emailId, $emailProduct, $emailName, $emailPrice, $emailRenew, $emailBilling, $emailDomain, $currency]);
+        try {
+            $stmt->execute([$this->userId, $emailId, $emailProduct, $emailName, $emailPrice, $emailRenew, $emailBilling, $emailDomain, $currency]);
             
-        //     echo json_encode([
-        //         'status' => 'success',
-        //         'mesage' => 'Email added to cart'
-        //     ]);
-        // } catch (Exception $err) {
-        //     echo json_encode([
-        //         'status' => 'error',
-        //         'message' => 'Database Error: ' . $err->getMessage()
-        //     ]);
-        // }
+            echo json_encode([
+                'status' => 'success',
+                'mesage' => 'Email added to cart'
+            ]);
+        } catch (Exception $err) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Database Error: ' . $err->getMessage()
+            ]);
+        }
     }
 
     public function addWebsite(){
