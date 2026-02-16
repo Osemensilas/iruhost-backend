@@ -269,8 +269,6 @@ class AddToCart {
         $emailBilling = 'year';
         $emailDomain = $data['domain'];
 
-        print_r($data);
-
         if ($emailBilling === "Starter" && $currency === "NGN"){
             $emailPrice = 6000;
             $emailRenew = 6000;
@@ -306,21 +304,21 @@ class AddToCart {
             return;
         }
 
-        // $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE product_name = ? AND user_id = ?");
-        // $stmt->execute([$emailName, $this->userId]);
+        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE product_name = ? AND user_id = ?");
+        $stmt->execute([$emailName, $this->userId]);
 
-        // if ($stmt->fetch()) {
-        //     echo json_encode([
-        //         'status' => 'success',
-        //         'mesage' => 'Email added to cart'
-        //     ]);
-        //     return;
-        // }
+        if ($stmt->fetch()) {
+            echo json_encode([
+                'status' => 'success',
+                'mesage' => 'Email added to cart'
+            ]);
+            return;
+        }
 
-        // echo json_encode([
-        //     'status' => 'success',
-        //     'mesage' => 'Email not in cart'
-        // ]);
+        echo json_encode([
+            'status' => 'success',
+            'mesage' => 'Email not in cart'
+        ]);
 
         // $stmt = $this->pdo->prepare("INSERT INTO `cart`
         //     (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
