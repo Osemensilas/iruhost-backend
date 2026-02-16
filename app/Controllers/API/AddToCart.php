@@ -253,76 +253,76 @@ class AddToCart {
     public function addEmail(){
 
         echo "Adding email to cart...";
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-            return;
-        }
 
-        $data = json_decode(file_get_contents("php://input"), true);
+        // if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        //     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+        //     return;
+        // }
 
-        $emailName = $data['package'];
-        $emailPrice = "";
-        $emailRenew = "";
-        $currency = $data['currency'] ?? null;
-        $emailDuration = 1;
-        $emailId = uniqid("email_");
-        $emailProduct = 'Email Registration';
-        $emailBilling = 'year';
-        $emailDomain = $data['domain'];
+        // $data = json_decode(file_get_contents("php://input"), true);
 
-        print_r($data);
+        // $emailName = $data['package'];
+        // $emailPrice = "";
+        // $emailRenew = "";
+        // $currency = $data['currency'] ?? null;
+        // $emailDuration = 1;
+        // $emailId = uniqid("email_");
+        // $emailProduct = 'Email Registration';
+        // $emailBilling = 'year';
+        // $emailDomain = $data['domain'];
 
-        if ($emailBilling === "Starter" && $currency === "NGN"){
-            $emailPrice = 6000;
-            $emailRenew = 6000;
-        }
+        // print_r($data);
 
-        if ($emailBilling === "Professional" && $currency === "NGN"){
-            $emailPrice = 18000;
-            $emailRenew = 18000;
-        }
+        // if ($emailBilling === "Starter" && $currency === "NGN"){
+        //     $emailPrice = 6000;
+        //     $emailRenew = 6000;
+        // }
 
-        if ($emailBilling === "Premium" && $currency === "NGN"){
-            $emailPrice = 36000;
-            $emailRenew = 36000;
-        }
+        // if ($emailBilling === "Professional" && $currency === "NGN"){
+        //     $emailPrice = 18000;
+        //     $emailRenew = 18000;
+        // }
 
-        if ($emailBilling === "Starter" && $currency === "USD"){
-            $emailPrice = 10;
-            $emailRenew = 10;
-        }
+        // if ($emailBilling === "Premium" && $currency === "NGN"){
+        //     $emailPrice = 36000;
+        //     $emailRenew = 36000;
+        // }
 
-        if ($emailBilling === "Professional" && $currency === "USD"){
-            $emailPrice = 22;
-            $emailRenew = 22;
-        }
+        // if ($emailBilling === "Starter" && $currency === "USD"){
+        //     $emailPrice = 10;
+        //     $emailRenew = 10;
+        // }
 
-        if ($emailBilling === "Premium" && $currency === "USD"){
-            $emailPrice = 36;
-            $emailRenew = 36;
-        }
+        // if ($emailBilling === "Professional" && $currency === "USD"){
+        //     $emailPrice = 22;
+        //     $emailRenew = 22;
+        // }
 
-        if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
-            echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
-            return;
-        }
+        // if ($emailBilling === "Premium" && $currency === "USD"){
+        //     $emailPrice = 36;
+        //     $emailRenew = 36;
+        // }
 
-        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE product_name = ? AND user_id = ?");
-        $stmt->execute([$emailName, $this->userId]);
+        // if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
+        //     echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
+        //     return;
+        // }
 
-        if ($stmt->fetch()) {
-            echo json_encode([
-                'status' => 'success',
-                'mesage' => 'Email added to cart'
-            ]);
-            return;
-        }
+        // $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE product_name = ? AND user_id = ?");
+        // $stmt->execute([$emailName, $this->userId]);
 
-        echo json_encode([
-            'status' => 'success',
-            'mesage' => 'Email not in cart'
-        ]);
+        // if ($stmt->fetch()) {
+        //     echo json_encode([
+        //         'status' => 'success',
+        //         'mesage' => 'Email added to cart'
+        //     ]);
+        //     return;
+        // }
+
+        // echo json_encode([
+        //     'status' => 'success',
+        //     'mesage' => 'Email not in cart'
+        // ]);
 
         // $stmt = $this->pdo->prepare("INSERT INTO `cart`
         //     (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
