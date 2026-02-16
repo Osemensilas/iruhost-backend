@@ -268,6 +268,8 @@ class AddToCart {
         $emailBilling = 'year';
         $emailDomain = $data['domain'];
 
+        print_r($data);
+
         if ($emailBilling === "Starter" && $currency === "NGN"){
             $emailPrice = 6000;
             $emailRenew = 6000;
