@@ -276,4 +276,8 @@ class CartItems {
             ]);
         }
     }
+
+    public function addEmail(){
+        echo "Adding email to cart...";
+    }
 }
