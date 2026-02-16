@@ -299,6 +299,17 @@ class AddToCart {
             $emailRenew = 36;
         }
 
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Email details calculated',
+            'data' => [
+                'emailName' => $emailName,
+                'emailPrice' => $emailPrice,
+                'emailRenew' => $emailRenew,
+                'currency' => $currency
+            ]
+        ]);
+
         if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
             echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
             return;
