@@ -191,7 +191,7 @@ class CallFlutter {
 
                     $transactionStmt = $this->pdo->prepare("INSERT INTO `transactions`(`user_id`, `transaction_id`, `reference`, `product`, `product_name`, `amount`, `details`, `status`) VALUES (?,?,?,?,?,?,?,?)");
                     $transactionStmt->execute([$userId, $paymentId, $ref, $product, $productName, $amount, $details, $status]);
-
+                    
                     $emailResponse = $this->regEmail($productName, $billing, $cartId, $domain);
                     $email_status = $emailResponse['status'] ?? 'unknown';
                     $email_message = $emailResponse['message'] ?? 'unknown';

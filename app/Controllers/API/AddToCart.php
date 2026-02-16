@@ -258,15 +258,45 @@ class AddToCart {
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $emailName = $data['emailName'];
-        $emailPrice = $data['emailPrice'];
-        $emailRenew = $data['emailPrice'] ?? null;
+        $emailName = $data['package'];
+        $emailPrice = "";
+        $emailRenew = "";
         $currency = $data['currency'] ?? null;
         $emailDuration = 1;
         $emailId = uniqid("email_");
         $emailProduct = 'Email Registration';
         $emailBilling = 'year';
-        $emailDomain = '';
+        $emailDomain = $data['domain'];
+
+        if ($emailBilling === "Starter" && $currency === "NGN"){
+            $emailPrice = 6000;
+            $emailRenew = 6000;
+        }
+
+        if ($emailBilling === "Professional" && $currency === "NGN"){
+            $emailPrice = 18000;
+            $emailRenew = 18000;
+        }
+
+        if ($emailBilling === "Premium" && $currency === "NGN"){
+            $emailPrice = 36000;
+            $emailRenew = 36000;
+        }
+
+        if ($emailBilling === "Starter" && $currency === "USD"){
+            $emailPrice = 10;
+            $emailRenew = 10;
+        }
+
+        if ($emailBilling === "Professional" && $currency === "USD"){
+            $emailPrice = 22;
+            $emailRenew = 22;
+        }
+
+        if ($emailBilling === "Premium" && $currency === "USD"){
+            $emailPrice = 36;
+            $emailRenew = 36;
+        }
 
         if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
             echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
@@ -284,23 +314,28 @@ class AddToCart {
             return;
         }
 
-        $stmt = $this->pdo->prepare("INSERT INTO `cart`
-            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        echo json_encode([
+            'status' => 'success',
+            'mesage' => 'Email not in cart'
+        ]);
+
+        // $stmt = $this->pdo->prepare("INSERT INTO `cart`
+        //     (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
+        //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
-        try {
-            $stmt->execute([$this->userId, $emailId, $emailProduct, $emailName, $emailPrice, $emailRenew, $emailBilling, $emailDomain, $currency]);
+        // try {
+        //     $stmt->execute([$this->userId, $emailId, $emailProduct, $emailName, $emailPrice, $emailRenew, $emailBilling, $emailDomain, $currency]);
             
-            echo json_encode([
-                'status' => 'success',
-                'mesage' => 'Email added to cart'
-            ]);
-        } catch (Exception $err) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Database Error: ' . $err->getMessage()
-            ]);
-        }
+        //     echo json_encode([
+        //         'status' => 'success',
+        //         'mesage' => 'Email added to cart'
+        //     ]);
+        // } catch (Exception $err) {
+        //     echo json_encode([
+        //         'status' => 'error',
+        //         'message' => 'Database Error: ' . $err->getMessage()
+        //     ]);
+        // }
     }
 
     public function addWebsite(){
