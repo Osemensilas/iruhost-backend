@@ -858,12 +858,12 @@ class AdminOps{
             $mail->isSMTP();
             $mail->Host = 'iruhost.com'; // your SMTP server
             $mail->SMTPAuth = true;
-            $mail->Username = 'no-reply@iruhost.com'; // SMTP username
+            $mail->Username = 'noreply@iruhost.com'; // SMTP username
             $mail->Password = 'Onion$101Banks';   // SMTP password
             $mail->SMTPSecure = 'ssl'; // or ENCRYPTION_SMTPS
             $mail->Port = 465; // 465 for SSL
 
-            $mail->setFrom('no-reply@iruhost.com', 'Iruap Tech Studio Limited');
+            $mail->setFrom('noreply@iruhost.com', 'Iruap Tech Studio Limited');
             $mail->addAddress("osemensilas@gmail.com", $name);
 
             $mail->isHTML(true);
