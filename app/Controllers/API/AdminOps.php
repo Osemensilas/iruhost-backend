@@ -830,53 +830,61 @@ class AdminOps{
 
     private function sendAdMsg($message, $subject){
 
-        // $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
-        // $getUsers->execute(['user']);
+        $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
+        $getUsers->execute(['user']);
 
-        // if ($getUsers->rowCount() > 0){
-        //     $users = $getUsers->fetchAll(PDO::FETCH_ASSOC);
+        if ($getUsers->rowCount() > 0){
+            $users = $getUsers->fetchAll(PDO::FETCH_ASSOC);
 
-        //     foreach ($users as $user){
-        //         $email = $user['email'];
-        //         $name = $user['name'];
-        //     }
-        // }
+            foreach ($users as $user){
+                $email = $user['email'];
+                $name = $user['name'];
 
-        $mail = new PHPMailer(true);
-
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'iruhost.com'; // your SMTP server
-            $mail->SMTPAuth = true;
-            $mail->Username = 'no-reply@iruhost.com'; // SMTP username
-            $mail->Password = 'Onion$101Banks';   // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // or ENCRYPTION_SMTPS
-            $mail->Port = 456; // 465 for SSL
-
-            $mail->setFrom('no-reply@iruhost.com', 'Iruap Tech Studio Limited');
-            $mail->addAddress("osemensilas@gmail.com", "Osemen Silas");
-
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-            $mail->Body = "
-                <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
-                    <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
-                        
-                        <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>{$subject}</h2>
-                        
-                        <p style='color: #333;'>Hello <strong>Osemen Silas</strong>,</p>
-
-                        <p style='color: #333; line-height: 1.6;'>
-                        {$message}
-                        </p>        
-                    </div>
-                </div>
-            ";
-
-            $mail->send();
-        } catch (Exception $e) {
-            error_log("SMTP Mail Error: " . $e->getMessage());
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => $message,
+                    'subject' => $subject,
+                    'email' => $email,
+                    'name' => $name
+                ]);
+            }
         }
+
+        // $mail = new PHPMailer(true);
+
+        // try {
+        //     $mail->isSMTP();
+        //     $mail->Host = 'iruhost.com'; // your SMTP server
+        //     $mail->SMTPAuth = true;
+        //     $mail->Username = 'no-reply@iruhost.com'; // SMTP username
+        //     $mail->Password = 'Onion$101Banks';   // SMTP password
+        //     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // or ENCRYPTION_SMTPS
+        //     $mail->Port = 456; // 465 for SSL
+
+        //     $mail->setFrom('no-reply@iruhost.com', 'Iruap Tech Studio Limited');
+        //     $mail->addAddress("osemensilas@gmail.com", $name);
+
+        //     $mail->isHTML(true);
+        //     $mail->Subject = $subject;
+        //     $mail->Body = "
+        //         <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+        //             <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+                        
+        //                 <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>{$subject}</h2>
+                        
+        //                 <p style='color: #333;'>Hello <strong>{$name}</strong>,</p>
+
+        //                 <p style='color: #333; line-height: 1.6;'>
+        //                 {$message}
+        //                 </p>        
+        //             </div>
+        //         </div>
+        //     ";
+
+        //     $mail->send();
+        // } catch (Exception $e) {
+        //     error_log("SMTP Mail Error: " . $e->getMessage());
+        // }
     }
 
     private function sendSupportMessage($email, $name, $password) {
