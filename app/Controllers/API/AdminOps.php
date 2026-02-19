@@ -859,7 +859,7 @@ class AdminOps{
             $mail->SMTPAuth = true;
             $mail->Username = 'no-reply@iruhost.com'; // SMTP username
             $mail->Password = 'Onion$101Banks';   // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // or ENCRYPTION_SMTPS
+            $mail->SMTPSecure = 'ssl'; // or ENCRYPTION_SMTPS
             $mail->Port = 465; // 465 for SSL
 
             $mail->setFrom('no-reply@iruhost.com', 'Iruap Tech Studio Limited');
