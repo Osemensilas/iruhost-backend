@@ -851,6 +851,10 @@ class AdminOps{
         // }
         $name = "Osemen Silas";
 
+        require 'PHPMailer/src/Exception.php';
+        require 'PHPMailer/src/PHPMailer.php';
+        require 'PHPMailer/src/SMTP.php';
+
         $mail = new PHPMailer(true);
 
         try {
