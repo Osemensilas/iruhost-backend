@@ -804,6 +804,37 @@ class AdminOps{
         ]);
     }
 
+    public function messageClients(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST'){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+        $message = htmlspecialchars($data['message']);
+        $subject = htmlspecialchars($data['subject']);
+
+        if (empty($message)){
+            echo json_encode(['status' => 'error', 'message' => 'Message field is required']);
+            return;
+        }
+
+        $this->sendAdMsg($message, $subject);
+    }
+
+    private function sendAdMsg($message, $subject){
+        echo json_encode([
+            'status' => 'success',
+            'message' => $message,
+            'subject' => $subject
+        ]);
+    }
+
     private function sendSupportMessage($email, $name, $password) {
         try {
             $this->resend->emails->send([
