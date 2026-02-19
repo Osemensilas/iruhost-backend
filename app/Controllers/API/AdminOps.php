@@ -883,7 +883,17 @@ class AdminOps{
                 </div>
             ";
 
-            $mail->send();
+            if ($mail->send()){
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Message sent successfully'
+                ]);
+            }else {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Failed to send message'
+                ]);
+            }
         } catch (Exception $e) {
             error_log("SMTP Mail Error: " . $mail->ErrorInfo);
         }
