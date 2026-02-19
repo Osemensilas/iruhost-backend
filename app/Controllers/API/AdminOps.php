@@ -856,7 +856,7 @@ class AdminOps{
 
         try {
             $mail->isSMTP();
-            $mail->Host = 'mail.iruhost.com'; // your SMTP server
+            $mail->Host = 'iruhost.com'; // your SMTP server
             $mail->SMTPAuth = true;
             $mail->Username = 'no-reply@iruhost.com'; // SMTP username
             $mail->Password = 'Onion$101Banks';   // SMTP password
