@@ -828,11 +828,26 @@ class AdminOps{
     }
 
     private function sendAdMsg($message, $subject){
-        echo json_encode([
-            'status' => 'success',
-            'message' => $message,
-            'subject' => $subject
-        ]);
+
+        $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
+        $getUsers->execute(['user']);
+
+        if ($getUsers->rowCount() > 0){
+            $users = $getUsers->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($users as $user){
+                $email = $user['email'];
+                $name = $user['firstname'] . " " . $user['lastname'];
+
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => $message,
+                    'subject' => $subject,
+                    'email' => $email,
+                    'name' => $name
+                ]);
+            }
+        }
     }
 
     private function sendSupportMessage($email, $name, $password) {
