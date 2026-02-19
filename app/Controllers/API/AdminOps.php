@@ -825,6 +825,11 @@ class AdminOps{
             return;
         }
 
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Message sent to clients'
+        ]);
+
         $this->sendAdMsg($message, $subject);
     }
 
