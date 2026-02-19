@@ -850,41 +850,41 @@ class AdminOps{
             }
         }
 
-        $mail = new PHPMailer(true);
+        // $mail = new PHPMailer(true);
 
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'iruhost.com'; // your SMTP server
-            $mail->SMTPAuth = true;
-            $mail->Username = 'no-reply@iruhost.com'; // SMTP username
-            $mail->Password = 'Onion$101Banks';   // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // or ENCRYPTION_SMTPS
-            $mail->Port = 456; // 465 for SSL
+        // try {
+        //     $mail->isSMTP();
+        //     $mail->Host = 'iruhost.com'; // your SMTP server
+        //     $mail->SMTPAuth = true;
+        //     $mail->Username = 'no-reply@iruhost.com'; // SMTP username
+        //     $mail->Password = 'Onion$101Banks';   // SMTP password
+        //     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // or ENCRYPTION_SMTPS
+        //     $mail->Port = 456; // 465 for SSL
 
-            $mail->setFrom('no-reply@iruhost.com', 'Iruap Tech Studio Limited');
-            $mail->addAddress("osemensilas@gmail.com", $name);
+        //     $mail->setFrom('no-reply@iruhost.com', 'Iruap Tech Studio Limited');
+        //     $mail->addAddress("osemensilas@gmail.com", $name);
 
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-            $mail->Body = "
-                <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
-                    <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+        //     $mail->isHTML(true);
+        //     $mail->Subject = $subject;
+        //     $mail->Body = "
+        //         <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+        //             <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
                         
-                        <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>{$subject}</h2>
+        //                 <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>{$subject}</h2>
                         
-                        <p style='color: #333;'>Hello <strong>{$name}</strong>,</p>
+        //                 <p style='color: #333;'>Hello <strong>{$name}</strong>,</p>
 
-                        <p style='color: #333; line-height: 1.6;'>
-                        {$message}
-                        </p>        
-                    </div>
-                </div>
-            ";
+        //                 <p style='color: #333; line-height: 1.6;'>
+        //                 {$message}
+        //                 </p>        
+        //             </div>
+        //         </div>
+        //     ";
 
-            $mail->send();
-        } catch (Exception $e) {
-            error_log("SMTP Mail Error: " . $e->getMessage());
-        }
+        //     $mail->send();
+        // } catch (Exception $e) {
+        //     error_log("SMTP Mail Error: " . $e->getMessage());
+        // }
     }
 
     private function sendSupportMessage($email, $name, $password) {
