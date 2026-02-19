@@ -830,25 +830,26 @@ class AdminOps{
 
     private function sendAdMsg($message, $subject){
 
-        $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
-        $getUsers->execute(['user']);
+        // $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
+        // $getUsers->execute(['user']);
 
-        if ($getUsers->rowCount() > 0){
-            $users = $getUsers->fetchAll(PDO::FETCH_ASSOC);
+        // if ($getUsers->rowCount() > 0){
+        //     $users = $getUsers->fetchAll(PDO::FETCH_ASSOC);
 
-            foreach ($users as $user){
-                $email = $user['email'];
-                $name = $user['name'];
+        //     foreach ($users as $user){
+        //         $email = $user['email'];
+        //         $name = $user['name'];
 
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => $message,
-                    'subject' => $subject,
-                    'email' => $email,
-                    'name' => $name
-                ]);
-            }
-        }
+        //         echo json_encode([
+        //             'status' => 'success',
+        //             'message' => $message,
+        //             'subject' => $subject,
+        //             'email' => $email,
+        //             'name' => $name
+        //         ]);
+        //     }
+        // }
+        $name = "Osemen Silas";
 
         $mail = new PHPMailer(true);
 
@@ -883,7 +884,7 @@ class AdminOps{
 
             $mail->send();
         } catch (Exception $e) {
-            error_log("SMTP Mail Error: " . $e->getMessage());
+            error_log("SMTP Mail Error: " . $mail->ErrorInfo);
         }
     }
 
