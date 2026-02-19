@@ -837,7 +837,7 @@ class AdminOps{
 
             foreach ($users as $user){
                 $email = $user['email'];
-                $name = $user['firstname'] . " " . $user['lastname'];
+                $name = $user['name'];
 
                 echo json_encode([
                     'status' => 'success',
