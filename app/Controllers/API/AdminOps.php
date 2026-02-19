@@ -3,7 +3,7 @@
 namespace App\Controllers\API;
 use App\Core\DB;
 use PDO;
-require 'vendor/autoload.php';
+require '../../../vendor/autoload.php';
 use PHPMailer\PHPMailer\Exception;
 use Resend;
 use Dotenv\Dotenv;
