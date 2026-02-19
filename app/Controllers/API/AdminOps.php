@@ -830,25 +830,17 @@ class AdminOps{
 
     private function sendAdMsg($message, $subject){
 
-        $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
-        $getUsers->execute(['user']);
+        // $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
+        // $getUsers->execute(['user']);
 
-        if ($getUsers->rowCount() > 0){
-            $users = $getUsers->fetchAll(PDO::FETCH_ASSOC);
+        // if ($getUsers->rowCount() > 0){
+        //     $users = $getUsers->fetchAll(PDO::FETCH_ASSOC);
 
-            foreach ($users as $user){
-                $email = $user['email'];
-                $name = $user['name'];
-
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => $message,
-                    'subject' => $subject,
-                    'email' => $email,
-                    'name' => $name
-                ]);
-            }
-        }
+        //     foreach ($users as $user){
+        //         $email = $user['email'];
+        //         $name = $user['name'];
+        //     }
+        // }
 
         $mail = new PHPMailer(true);
 
@@ -862,7 +854,7 @@ class AdminOps{
             $mail->Port = 456; // 465 for SSL
 
             $mail->setFrom('no-reply@iruhost.com', 'Iruap Tech Studio Limited');
-            $mail->addAddress("osemensilas@gmail.com", $name);
+            $mail->addAddress("osemensilas@gmail.com", "Osemen Silas");
 
             $mail->isHTML(true);
             $mail->Subject = $subject;
@@ -872,7 +864,7 @@ class AdminOps{
                         
                         <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>{$subject}</h2>
                         
-                        <p style='color: #333;'>Hello <strong>{$name}</strong>,</p>
+                        <p style='color: #333;'>Hello <strong>Osemen Silas</strong>,</p>
 
                         <p style='color: #333; line-height: 1.6;'>
                         {$message}
