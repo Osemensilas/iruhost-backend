@@ -895,7 +895,10 @@ class AdminOps{
                 ]);
             }
         } catch (Exception $e) {
-            error_log("SMTP Mail Error: " . $mail->ErrorInfo);
+            echo json_encode([
+                'status' => 'error',
+                'message' => "SMTP Mail Error: " . $mail->ErrorInfo,
+            ]);
         }
     }
 
