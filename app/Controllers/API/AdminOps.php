@@ -885,7 +885,9 @@ class AdminOps{
                                 <div style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
                                 Thank you for being a valued member of the <strong>IruHost</strong> community.<br>
                                 Need help? Contact us at <a href='mailto:support@iruhost.com'>support@iruhost.com</a>
-                                <img src='https://iruhost.com/assets/images/logo.png' alt='IruHost Logo' style='display: block; margin: 20px auto; width: 120px;'>
+                                <div class='logo' style='margin-top: 20px; height: max-content; width: 100%; display: flex; justify-content: center; align-items: center;'>
+                                    <img src='https://iruhost.com/logo.png' alt='IruHost Logo' style='display: block; margin: 20px auto; width: 60px; height: 60px; object-fit: contain;'>
+                                </div>
                             </div>
                         </div>
                     ";
