@@ -594,63 +594,53 @@ class CallFlutter {
                 throw new Exception($apiResponse['message']);
             }
 
-            echo json_encode([
-                'username' => $username,
-                'password' => $password,
-                'domain' => $domain,
-                'productName' => $productName,
-                'billing' => $billing,
-                'hostingName' => $hostingName,
-                'userEmail' => $userEmail,
+            //Encrypt password for storage (if needed)
+            $encryptedPassword = openssl_encrypt(
+                $password, 
+                'AES-256-CBC', 
+                $this->encryptionKey, 
+                0, 
+                $this->encryptionIV
+            );
+
+            // Insert hosting details
+            $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
+            $insert = $stmt->execute([
+                $this->userId, 
+                $productId, 
+                $product, 
+                $hostingName, 
+                $billing, 
+                $domain, 
+                $encryptedPassword, 
+                $username, 
+                $expiryDate
+            ]);
+            
+            if (!$insert) {
+                throw new Exception('Error inserting hosting details');
+            }
+
+            $productStmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product_id = ?");
+            $productStmtResult = $productStmt->execute([
+                $username,
+                $this->userId, 
+                $productId
             ]);
 
-            // Encrypt password for storage (if needed)
-            // $encryptedPassword = openssl_encrypt(
-            //     $password, 
-            //     'AES-256-CBC', 
-            //     $this->encryptionKey, 
-            //     0, 
-            //     $this->encryptionIV
-            // );
+            if (!$productStmtResult){
+                throw new Exception('Error updating product url');
+            }
 
-            // // Insert hosting details
-            // $stmt = $this->pdo->prepare("INSERT INTO `hosting`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `password`, `username`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-            // $insert = $stmt->execute([
-            //     $this->userId, 
-            //     $productId, 
-            //     $product, 
-            //     $hostingName, 
-            //     $billing, 
-            //     $domain, 
-            //     $encryptedPassword, 
-            //     $username, 
-            //     $expiryDate
-            // ]);
-            
-            // if (!$insert) {
-            //     throw new Exception('Error inserting hosting details');
-            // }
-
-            // $productStmt = $this->pdo->prepare("UPDATE `products` SET `url`=? WHERE user_id = ? AND product_id = ?");
-            // $productStmtResult = $productStmt->execute([
-            //     $username,
-            //     $this->userId, 
-            //     $productId
-            // ]);
-
-            // if (!$productStmtResult){
-            //     throw new Exception('Error updating product url');
-            // }
-
-            // // Send email notification
-            // $this->sendHostingMessage(
-            //     $apiResponse['username'],
-            //     $password,
-            //     $apiResponse['domain'],
-            //     $apiResponse['ip'],
-            //     $userEmail,
-            //     $clientName
-            // );
+            // Send email notification
+            $this->sendHostingMessage(
+                $apiResponse['username'],
+                $password,
+                $apiResponse['domain'],
+                $apiResponse['ip'],
+                $userEmail,
+                $clientName
+            );
 
             // Commit transaction
             $this->pdo->commit();
