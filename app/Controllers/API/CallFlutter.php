@@ -520,7 +520,7 @@ class CallFlutter {
         $productId = uniqid('prod_');
         $product = 'email';
         $text = 'Manage';
-        $url = "/manage-email?email=$productName";
+        $url = "/manage-email?email=$domain";
         $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
         if ($productName === "Starter"){
             $hostingName = "basic_email";
