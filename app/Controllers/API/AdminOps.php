@@ -820,16 +820,29 @@ class AdminOps{
         $data = json_decode(file_get_contents("php://input"), true);
         $message = htmlspecialchars($data['message']);
         $subject = htmlspecialchars($data['subject']);
+        $url = htmlspecialchars($data['url']);
 
         if (empty($message)){
             echo json_encode(['status' => 'error', 'message' => 'Message field is required']);
             return;
         }
 
-        $this->sendAdMsg($message, $subject);
+        if (empty($subject)){
+            echo json_encode(['status' => 'error', 'message' => 'Subject field is required']);
+            return;
+        }
+
+        $this->sendAdMsg($message, $subject, $url);
     }
 
-    private function sendAdMsg($message, $subject){
+    private function sendAdMsg($message, $subject, $url){
+
+        if (!empty($url)){
+            $message .= "<br><br>Click <a href='{$url}'>here</a> to learn more.";
+        }
+
+        $sentCount = 0;
+        $failedCount = 0;
 
         $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
         $getUsers->execute(['user']);
@@ -867,30 +880,32 @@ class AdminOps{
 
                                 <p style='color: #333; line-height: 1.6;'>
                                 {$message}
-                                </p>        
+                                </p>
+                                
+                                <div style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
+                                Thank you for being a valued member of the <strong>IruHost</strong> community.<br>
+                                Need help? Contact us at <a href='mailto:support@iruhost.com'>support@iruhost.com</a>
+                                <img src='https://iruhost.com/assets/images/logo.png' alt='IruHost Logo' style='display: block; margin: 20px auto; width: 120px;'>
                             </div>
                         </div>
                     ";
 
                     if ($mail->send()){
-                        echo json_encode([
-                            'status' => 'success',
-                            'message' => 'Message sent successfully'
-                        ]);
-                    }else {
-                        echo json_encode([
-                            'status' => 'error',
-                            'message' => 'Failed to send message'
-                        ]);
+                        $sentCount++;
+                    } else {
+                        $failedCount++;
                     }
                 } catch (Exception $e) {
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => "SMTP Mail Error: " . $mail->ErrorInfo,
-                    ]);
+                    $failedCount++;
+                    error_log("SMTP Mail Error to {$email}: " . $mail->ErrorInfo);
                 }
             }
         }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => "Emails processed. Sent: {$sentCount}, Failed: {$failedCount}"
+        ]);
     }
 
     private function sendSupportMessage($email, $name, $password) {
