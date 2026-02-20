@@ -643,14 +643,13 @@ class CallFlutter {
 
             return [
                 'status' => 'success',
-                'message' => 'Hosting account created successfully',
+                'message' => 'Email account created successfully',
                 'data' => [
                     'username' => $apiResponse['username'],
                     'domain' => $apiResponse['domain'],
                     'url' => ""
                 ]
             ];
-
         } catch (Exception $e) {
             // Rollback on error
             $this->pdo->rollBack();
@@ -663,11 +662,6 @@ class CallFlutter {
                 'message' => $e->getMessage()
             ];
         }
-
-        return [
-            'status' => 'success',
-            'message' => 'Email Created'
-        ];
     }
     
     private function regHosting($expiryDate, $productName, $billing, $cartId, $domain, $cText){
