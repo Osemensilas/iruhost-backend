@@ -831,74 +831,65 @@ class AdminOps{
 
     private function sendAdMsg($message, $subject){
 
-        // $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
-        // $getUsers->execute(['user']);
+        $getUsers = $this->pdo->prepare("SELECT * FROM users WHERE role = ?");
+        $getUsers->execute(['user']);
 
-        // if ($getUsers->rowCount() > 0){
-        //     $users = $getUsers->fetchAll(PDO::FETCH_ASSOC);
+        if ($getUsers->rowCount() > 0){
+            $users = $getUsers->fetchAll(PDO::FETCH_ASSOC);
 
-        //     foreach ($users as $user){
-        //         $email = $user['email'];
-        //         $name = $user['name'];
+            foreach ($users as $user){
+                $email = $user['email'];
+                $name = $user['name'];
 
-        //         echo json_encode([
-        //             'status' => 'success',
-        //             'message' => $message,
-        //             'subject' => $subject,
-        //             'email' => $email,
-        //             'name' => $name
-        //         ]);
-        //     }
-        // }
-        $name = "Osemen Silas";
+                $mail = new PHPMailer(true);
 
-        $mail = new PHPMailer(true);
+                try {
+                    $mail->isSMTP();
+                    $mail->Host = 'iruhost.com'; // your SMTP server
+                    $mail->SMTPAuth = true;
+                    $mail->Username = 'noreply@iruhost.com'; // SMTP username
+                    $mail->Password = 'Onion$101Banks';   // SMTP password
+                    $mail->SMTPSecure = 'ssl'; // or ENCRYPTION_SMTPS
+                    $mail->Port = 465; // 465 for SSL
 
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'iruhost.com'; // your SMTP server
-            $mail->SMTPAuth = true;
-            $mail->Username = 'noreply@iruhost.com'; // SMTP username
-            $mail->Password = 'Onion$101Banks';   // SMTP password
-            $mail->SMTPSecure = 'ssl'; // or ENCRYPTION_SMTPS
-            $mail->Port = 465; // 465 for SSL
+                    $mail->setFrom('noreply@iruhost.com', 'IruHost');
+                    $mail->addAddress($email, $name);
 
-            $mail->setFrom('noreply@iruhost.com', 'Iruap Tech Studio Limited');
-            $mail->addAddress("osemensilas@gmail.com", $name);
+                    $mail->isHTML(true);
+                    $mail->Subject = $subject;
+                    $mail->Body = "
+                        <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+                            <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+                                
+                                <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>{$subject}</h2>
+                                
+                                <p style='color: #333;'>Hello <strong>{$name}</strong>,</p>
 
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-            $mail->Body = "
-                <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
-                    <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
-                        
-                        <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>{$subject}</h2>
-                        
-                        <p style='color: #333;'>Hello <strong>{$name}</strong>,</p>
+                                <p style='color: #333; line-height: 1.6;'>
+                                {$message}
+                                </p>        
+                            </div>
+                        </div>
+                    ";
 
-                        <p style='color: #333; line-height: 1.6;'>
-                        {$message}
-                        </p>        
-                    </div>
-                </div>
-            ";
-
-            if ($mail->send()){
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Message sent successfully'
-                ]);
-            }else {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Failed to send message'
-                ]);
+                    if ($mail->send()){
+                        echo json_encode([
+                            'status' => 'success',
+                            'message' => 'Message sent successfully'
+                        ]);
+                    }else {
+                        echo json_encode([
+                            'status' => 'error',
+                            'message' => 'Failed to send message'
+                        ]);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => "SMTP Mail Error: " . $mail->ErrorInfo,
+                    ]);
+                }
             }
-        } catch (Exception $e) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => "SMTP Mail Error: " . $mail->ErrorInfo,
-            ]);
         }
     }
 
