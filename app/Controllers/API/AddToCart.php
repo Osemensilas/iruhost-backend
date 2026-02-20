@@ -268,36 +268,7 @@ class AddToCart {
         $emailProduct = 'Email Registration';
         $emailBilling = 'year';
         $emailDomain = $data['domain'];
-
-        if ($emailName === "Starter" && $currency === "NGN"){
-            $emailPrice = 6000;
-            $emailRenew = 6000;
-        }
-
-        if ($emailName === "Professional" && $currency === "NGN"){
-            $emailPrice = 18000;
-            $emailRenew = 18000;
-        }
-
-        if ($emailName === "Premium" && $currency === "NGN"){
-            $emailPrice = 36000;
-            $emailRenew = 36000;
-        }
-
-        if ($emailName === "Starter" && $currency === "USD"){
-            $emailPrice = 10;
-            $emailRenew = 10;
-        }
-
-        if ($emailName === "Professional" && $currency === "USD"){
-            $emailPrice = 22;
-            $emailRenew = 22;
-        }
-
-        if ($emailName === "Premium" && $currency === "USD"){
-            $emailPrice = 36;
-            $emailRenew = 36;
-        }
+        $emailPrice = $data['amount'] ?? null;
 
         if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
             echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
