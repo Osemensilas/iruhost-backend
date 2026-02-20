@@ -155,36 +155,23 @@ class AddToCart {
         if ($hostingName == "Plus" && $hostingRenew == "month"){
             $renewPrice = 1600;
         }
-
-        echo json_encode([
-            'status' => 'success',
-            'message' => 'Hosting added to cart',
-            'data' => [
-                'product_name' => $hostingName,
-                'amount' => $hostingPrice,
-                'renew' => $renewPrice,
-                'billing' => $hostingRenew,
-                'domain' => $domainName,
-                'currency' => $currency
-            ]
-        ]);
         
-        // $stmt = $this->pdo->prepare("INSERT INTO `cart`
-        //     (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
-        //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        // try{
-        //     $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $renewPrice, $hostingRenew, $domainName, $currency]);
+        $stmt = $this->pdo->prepare("INSERT INTO `cart`
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        try{
+            $stmt->execute([$userId, $productId, $product, $hostingName, $hostingPrice, $renewPrice, $hostingRenew, $domainName, $currency]);
         
-        //     echo json_encode([
-        //         'status' => 'success',
-        //         'message' => 'Hosting added to cart'
-        //     ]);
-        // }catch(Exception $err){
-        //     echo json_encode([
-        //         'status' => 'error',
-        //         'message' => 'Database Error: ' . $err->getMessage()
-        //     ]);
-        // }
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Hosting added to cart'
+            ]);
+        }catch(Exception $err){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Database Error: ' . $err->getMessage()
+            ]);
+        }
     }
 
     private function addOld($userId, $domainName, $hostingName, $hostingPrice, $hostingRenew, $currency) {
