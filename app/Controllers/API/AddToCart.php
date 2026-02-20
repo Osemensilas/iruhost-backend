@@ -140,19 +140,19 @@ class AddToCart {
         $product = "Hosting Registration";
         $renewPrice = $hostingPrice;
 
-        if ($hostingName === "Lite" && $hostingRenew === "month"){
+        if ($hostingName == "Lite" && $hostingRenew == "month"){
             $renewPrice = 500;
         }
 
-        if ($hostingName === "Standard" && $hostingRenew === "month"){
+        if ($hostingName == "Standard" && $hostingRenew == "month"){
             $renewPrice = 850;
         }
 
-        if ($hostingName === "Essential" && $hostingRenew === "month"){
+        if ($hostingName == "Essential" && $hostingRenew    == "month"){
             $renewPrice = 1200;
         }
 
-        if ($hostingName === "Plus" && $hostingRenew === "month"){
+        if ($hostingName == "Plus" && $hostingRenew == "month"){
             $renewPrice = 1600;
         }
         
