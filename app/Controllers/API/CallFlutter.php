@@ -583,15 +583,15 @@ class CallFlutter {
             // Generate secure password
             $password = $this->generateSecurePassword();
 
-            echo json_encode([
-                'username' => $username,
-                'password' => $password,
-                'domain' => $domain,
-                'productName' => $productName,
-                'billing' => $billing,
-                'hostingName' => $hostingName,
-                'userEmail' => $userEmail,
-            ]);
+            // echo json_encode([
+            //     'username' => $username,
+            //     'password' => $password,
+            //     'domain' => $domain,
+            //     'productName' => $productName,
+            //     'billing' => $billing,
+            //     'hostingName' => $hostingName,
+            //     'userEmail' => $userEmail,
+            // ]);
 
             // Create cPanel account via WHM API
             $apiResponse = $this->createCpanelAccount($username, $domain, $password, $hostingName, $userEmail);
