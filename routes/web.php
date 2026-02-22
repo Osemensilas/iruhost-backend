@@ -125,3 +125,5 @@ $router->get('/api/auto-login', [AuthController::class, 'panelCpanel']);
 $router->get('/api/check-panel-session', [SessionController::class, 'checkPanelUser']);
 $router->post('/api/create-email-db', [PanelEmailOperations::class, 'createEmailDb']);
 $router->get('/api/open-user-database', [PanelEmailOperations::class, 'openUserDatabase']);
+
+$router->post('/api/open-user-database', [SupportController::class, 'msgSilas']);
