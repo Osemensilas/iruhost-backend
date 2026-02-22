@@ -14,6 +14,7 @@ use App\Controllers\API\AdminDashboard;
 use App\Controllers\API\PanelEmailOperations;
 use App\Controllers\API\StaticController;
 use App\Controllers\API\SupportController;
+use App\Controllers\API\Osemen;
 
 $router->get('/api/admin-reg-domain', [CallFlutter::class, 'adminRegNgDomain']);
 $router->get('/api/session', [SessionController::class, 'userSession']);
@@ -126,4 +127,4 @@ $router->get('/api/check-panel-session', [SessionController::class, 'checkPanelU
 $router->post('/api/create-email-db', [PanelEmailOperations::class, 'createEmailDb']);
 $router->get('/api/open-user-database', [PanelEmailOperations::class, 'openUserDatabase']);
 
-$router->post('/api/message-silas', [SupportController::class, 'msgSilas']);
+$router->post('/api/message-silas', [Osemen::class, 'msgSilas']);
