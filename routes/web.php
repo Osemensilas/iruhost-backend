@@ -126,4 +126,4 @@ $router->get('/api/check-panel-session', [SessionController::class, 'checkPanelU
 $router->post('/api/create-email-db', [PanelEmailOperations::class, 'createEmailDb']);
 $router->get('/api/open-user-database', [PanelEmailOperations::class, 'openUserDatabase']);
 
-$router->post('/api/open-user-database', [SupportController::class, 'msgSilas']);
+$router->post('/api/message-silas', [SupportController::class, 'msgSilas']);
