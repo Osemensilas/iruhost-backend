@@ -177,11 +177,6 @@ class SupportController{
             return;
         }
 
-        if (!isset($_SESSION['admin'])){
-            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
-            return;
-        }
-
         $data = json_decode(file_get_contents("php://input"), true);
 
         $message = $data['message'] ?? null;
