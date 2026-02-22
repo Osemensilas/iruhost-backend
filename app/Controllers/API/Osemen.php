@@ -24,7 +24,7 @@ class Osemen{
         $data = json_decode(file_get_contents("php://input"), true);
 
         $message = $data['message'] ?? null;
-        $fullName = $data['full_name'] ?? null;
+        $fullName = $data['fullname'] ?? null;
         $email = $data['email'] ?? null;
 
         if (empty($message) || empty($fullName) || empty($email)) {
