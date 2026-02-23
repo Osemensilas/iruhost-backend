@@ -16,6 +16,11 @@ class AdminOps{
     protected $resendApiCode;
     protected $encryptionKey;
     protected $encryptionIV;
+    protected $smtpPassword;
+    protected $smtpUsername;
+    protected $smtpHost;
+    protected $smtpPort;
+    protected $smtpEncryption;
     public function __construct(){
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
         $dotenv->load();
@@ -26,6 +31,12 @@ class AdminOps{
         $this->resend = Resend::client($this->resendApiCode);
         $this->encryptionKey = hash('sha256', $_ENV['ENCRYPTION_KEY']);
         $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
+    
+        $this->smtpHost = $_ENV['SMTP_HOST'] ?? null;
+        $this->smtpPort = $_ENV['SMTP_PORT'] ?? null;
+        $this->smtpUsername = $_ENV['SMTP_USERNAME'] ?? null;
+        $this->smtpPassword = $_ENV['SMTP_PASSWORD'] ?? null;
+        $this->smtpEncryption = $_ENV['SMTP_ENCRYPTION'] ?? null;
     }
 
     public function addBlogs(){
@@ -774,7 +785,7 @@ class AdminOps{
         $permission = 'support';
         $name = $firstname . " " . $lastname;
 
-        $encryptedPassword = password_hash($tempPassword, PASSWORD_BCRYPT);
+        $encryptedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         if (empty($email) || empty($role) || empty($firstname) || empty($lastname)){
             echo json_encode(['status' => 'error', 'message' => 'All field required']);
@@ -911,50 +922,66 @@ class AdminOps{
     }
 
     private function sendSupportMessage($email, $name, $password) {
+        $subject = "Welcome to IruHost Support Team";
+        
+        $mail = new PHPMailer(true);
+
         try {
-            $this->resend->emails->send([
-                'from' => 'Iruap Tech Studio Limited',
-                'to' => $email,
-                'subject' => 'Admin Account Creation',
-                'html' => "
+            $mail->isSMTP();
+            $mail->Host = $this->smtpHost; // your SMTP server
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->smtpUsername; // SMTP username
+            $mail->Password = $this->smtpPassword;   // SMTP password
+            $mail->SMTPSecure = $this->smtpEncryption; // or ENCRYPTION_SMTPS
+            $mail->Port = $this->smtpPort; // 465 for SSL
+
+            $mail->setFrom('noreply@iruhost.com', 'IruHost');
+            $mail->addAddress($email, $name);
+
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body = "
                 <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
-                <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
-                    
-                    <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>Admin Access Granted</h2>
-                    
-                    <p style='color: #333;'>Hello <strong>{$name}</strong>,</p>
-                    
-                    <p style='color: #333; line-height: 1.6;'>
-                    You have been successfully added as an <strong>Administrator</strong> on the IruHost platform.
-                    </p>
+                    <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+                        
+                        <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>Login Notification</h2>
+                        
+                        <p style='color: #333; line-height: 1.6;'>Hello {$name},</p>
+                        <p style='color: #333; line-height: 1.6;'>Your account has been successfully created. You can now make changes to IruHost services. You can login with your email address and the temporary password below.</p>
+                        <p style='color: #333; line-height: 1.6;'>Email: <strong>{$email}</strong></p>
+                        <p style='color: #333; line-height: 1.6;'>Your temporary password is: <strong>{$password}</strong></p>
+                        <p style='color: #333; line-height: 1.6;'>Login to your account at: <a href='https://support.iruhost.com/'>https://support.iruhost.com</a></p>
+                        <p style='color: #333; line-height: 1.6;'>Please log in and change your password immediately for security reasons.</p>
+                        
+                        <p style='color: #333; line-height: 1.6;'>Best regards,<br>
+                        Osemen Silas Oseobonoite<br>
+                        CEO, IruHost
+                        </p>
 
-                    <p style='color: #333; line-height: 1.6;'>
-                    As an admin, you now have access to manage platform content, users, and system-related activities based on the permissions assigned to your account.
-                    </p>
-
-                    <table cellpadding='8' cellspacing='0' style='width:100%; border-collapse: collapse; margin: 20px 0;'>
-                    <tr style='background-color:#f0f4ff;'>
-                        <td style='width:35%; font-weight:bold; color:#333;'>Login URL:</td>
-                        <td><a href='https://support.iruhost.com' style='color:#007bff; text-decoration:none;'>https://support.iruhost.com</a></td>
-                    </tr>
-                    <tr>
-                        <td style='font-weight:bold; color:#333;'>Email:</td>
-                        <td style='color:#555;'>{$email}</td>
-                    </tr>
-                    <tr style='background-color:#f0f4ff;'>
-                        <td style='font-weight:bold; color:#333;'>Password:</td>
-                        <td style='color:#555;'>{$password}</td>
-                    </tr>
-                    </table>
-                    
+                    <div style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
+                        <div class='logo' style='margin-top: 20px; height: max-content; width: 100%; display: flex; justify-content: center; align-items: center;'>
+                            <img src='https://iruhost.com/logo.png' alt='IruHost Logo' style='display: block; margin: 20px auto; width: 60px; height: 60px; object-fit: contain;'>
+                        </div>
+                    </div>
                 </div>
-                </div>
-                "
-            ]);
+            ";
 
-
-        } catch (\Exception $e) {
-            
+            // if ($mail->send()){
+            //     echo json_encode([
+            //         'status' => 'success', 
+            //         'message' => 'Message sent successfully'
+            //     ]);
+            // } else {
+            //     echo json_encode([
+            //         'status' => 'error', 
+            //         'message' => 'Failed to send message'
+            //     ]);
+            // }
+        } catch (Exception $e) {
+            // echo json_encode([
+            //     'status' => 'error', 
+            //     'message' => 'SMTP Mail Error to ' . $email . ': ' . $mail->ErrorInfo
+            // ]);
         }
     }
 
