@@ -23,6 +23,11 @@ class AuthController{
     protected $resendApiCode;
     protected $encryptionKey;
     protected $encryptionIV;
+    protected $smtpPassword;
+    protected $smtpUsername;
+    protected $smtpHost;
+    protected $smtpPort;
+    protected $smtpEncryption;
 
     public function __construct() {
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
@@ -36,6 +41,12 @@ class AuthController{
         $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
 
         $this->resend = Resend::client($this->resendApiCode);
+
+        $this->smtpHost = $_ENV['SMTP_HOST'] ?? null;
+        $this->smtpPort = $_ENV['SMTP_PORT'] ?? null;
+        $this->smtpUsername = $_ENV['SMTP_USERNAME'] ?? null;
+        $this->smtpPassword = $_ENV['SMTP_PASSWORD'] ?? null;
+        $this->smtpEncryption = $_ENV['SMTP_ENCRYPTION'] ?? null;
     }
 
     public function register(){
@@ -272,12 +283,12 @@ class AuthController{
 
         try {
             $mail->isSMTP();
-            $mail->Host = 'iruhost.com'; // your SMTP server
+            $mail->Host = $this->smtpHost; // your SMTP server
             $mail->SMTPAuth = true;
-            $mail->Username = 'noreply@iruhost.com'; // SMTP username
-            $mail->Password = 'Onion$101Banks';   // SMTP password
-            $mail->SMTPSecure = 'ssl'; // or ENCRYPTION_SMTPS
-            $mail->Port = 465; // 465 for SSL
+            $mail->Username = $this->smtpUsername; // SMTP username
+            $mail->Password = $this->smtpPassword;   // SMTP password
+            $mail->SMTPSecure = $this->smtpEncryption; // or ENCRYPTION_SMTPS
+            $mail->Port = $this->smtpPort; // 465 for SSL
 
             $mail->setFrom('noreply@iruhost.com', 'IruHost');
             $mail->addAddress($email, $name);
