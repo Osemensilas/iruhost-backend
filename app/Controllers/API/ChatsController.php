@@ -624,7 +624,7 @@ class ChatsController{
 
         echo json_encode([
             'status' => 'success',
-            'message' => $message
+            'msg' => $message
         ]);
     }
 }
