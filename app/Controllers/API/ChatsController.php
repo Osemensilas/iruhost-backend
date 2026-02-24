@@ -612,6 +612,8 @@ class ChatsController{
 
         $data = json_decode(file_get_contents("php://input"), true);
 
+        print_r($data);
+
         $message = $data['message'] ?? '';
 
         if (empty($message)){
