@@ -605,6 +605,7 @@ class ChatsController{
     }
 
     public function addNewComment(){
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
@@ -612,7 +613,7 @@ class ChatsController{
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        echo $data;
+        print_r($data);
 
         // $message = $data['message'] ?? '';
 
