@@ -603,4 +603,28 @@ class ChatsController{
             error_log("Email sending failed: " . $e->getMessage());
         }
     }
+
+    public function addNewComment(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $message = $data['message'] ?? '';
+
+        if (empty($message)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Message field is required'
+            ]);
+            return;
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => $message
+        ]);
+    }
 }
