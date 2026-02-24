@@ -614,19 +614,19 @@ class ChatsController{
 
         print_r($data);
 
-        $message = $data['message'] ?? '';
+        // $message = $data['message'] ?? '';
 
-        if (empty($message)){
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Message field is required'
-            ]);
-            return;
-        }
+        // if (empty($message)){
+        //     echo json_encode([
+        //         'status' => 'error',
+        //         'message' => 'Message field is required'
+        //     ]);
+        //     return;
+        // }
 
-        echo json_encode([
-            'status' => 'success',
-            'msg' => $message
-        ]);
+        // echo json_encode([
+        //     'status' => 'success',
+        //     'msg' => $message
+        // ]);
     }
 }
