@@ -639,4 +639,33 @@ class ChatsController{
             'msg' => "message added"
         ]);
     }
+
+    public function getComments(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET'){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `general_comments` ORDER BY id DESC");
+        $result = $stmt->execute();
+
+        if (!$result){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Failed to fetch comments'
+            ]);
+            return;
+        }
+
+        $rows = [];
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => $rows
+            ]);
+        }
+    }
 }
