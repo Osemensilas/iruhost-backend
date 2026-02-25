@@ -1124,5 +1124,77 @@ class AdminOps{
                 'message' => 'Failed to send reply'
             ]);
         }
+
+        $message = $this->pdo->prepare("SELECT * FROM general_comments WHERE comment_id = ?");
+        $message->execute([$commentId]);
+
+        if ($message->rowCount() > 0){
+            $messageRow = $message->fetch(PDO::FETCH_ASSOC);
+            $userId = $messageRow['user_id'];
+
+            $getUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+            $getUser->execute([$userId]);
+
+            if ($getUser->rowCount() > 0){
+                $userRow = $getUser->fetch(PDO::FETCH_ASSOC);
+                $email = $userRow['email'];
+                $name = $userRow['name'];
+            }
+        }
+
+        $this->sendCommentEmail($reply, $email, $name);
+    }
+
+    private function sendCommentEmail($message, $email, $name){
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->isSMTP();
+            $mail->Host = $this->smtpHost; // your SMTP server
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->smtpUsername; // SMTP username
+            $mail->Password = $this->smtpPassword;   // SMTP password
+            $mail->SMTPSecure = $this->smtpEncryption; // or ENCRYPTION_SMTPS
+            $mail->Port = $this->smtpPort; // 465 for SSL
+
+            $mail->setFrom('noreply@iruhost.com', 'IruHost');
+            $mail->addAddress($email, $name);
+
+            $mail->isHTML(true);
+            $mail->Subject = "Reply to Your Comment on IruHost";
+            $mail->Body = "
+                <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+                    <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+                        
+                        <p style='color: #333; line-height: 1.6;'>Hello {$name},</p>
+                        <p style='color: #333; line-height: 1.6;'>{$message}</p>
+                        
+                        <div style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
+                        Thank you for being a valued member of the <strong>IruHost</strong> community.<br>
+                        Need help? Contact us at <a href='mailto:support@iruhost.com'>support@iruhost.com</a>
+                        <div class='logo' style='margin-top: 20px; height: max-content; width: 100%; display: flex; justify-content: center; align-items: center;'>
+                            <img src='https://iruhost.com/logo.png' alt='IruHost Logo' style='display: block; margin: 20px auto; width: 60px; height: 60px; object-fit: contain;'>
+                        </div>
+                    </div>
+                </div>
+            ";
+
+            // if ($mail->send()){
+            //     echo json_encode([
+            //         'status' => 'success', 
+            //         'message' => 'Message sent successfully'
+            //     ]);
+            // } else {
+            //     echo json_encode([
+            //         'status' => 'error', 
+            //         'message' => 'Failed to send message'
+            //     ]);
+            // }
+        } catch (Exception $e) {
+            // echo json_encode([
+            //     'status' => 'error', 
+            //     'message' => 'SMTP Mail Error to ' . $email . ': ' . $mail->ErrorInfo
+            // ]);
+        }
     }
 }
