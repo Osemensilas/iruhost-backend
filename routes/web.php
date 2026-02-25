@@ -101,6 +101,7 @@ $router->get('/api/admin-update-chat-status', [AdminOps::class, 'updateChatsStat
 $router->post('/api/close-support-chats', [AdminOps::class, 'closeSupportChat']);
 $router->get('/api/admin-get-comment-tickets', [AdminOps::class, 'getCommentTickets']);
 $router->get('/api/get-user-comments', [AdminOps::class, 'getUserComments']);
+$router->post('/api/reply-user-comments', [AdminOps::class, 'replyUserComments']);
 $router->post('/api/add-tld', [AdminOps::class, 'addTld']);
 $router->post('/api/update-admin-chat', [AdminOps::class, 'updateChats']);
 $router->get('/api/run-migrations', [AdminOps::class, 'updateMigrations']);

@@ -1071,4 +1071,58 @@ class AdminOps{
             ]);
         }
     }
+
+    public function replyUserComments(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $commentId = $data['comment_id'];
+        $reply = htmlspecialchars($data['reply']);
+
+        if (empty($reply)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Reply field is required'
+            ]);
+            return;
+        }
+
+        $getAdmin = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ? AND role = ?");
+        $getAdmin->execute([$this->adminId, 'admin']);
+        
+        if ($getAdmin->rowCount() === 0){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'User not found'
+            ]);
+            return;
+        }
+
+        $adminRow = $getAdmin->fetch(PDO::FETCH_ASSOC);
+        $adminName = $adminRow['name'] ?? 'Admin';
+
+        $stmt = $this->pdo->prepare("UPDATE `general_comments` SET comment_reply = ? WHERE reply_by = ?");
+        $result = $stmt->execute([$reply, $adminName]);
+
+        if ($result){
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Reply sent successfully'
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Failed to send reply'
+            ]);
+        }
+    }
 }
