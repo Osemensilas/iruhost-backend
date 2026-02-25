@@ -606,10 +606,10 @@ class ChatsController{
 
     public function addNewComment(){
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-            return;
-        }
+        // if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        //     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+        //     return;
+        // }
 
         echo json_encode([
             'status' => 'success',
