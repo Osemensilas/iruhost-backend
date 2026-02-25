@@ -606,14 +606,24 @@ class ChatsController{
 
     public function addNewComment(){
 
-        // if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        //     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
-        //     return;
-        // }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $message = htmlspecialchars($_POST['msg'], ENT_QUOTES, 'UTF-8') ?? '';
+
+        if (empty($message)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Message field is required'
+            ]);
+            return;
+        }
 
         echo json_encode([
             'status' => 'success',
-            'message' => 'comment added'
+            'msg' => $message
         ]);
     }
 }
