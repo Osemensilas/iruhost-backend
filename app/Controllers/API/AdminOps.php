@@ -1110,8 +1110,8 @@ class AdminOps{
         $adminRow = $getAdmin->fetch(PDO::FETCH_ASSOC);
         $adminName = $adminRow['name'] ?? 'Admin';
 
-        $stmt = $this->pdo->prepare("UPDATE `general_comments` SET comment_reply = ? WHERE reply_by = ?");
-        $result = $stmt->execute([$reply, $adminName]);
+        $stmt = $this->pdo->prepare("UPDATE `general_comments` SET comment_reply = ?, reply_by = ? WHERE comment_id = ?");
+        $result = $stmt->execute([$reply, $adminName, $commentId]);
 
         if ($result){
             echo json_encode([
