@@ -99,6 +99,7 @@ $router->get('/api/admin-get-support-chats', [AdminOps::class, 'supportChats']);
 $router->post('/api/admin-post-support-message', [AdminOps::class, 'postSupportChats']);
 $router->get('/api/admin-update-chat-status', [AdminOps::class, 'updateChatsStatus']);
 $router->post('/api/close-support-chats', [AdminOps::class, 'closeSupportChat']);
+$router->get('/api/admin-get-comment-tickets', [AdminOps::class, 'getCommentTickets']);
 $router->post('/api/add-tld', [AdminOps::class, 'addTld']);
 $router->post('/api/update-admin-chat', [AdminOps::class, 'updateChats']);
 $router->get('/api/run-migrations', [AdminOps::class, 'updateMigrations']);

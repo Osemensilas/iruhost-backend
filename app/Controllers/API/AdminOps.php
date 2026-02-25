@@ -1011,4 +1011,33 @@ class AdminOps{
 
         return $password;
     }
+
+    public function getCommentTickets(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `general_comments` WHERE comment_reply = ?");
+        $stmt->execute(['']);
+
+        if ($stmt->rowCount() > 0){
+            $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'result' => $tickets
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'No unresolved ticket'
+            ]);
+        }
+    }
 }
