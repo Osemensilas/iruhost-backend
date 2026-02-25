@@ -611,7 +611,9 @@ class ChatsController{
             return;
         }
 
-        $message = htmlspecialchars($_POST['msg'], ENT_QUOTES, 'UTF-8') ?? '';
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $message = htmlspecialchars($data['msg'] ?? '', ENT_QUOTES, 'UTF-8');
 
         if (empty($message)){
             echo json_encode([
