@@ -1040,4 +1040,35 @@ class AdminOps{
             ]);
         }
     }
+
+    public function getUserComments(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['admin'])){
+            echo json_encode(['status' => 'error', 'message' => 'You do not have permission']);
+            return;
+        }
+
+        $commentId = $_GET['comment_id'] ?? null;
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `general_comments` WHERE comment_id = ?");
+        $stmt->execute([$commentId]);
+
+        if ($stmt->rowCount() > 0){
+            $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                'status' => 'success',
+                'result' => $comments
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'No comment found'
+            ]);
+        }
+    }
 }
