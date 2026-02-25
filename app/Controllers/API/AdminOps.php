@@ -1058,7 +1058,7 @@ class AdminOps{
         $stmt->execute([$commentId]);
 
         if ($stmt->rowCount() > 0){
-            $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $comments = $stmt->fetch(PDO::FETCH_ASSOC);
 
             echo json_encode([
                 'status' => 'success',
