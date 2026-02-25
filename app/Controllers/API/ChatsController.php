@@ -669,15 +669,6 @@ class ChatsController{
                 $row['name'] = $userRow['name'] ?? 'User';
             }
 
-            $admin = $this->pdo->prepare("SELECT name FROM admins WHERE id = ?");
-            foreach ($rows as &$row){
-                if (!empty($row['reply_by'])){
-                    $admin->execute([$row['reply_by']]);
-                    $adminRow = $admin->fetch(PDO::FETCH_ASSOC);
-                    $row['reply_name'] = $adminRow['name'] ?? 'Admin';
-                }
-            }
-
             echo json_encode([
                 'status' => 'success',
                 'message' => $rows
