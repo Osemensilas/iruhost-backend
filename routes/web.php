@@ -127,6 +127,6 @@ $router->get('/api/check-panel-session', [SessionController::class, 'checkPanelU
 $router->post('/api/create-email-db', [PanelEmailOperations::class, 'createEmailDb']);
 $router->get('/api/open-user-database', [PanelEmailOperations::class, 'openUserDatabase']);
 
-$router->post('/api/add-new-comment', [ChatsController::class, 'addNewComment']);
+$router->get('/api/add-new-comment', [ChatsController::class, 'addNewComment']);
 
 $router->post('/api/message-silas', [Osemen::class, 'msgSilas']);
