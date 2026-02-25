@@ -623,9 +623,20 @@ class ChatsController{
             return;
         }
 
+        $stmt = $this->pdo->prepare("INSERT INTO `general_comments` (user_id, comment_id, comment, comment_reply, reply_by) VALUES (?, ?, ?, ?, ?)");
+        $result = $stmt->execute([$this->userId, uniqid(), $message, '', '']);
+
+        if (!$result){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Failed to add comment'
+            ]);
+            return;
+        }
+
         echo json_encode([
             'status' => 'success',
-            'msg' => $message
+            'msg' => "message added"
         ]);
     }
 }
