@@ -821,22 +821,20 @@ class UserProducts{
 
     private function createMail($domain, $username, $password, $hostingUsername){
     
-        $cpanelUser = $hostingUsername; // cPanel account username (owner of the domain)
-        $whmRootUser = $this->whmUsername;   // WHM root/admin username
-        $apiToken    = $this->whmApiToken;   // WHM API token
-        $hostname    = $this->whmHostname;   // e.g. server.yourdomain.com
+        $cpanelUser  = $hostingUsername; // cPanel account username (owner of the domain)
+        $whmRootUser = $this->whmUsername;    // WHM root/admin username
+        $apiToken    = $this->whmApiToken;    // WHM API token
+        $hostname    = $this->whmHostname;    // e.g. server.yourdomain.com
 
-        $url = "https://{$hostname}:2087/json-api/cpanel";
+        // UAPI endpoint via WHM proxy
+        $url = "https://{$hostname}:2087/execute/Email/add_pop";
 
         $data = [
-            "cpanel_jsonapi_user"       => $cpanelUser,
-            "cpanel_jsonapi_module"     => "Email",
-            "cpanel_jsonapi_func"       => "add_pop",
-            "cpanel_jsonapi_apiversion" => 2,
-            "email"                     => $username,
-            "domain"                    => $domain,
-            "password"                  => $password,
-            "quota"                     => 1024
+            "cpanel_jsonapi_user" => $cpanelUser,
+            "email"               => $username,
+            "domain"              => $domain,
+            "password"            => $password,
+            "quota"               => 1024
         ];
 
         $ch = curl_init();
@@ -849,8 +847,6 @@ class UserProducts{
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         $response = curl_exec($ch);
-
-        print_r($response);
 
         if (curl_errno($ch)) {
             $curlError = curl_error($ch);
@@ -872,17 +868,14 @@ class UserProducts{
             ];
         }
 
-        $result = $decoded['cpanelresult']['data'][0] ?? null;
-
-        if ($result && isset($result['result']) && $result['result'] === 1) {
+        // UAPI response structure is different from API v2
+        if (isset($decoded['status']) && $decoded['status'] === 1) {
             return [
                 'status'  => 'success',
                 'message' => 'Email account created successfully'
             ];
         } else {
-            $reason = $result['reason'] 
-                ?? $decoded['cpanelresult']['error'] 
-                ?? 'Unknown error from cPanel API';
+            $reason = $decoded['errors'][0] ?? 'Unknown error from cPanel API';
             return [
                 'status'  => 'error',
                 'message' => $reason
