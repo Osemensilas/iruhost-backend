@@ -777,7 +777,7 @@ class UserProducts{
             return;
         }
 
-        $mailToDb = $this->pdo->prepare("INSERT INTO cpanel_email (user_id, email_id, username, domain, password) VALUES (?,?,?,?,?)");
+        $mailToDb = $this->pdo->prepare("INSERT INTO cpanel_emails (user_id, email_id, username, domain, password) VALUES (?,?,?,?,?)");
         $result = $mailToDb->execute([$this->userId, uniqid(), $username, $domain, $encryptedPassword]);
 
         if (!$result){
