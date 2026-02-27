@@ -82,6 +82,7 @@ $router->get('/api/user-hosting', [UserProducts::class, 'hostingList']);
 $router->get('/api/user-email', [UserProducts::class, 'emailList']);
 $router->get('/api/user-ssl', [UserProducts::class, 'sslList']);
 $router->get('/api/user-app', [UserProducts::class, 'appList']);
+$router->post('/api/create-cpanel-mail', [UserProducts::class, 'createCpanelEmail']);
 $router->get('/api/get-iruap-domain', [UserProducts::class, 'getIruapDomain']);
 $router->get('/api/verify-renewal', [UserProducts::class, 'verifyRenewal']);
 $router->get('/api/get-signups', [AdminDashboard::class, 'signUps']);

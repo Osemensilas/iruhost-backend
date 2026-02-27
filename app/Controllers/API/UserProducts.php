@@ -736,4 +736,38 @@ class UserProducts{
             'message' => "Payment verified and renewal processed successfully"
         ]);
     }
+
+    public function createCpanelEmail() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['user'])){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $domain = $data['domain'];
+        $username = $data['username'];
+        $password = $data['password'];
+
+        if (empty($domain) || empty($username) || empty($password)){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'All Fields Required'
+            ]);
+            return;
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'domain' => $domain,
+            'username' => $username,
+            'password' => $password,
+            'message' => 'Email created'
+        ]);
+    }
 }
