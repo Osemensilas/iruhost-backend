@@ -10,9 +10,13 @@ class UserProducts{
 
     protected $userId;
     protected $pdo;
-    protected $nameSiloKey;
     protected $enomUserId;
     protected $enomApiToken;
+    protected $whmUsername;
+    protected $whmApiToken;
+    protected $whmHostname;
+    protected $encryptionKey;
+    protected $encryptionIV;
 
     public function __construct(){
 
@@ -27,7 +31,11 @@ class UserProducts{
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
         $this->userId = $_SESSION['user']['user_id'];
         $this->pdo = DB::connection();
-        $this->nameSiloKey = "3079601359d46e924bfbab85"; 
+        $this->whmUsername = $_ENV['WHM_USERNAME'] ?? null;
+        $this->whmApiToken = $_ENV['WHM_API_TOKEN'] ?? null;
+        $this->whmHostname = $_ENV['WHM_HOST'] ?? null;
+        $this->encryptionKey = hash('sha256', $_ENV['ENCRYPTION_KEY']);
+        $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
     }
 
     public function getDashboardProducts(){
@@ -753,6 +761,13 @@ class UserProducts{
         $domain = $data['domain'];
         $username = $data['username'];
         $password = $data['password'];
+        $encryptedPassword = openssl_encrypt(
+                $password, 
+                'AES-256-CBC', 
+                $this->encryptionKey, 
+                0, 
+                $this->encryptionIV
+            );
 
         if (empty($domain) || empty($username) || empty($password)){
             echo json_encode([
@@ -762,6 +777,19 @@ class UserProducts{
             return;
         }
 
+        $mailToDb = $this->pdo->prepare("INSERT INTO cpanel_email (user_id, email_id, username, domain, password) VALUES (?,?,?,?,?)");
+        $result = $mailToDb->execute([$this->userId, uniqid(), $username, $domain, $encryptedPassword]);
+
+        if (!$result){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Could not create at this time'
+            ]);
+            return;
+        }
+
+        $this->createMail($domain, $username, $password);
+
         echo json_encode([
             'status' => 'success',
             'domain' => $domain,
@@ -769,5 +797,34 @@ class UserProducts{
             'password' => $password,
             'message' => 'Email created'
         ]);
+    }
+
+    private function createMail($domain, $username, $password){
+        
+        $cpanelUser = $this->whmUsername;
+        $apiToken   = $this->whmApiToken;
+
+        $url = "https://{$this->whmHostname}:2083/execute/Email/add_pop";
+
+        $data = [
+            "email" => $username,
+            "domain" => $domain,
+            "password" => $password,
+            "quota" => 1024
+        ];
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url . "?" . http_build_query($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: cpanel $cpanelUser:$apiToken"
+        ]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        echo $response;
     }
 }
