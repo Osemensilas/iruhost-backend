@@ -756,11 +756,22 @@ class UserProducts{
             return;
         }
 
+        $getHosting = $this->pdo->prepare("SELECT * FROM `hosting` WHERE user_id = ?");
+        $getHosting->execute([$this->userId]);
+
+        if ($getHosting->rowCount() < 1){
+            echo json_encode(['status' => 'error', 'message' => 'Account do not exist']);
+            return;
+        }
+
+        $hostRow = $getHosting->fetch();
+
         $data = json_decode(file_get_contents("php://input"), true);
 
         $domain = $data['domain'];
         $username = $data['username'];
         $password = $data['password'];
+        $hostingUsername = $hostRow['username'];
         $encryptedPassword = openssl_encrypt(
                 $password, 
                 'AES-256-CBC', 
@@ -769,7 +780,7 @@ class UserProducts{
                 $this->encryptionIV
             );
 
-        if (empty($domain) || empty($username) || empty($password)){
+        if (empty($domain) || empty($username) || empty($password) || empty($hostingUsername)){
             echo json_encode([
                 'status' => 'error',
                 'message' => 'All Fields Required'
@@ -777,9 +788,14 @@ class UserProducts{
             return;
         }
 
-        $emailResponse = $this->createMail($domain, $username, $password);
+        $emailResponse = $this->createMail($domain, $username, $password, $hostingUsername);
         $email_status = $emailResponse['status'] ?? 'unknown';
         $email_message = $emailResponse['message'] ?? 'unknown';
+
+        echo json_encode([
+            'status' => $email_status,
+            'message' => $email_message
+        ]);
 
         if ($email_status === "success"){
             $mailToDb = $this->pdo->prepare("INSERT INTO cpanel_emails (user_id, email_id, username, domain, password) VALUES (?,?,?,?,?)");
@@ -803,22 +819,24 @@ class UserProducts{
         }
     }
 
-    private function createMail($domain, $username, $password){
-        
-        $cpanelUser = $this->whmUsername;
-        $apiToken   = $this->whmApiToken;
+    private function createMail($domain, $username, $password, $hostingUsername){
+    
+        $cpanelUser = $hostingUsername; // cPanel account username (owner of the domain)
+        $whmRootUser = $this->whmUsername;   // WHM root/admin username
+        $apiToken    = $this->whmApiToken;   // WHM API token
+        $hostname    = $this->whmHostname;   // e.g. server.yourdomain.com
 
-        $url = "https://{$this->whmHostname}:2087/json-api/cpanel";
+        $url = "https://{$hostname}:2087/json-api/cpanel";
 
         $data = [
-            "cpanel_jsonapi_user"    => $cpanelUser,  // the cPanel account username
-            "cpanel_jsonapi_module"  => "Email",
-            "cpanel_jsonapi_func"    => "add_pop",
+            "cpanel_jsonapi_user"       => $cpanelUser,
+            "cpanel_jsonapi_module"     => "Email",
+            "cpanel_jsonapi_func"       => "add_pop",
             "cpanel_jsonapi_apiversion" => 2,
-            "email"    => $username,
-            "domain"   => $domain,
-            "password" => $password,
-            "quota"    => 1024
+            "email"                     => $username,
+            "domain"                    => $domain,
+            "password"                  => $password,
+            "quota"                     => 1024
         ];
 
         $ch = curl_init();
@@ -826,25 +844,47 @@ class UserProducts{
         curl_setopt($ch, CURLOPT_URL, $url . "?" . http_build_query($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: whm root:{$apiToken}"  // WHM root token
+            "Authorization: whm {$whmRootUser}:{$apiToken}"
         ]);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            $curlError = curl_error($ch);
+            curl_close($ch);
+            return [
+                'status'  => 'error',
+                'message' => 'cURL error: ' . $curlError
+            ];
+        }
+
         curl_close($ch);
 
-        echo $response;
+        $decoded = json_decode($response, true);
 
-        if ($response === "success"){
+        if (json_last_error() !== JSON_ERROR_NONE) {
             return [
-                'status' => 'success',
-                'message' => 'email created'
+                'status'  => 'error',
+                'message' => 'Invalid JSON response from cPanel API'
             ];
-        }else{
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'could not create at this time'
-            ]);
+        }
+
+        $result = $decoded['cpanelresult']['data'][0] ?? null;
+
+        if ($result && isset($result['result']) && $result['result'] === 1) {
+            return [
+                'status'  => 'success',
+                'message' => 'Email account created successfully'
+            ];
+        } else {
+            $reason = $result['reason'] 
+                ?? $decoded['cpanelresult']['error'] 
+                ?? 'Unknown error from cPanel API';
+            return [
+                'status'  => 'error',
+                'message' => $reason
+            ];
         }
     }
 }
