@@ -777,26 +777,30 @@ class UserProducts{
             return;
         }
 
-        $mailToDb = $this->pdo->prepare("INSERT INTO cpanel_emails (user_id, email_id, username, domain, password) VALUES (?,?,?,?,?)");
-        $result = $mailToDb->execute([$this->userId, uniqid(), $username, $domain, $encryptedPassword]);
+        $emailResponse = $this->createMail($domain, $username, $password);
+        $email_status = $emailResponse['status'] ?? 'unknown';
+        $email_message = $emailResponse['message'] ?? 'unknown';
 
-        if (!$result){
+        if ($email_status === "success"){
+            $mailToDb = $this->pdo->prepare("INSERT INTO cpanel_emails (user_id, email_id, username, domain, password) VALUES (?,?,?,?,?)");
+            $result = $mailToDb->execute([$this->userId, uniqid(), $username, $domain, $encryptedPassword]);
+
+            if (!$result){
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Could not create at this time'
+                ]);
+                return;
+            }
+
             echo json_encode([
-                'status' => 'error',
-                'message' => 'Could not create at this time'
+                'status' => 'success',
+                'domain' => $domain,
+                'username' => $username,
+                'password' => $password,
+                'message' => 'Email created'
             ]);
-            return;
         }
-
-        $this->createMail($domain, $username, $password);
-
-        echo json_encode([
-            'status' => 'success',
-            'domain' => $domain,
-            'username' => $username,
-            'password' => $password,
-            'message' => 'Email created'
-        ]);
     }
 
     private function createMail($domain, $username, $password){
@@ -826,5 +830,17 @@ class UserProducts{
         curl_close($ch);
 
         echo $response;
+
+        if ($response === "success"){
+            return [
+                'status' => 'success',
+                'message' => 'email created'
+            ];
+        }else{
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'could not create at this time'
+            ]);
+        }
     }
 }
