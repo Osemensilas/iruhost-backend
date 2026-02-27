@@ -850,6 +850,8 @@ class UserProducts{
 
         $response = curl_exec($ch);
 
+        print_r($response);
+
         if (curl_errno($ch)) {
             $curlError = curl_error($ch);
             curl_close($ch);
