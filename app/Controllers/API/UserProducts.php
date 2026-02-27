@@ -808,13 +808,17 @@ class UserProducts{
         $cpanelUser = $this->whmUsername;
         $apiToken   = $this->whmApiToken;
 
-        $url = "https://{$this->whmHostname}:2083/execute/Email/add_pop";
+        $url = "https://{$this->whmHostname}:2087/json-api/cpanel";
 
         $data = [
-            "email" => $username,
-            "domain" => $domain,
+            "cpanel_jsonapi_user"    => $cpanelUser,  // the cPanel account username
+            "cpanel_jsonapi_module"  => "Email",
+            "cpanel_jsonapi_func"    => "add_pop",
+            "cpanel_jsonapi_apiversion" => 2,
+            "email"    => $username,
+            "domain"   => $domain,
             "password" => $password,
-            "quota" => 1024
+            "quota"    => 1024
         ];
 
         $ch = curl_init();
@@ -822,7 +826,7 @@ class UserProducts{
         curl_setopt($ch, CURLOPT_URL, $url . "?" . http_build_query($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: cpanel $cpanelUser:$apiToken"
+            "Authorization: whm root:{$apiToken}"  // WHM root token
         ]);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
