@@ -756,8 +756,21 @@ class UserProducts{
             return;
         }
 
-        $getHosting = $this->pdo->prepare("SELECT * FROM `hosting` WHERE user_id = ?");
-        $getHosting->execute([$this->userId]);
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $domain = $data['domain'];
+        $username = $data['username'];
+        $password = $data['password'];
+        $encryptedPassword = openssl_encrypt(
+                $password, 
+                'AES-256-CBC', 
+                $this->encryptionKey, 
+                0, 
+                $this->encryptionIV
+            );
+
+        $getHosting = $this->pdo->prepare("SELECT * FROM `hosting` WHERE domain = ? AND product = ?");
+        $getHosting->execute([$domain, "Email hosting"]);
 
         if ($getHosting->rowCount() < 1){
             echo json_encode(['status' => 'error', 'message' => 'Account do not exist']);
@@ -766,19 +779,7 @@ class UserProducts{
 
         $hostRow = $getHosting->fetch();
 
-        $data = json_decode(file_get_contents("php://input"), true);
-
-        $domain = $data['domain'];
-        $username = $data['username'];
-        $password = $data['password'];
         $hostingUsername = $hostRow['username'];
-        $encryptedPassword = openssl_encrypt(
-                $password, 
-                'AES-256-CBC', 
-                $this->encryptionKey, 
-                0, 
-                $this->encryptionIV
-            );
 
         if (empty($domain) || empty($username) || empty($password) || empty($hostingUsername)){
             echo json_encode([
