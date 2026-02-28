@@ -826,8 +826,16 @@ class UserProducts{
         $apiToken    = $this->whmApiToken;    // WHM API token
         $hostname    = $this->whmHostname;    // e.g. server.yourdomain.com
 
+
+        echo json_encode([
+            "cpanel user" => $hostingUsername,
+            "whmRootUser" => $whmRootUser,
+            "api_token" => $apiToken,
+            "hostname" => $hostname
+        ]);
+
         // UAPI endpoint via WHM proxy
-        $url = "https://{$hostname}:2087/execute/Email/add_pop";
+        $url = "https://{$hostname}:2087/json-api/cpanel";
 
         $data = [
             "cpanel_jsonapi_user" => $cpanelUser,
