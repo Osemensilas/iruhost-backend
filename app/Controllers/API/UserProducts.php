@@ -836,7 +836,7 @@ class UserProducts{
         ]);
 
         // UAPI endpoint via WHM proxy
-        $url = "https://{$hostname}:2087/json-api/cpanel";
+        $url = "https://{$hostname}:2087/cpsess{$apiToken}/execute/Email/add_pop";
 
         $data = [
             "cpanel_jsonapi_user" => $cpanelUser,
