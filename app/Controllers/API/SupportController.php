@@ -69,7 +69,7 @@ class SupportController{
 
         $row = $stmt->fetch();
 
-        if($row['premission'] === 'support'){
+        if($row['permission'] === 'support'){
             if (!password_verify($password, $row['password'])){
                 echo json_encode([
                     'status' => 'error',
