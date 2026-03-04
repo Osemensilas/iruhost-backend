@@ -56,36 +56,37 @@ class SupportController{
         }
 
         $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ? AND role = ?");
-        $stmt->execute([$email, 'support']);
+        $stmt->execute([$email, 'admin']);
 
-        if ($stmt->rowCount() > 0){
-            $row = $stmt->fetch();
+        if ($stmt->rowCount() < 1){
 
-            if($row['role'] === 'support'){
-                if (!password_verify($password, $row['password'])){
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Incorrect password'
-                    ]);
-                    return;
-                }else{
-                    $_SESSION['admin'] = [
-                        'user_id' => $row['user_id'],
-                        'name' => $row['name'],
-                        'email' => $email,
-                    ];
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'You do not have permission'
+            ]);
+            return;
+        }
 
-                    echo json_encode([
-                        'status' => 'success',
-                        'message' => 'valid admin'
-                    ]);
-                }
-            }else{
+        $row = $stmt->fetch();
+
+        if($row['premission'] === 'support'){
+            if (!password_verify($password, $row['password'])){
                 echo json_encode([
                     'status' => 'error',
-                    'message' => 'You do not have permission'
+                    'message' => 'Incorrect password'
                 ]);
                 return;
+            }else{
+                $_SESSION['admin'] = [
+                    'user_id' => $row['user_id'],
+                    'name' => $row['name'],
+                    'email' => $email,
+                ];
+
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'valid admin'
+                ]);
             }
         }else{
             echo json_encode([

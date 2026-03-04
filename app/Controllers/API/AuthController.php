@@ -650,6 +650,14 @@ class AuthController{
 
         $row = $stmt->fetch();
 
+        if ($row['permission'] !== "all"){
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'You do not have permission'
+            ]);
+            return;
+        }
+
         if (!password_verify($password, $row['password'])){
             echo json_encode([
                 'status' => 'error',
