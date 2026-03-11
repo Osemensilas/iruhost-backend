@@ -971,17 +971,14 @@ class AdminOps{
                 </div>
             ";
 
-            // if ($mail->send()){
-            //     echo json_encode([
-            //         'status' => 'success', 
-            //         'message' => 'Message sent successfully'
-            //     ]);
-            // } else {
-            //     echo json_encode([
-            //         'status' => 'error', 
-            //         'message' => 'Failed to send message'
-            //     ]);
-            // }
+            if ($mail->send()){
+                
+            } else {
+                echo json_encode([
+                    'status' => 'error', 
+                    'message' => 'Failed to send message'
+                ]);
+            }
         } catch (Exception $e) {
             // echo json_encode([
             //     'status' => 'error', 
@@ -1185,22 +1182,19 @@ class AdminOps{
                 </div>
             ";
 
-            // if ($mail->send()){
-            //     echo json_encode([
-            //         'status' => 'success', 
-            //         'message' => 'Message sent successfully'
-            //     ]);
-            // } else {
-            //     echo json_encode([
-            //         'status' => 'error', 
-            //         'message' => 'Failed to send message'
-            //     ]);
-            // }
+            if ($mail->send()){
+                
+            } else {
+                echo json_encode([
+                    'status' => 'error', 
+                    'message' => 'Failed to send message'
+                ]);
+            }
         } catch (Exception $e) {
-            // echo json_encode([
-            //     'status' => 'error', 
-            //     'message' => 'SMTP Mail Error to ' . $email . ': ' . $mail->ErrorInfo
-            // ]);
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'SMTP Mail Error to ' . $email . ': ' . $mail->ErrorInfo
+            ]);
         }
     }
 
@@ -1249,13 +1243,6 @@ class AdminOps{
                 $product = $ex['product'];
                 $productName = $ex['product_name'];
             }
-            echo json_encode([
-                'host' => $this->smtpHost,
-                'username' => $this->smtpUsername,
-                'password' => $this->smtpPassword,
-                'port' => $this->smtpPort,
-                'encrypt' => $this->smtpEncryption
-            ]);
 
             $mail = new PHPMailer(true);
 
