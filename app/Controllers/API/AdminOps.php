@@ -32,17 +32,17 @@ class AdminOps{
         $this->encryptionKey = hash('sha256', $_ENV['ENCRYPTION_KEY']);
         $this->encryptionIV = substr(hash('sha256', $_ENV['ENCRYPTION_IV']), 0, 16);
     
-        // <!-- $this->smtpHost = $_ENV['SMTP_HOST'] ?? null;
-        // $this->smtpPort = $_ENV['SMTP_PORT'] ?? null;
-        // $this->smtpUsername = $_ENV['SMTP_USERNAME'] ?? null;
-        // $this->smtpPassword = $_ENV['SMTP_PASSWORD'] ?? null;
-        // $this->smtpEncryption = $_ENV['SMTP_ENCRYPTION'] ?? null; -->
+        $this->smtpHost = $_ENV['SMTP_HOST'] ?? null;
+        $this->smtpPort = $_ENV['SMTP_PORT'] ?? null;
+        $this->smtpUsername = $_ENV['SMTP_USERNAME'] ?? null;
+        $this->smtpPassword = $_ENV['SMTP_PASSWORD'] ?? null;
+        $this->smtpEncryption = $_ENV['SMTP_ENCRYPTION'] ?? null;
 
-        $this->smtpHost = "iruhost.com";
-        $this->smtpPort = 465;
-        $this->smtpUsername = "noreply@iruhost.com";
-        $this->smtpPassword = "Onion$101Banks";
-        $this->smtpEncryption = "ssl";
+        // $this->smtpHost = "iruhost.com";
+        // $this->smtpPort = 465;
+        // $this->smtpUsername = "noreply@iruhost.com";
+        // $this->smtpPassword = "Onion$101Banks";
+        // $this->smtpEncryption = "ssl";
     }
 
     public function addBlogs(){
@@ -1249,7 +1249,13 @@ class AdminOps{
                 $product = $ex['product'];
                 $productName = $ex['product_name'];
             }
-            print_r($user);
+            echo json_encode([
+                'host' => $this->smtpHost,
+                'username' => $this->smtpUsername,
+                'password' => $this->smtpPassword,
+                'port' => $this->smtpPort,
+                'encrypt' => $this->smtpEncryption
+            ]);
 
             $mail = new PHPMailer(true);
 
