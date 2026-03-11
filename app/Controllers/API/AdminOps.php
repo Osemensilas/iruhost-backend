@@ -1240,8 +1240,86 @@ class AdminOps{
 
                 $email = $user['email'];
                 $name = $user['name'];
+                $product = $ex['product'];
+                $productName = $ex['product_name'];
             }
             print_r($user);
+
+            $mail = new PHPMailer(true);
+
+            try {
+                $mail->isSMTP();
+                $mail->Host = $this->smtpHost; // your SMTP server
+                $mail->SMTPAuth = true;
+                $mail->Username = $this->smtpUsername; // SMTP username
+                $mail->Password = $this->smtpPassword;   // SMTP password
+                $mail->SMTPSecure = $this->smtpEncryption; // or ENCRYPTION_SMTPS
+                $mail->Port = $this->smtpPort; // 465 for SSL
+
+                $mail->setFrom('noreply@iruhost.com', 'IruHost');
+                $mail->addAddress($email, $name);
+
+                $mail->isHTML(true);
+                $mail->Subject = "Service Expiration Notice";
+                $mail->Body = "
+                    <div style='font-family: Arial, sans-serif; background-color: #f6f8fb; padding: 30px;'>
+                        <div style='max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px;'>
+
+                            <h2 style='color: #1a1a1a; text-align: center; margin-bottom: 20px;'>Service Expiration Notice</h2>
+
+                            <p style='color: #333; line-height: 1.6;'>Hello {$name},</p>
+
+                            <p style='color: #333; line-height: 1.6;'>
+                            This is a friendly reminder that one of your {$product} services with <strong>IruHost</strong> is about to expire.
+                            To avoid service interruption, please renew your service before the expiration date.
+                            </p>
+
+                            <p style='color: #333; line-height: 1.6;'>
+                            You can log in to your client portal to review your services and complete the renewal.
+                            </p>
+
+                            <p style='color: #333; line-height: 1.6;'>
+                            Client Portal: 
+                            <a href='https://support.iruhost.com/' style='color:#2b6cb0;'>https://support.iruhost.com/</a>
+                            </p>
+
+                            <p style='color: #333; line-height: 1.6;'>
+                            If you have already renewed your service, please disregard this message.
+                            </p>
+
+                            <p style='color: #333; line-height: 1.6;'>
+                            Best regards,<br>
+                            Osemen Silas Oseobonoite<br>
+                            CEO, IruHost
+                            </p>
+
+                            <div style='text-align:center; color:#777; font-size:13px; margin-top:30px;'>
+                                <div style='margin-top:20px; display:flex; justify-content:center; align-items:center;'>
+                                    <img src='https://iruhost.com/logo.png' alt='IruHost Logo' style='display:block; margin:20px auto; width:60px; height:60px; object-fit:contain;'>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                ";
+
+                // if ($mail->send()){
+                //     echo json_encode([
+                //         'status' => 'success', 
+                //         'message' => 'Message sent successfully'
+                //     ]);
+                // } else {
+                //     echo json_encode([
+                //         'status' => 'error', 
+                //         'message' => 'Failed to send message'
+                //     ]);
+                // }
+            } catch (Exception $e) {
+                // echo json_encode([
+                //     'status' => 'error', 
+                //     'message' => 'SMTP Mail Error to ' . $email . ': ' . $mail->ErrorInfo
+                // ]);
+            }
         }
     }
 }
