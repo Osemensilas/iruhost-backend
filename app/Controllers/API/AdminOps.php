@@ -1212,13 +1212,20 @@ class AdminOps{
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            print_r($rows);
-
             foreach($rows as $row){
                 $expiryDate = $row['expiry_date'];
                 $twoWeeksBefore = date('Y-m-d', strtotime('-2 weeks', strtotime($expiryDate)));
             
                 $now = date('Y-m-d');
+
+                if ($now >= $twoWeeksBefore) {
+                    $expiring[] = $row;
+                }
+
+                echo json_encode([
+                    'status' => 'success',
+                    'products' => $expiring,
+                ]);
             }
         }
     }
