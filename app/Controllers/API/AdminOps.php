@@ -1229,7 +1229,19 @@ class AdminOps{
 
     private function expiringMessage($expiring){
         foreach($expiring as $ex){
-            print_r($ex);
+
+            $userId = $ex['user_id'];
+
+            $getUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+            $getUser->execute([$userId]);
+
+            if ($getUser->rowCount() > 0){
+                $user = $getUser->fetch(PDO::FETCH_ASSOC);
+
+                $email = $user['email'];
+                $name = $user['name'];
+            }
+            print_r($user);
         }
     }
 }
