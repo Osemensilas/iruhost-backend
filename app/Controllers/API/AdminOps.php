@@ -1221,12 +1221,12 @@ class AdminOps{
                 if ($now >= $twoWeeksBefore) {
                     $expiring[] = $row;
                 }
-
-                echo json_encode([
-                    'status' => 'success',
-                    'products' => $expiring,
-                ]);
             }
+
+            echo json_encode([
+                'status' => 'success',
+                'products' => $expiring,
+            ]);
         }
     }
 }
