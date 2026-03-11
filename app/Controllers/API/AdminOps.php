@@ -1223,10 +1223,13 @@ class AdminOps{
                 }
             }
 
-            echo json_encode([
-                'status' => 'success',
-                'products' => $expiring,
-            ]);
+            $this->expiringMessage($expiring);
+        }
+    }
+
+    private function expiringMessage($expiring){
+        foreach($expiring as $ex){
+            print_r($ex);
         }
     }
 }
