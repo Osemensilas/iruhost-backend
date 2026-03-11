@@ -135,3 +135,5 @@ $router->post('/api/add-new-comment', [ChatsController::class, 'addNewComment'])
 $router->get('/api/get-comments', [ChatsController::class, 'getComments']);
 
 $router->post('/api/message-silas', [Osemen::class, 'msgSilas']);
+
+$router->get('/api/auto-expiring', [AdminOps::class, 'autoExpiring']);

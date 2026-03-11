@@ -1197,4 +1197,29 @@ class AdminOps{
             // ]);
         }
     }
+
+    public function autoExpiring(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("SELECT * FROM `products`");
+        $stmt->execute();
+
+        $expiring = [];
+
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            print_r($rows);
+
+            foreach($rows as $row){
+                $expiryDate = $row['expiry_date'];
+                $twoWeeksBefore = date('Y-m-d', strtotime('-2 weeks', strtotime($expiryDate)));
+            
+                $now = date('Y-m-d');
+            }
+        }
+    }
 }
