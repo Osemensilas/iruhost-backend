@@ -1271,7 +1271,10 @@ class AdminOps{
 
     private function expiringMessage($expiring){
 
-        foreach($expiring['product'] as $ex){
+        foreach($expiring as $ex){
+
+            $userId = $ex['product']['user_id'];
+            $period = $ex['period'];
 
             $userId = $ex['user_id'];
 
@@ -1283,31 +1286,31 @@ class AdminOps{
 
                 $email = $user['email'];
                 $name = $user['name'];
-                $product = $ex['product'];
-                $productName = $ex['product_name'];
+                $product = $ex['product']['product'];
+                $productName = $ex['product']['product_name'];
             }
 
-            if ($expiring['period'] === "two weeks"){
+            if ($period === "two weeks"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> is approaching its expiration date.";
             }
 
-            if ($expiring['period'] === "today"){
+            if ($period === "today"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> is expires today.";
             }
 
-            if ($expiring['period'] === "one day"){
+            if ($period === "one day"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. This is a first day grace period before service is suspended.";
             }
 
-            if ($expiring['period'] === "two days"){
+            if ($period === "two days"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. This is a second day grace period before service is suspended.";
             }
 
-            if ($expiring['period'] === "three days"){
+            if ($period === "three days"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. This is a third day grace period before service is suspended.";
             }
 
-            if ($expiring['period'] === "expired"){
+            if ($period === "expired"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. You service is suspended. To reactivate your service, intiate payment.";
             }
 
