@@ -1208,7 +1208,6 @@ class AdminOps{
         $stmt->execute();
 
         $expiring = [];
-        $expiredPeriod = "";
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
