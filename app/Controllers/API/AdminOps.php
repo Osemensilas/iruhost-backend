@@ -1208,6 +1208,7 @@ class AdminOps{
         $stmt->execute();
 
         $expiring = [];
+        $expiredPeriod = "";
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1215,11 +1216,52 @@ class AdminOps{
             foreach($rows as $row){
                 $expiryDate = $row['expiry_date'];
                 $twoWeeksBefore = date('Y-m-d', strtotime('-2 weeks', strtotime($expiryDate)));
+                $expiryDatePlusOneDay   = date('Y-m-d H:i:s', strtotime($expiryDate . ' +1 day'));
+                $expiryDatePlusTwoDays  = date('Y-m-d H:i:s', strtotime($expiryDate . ' +2 days'));
+                $expiryDatePlusThreeDays = date('Y-m-d H:i:s', strtotime($expiryDate . ' +3 days'));
             
                 $now = date('Y-m-d');
 
-                if ($now >= $twoWeeksBefore) {
-                    $expiring[] = $row;
+                if ($now > $twoWeeksBefore) {
+                    $expiring[] = [
+                        'product' => $row,
+                        'period' => "two weeks"
+                    ];
+                }
+
+                if ($now === $expiryDate){
+                    $expiring[] = [
+                        'product' => $row,
+                        'period' => "today"
+                    ];
+                }
+
+                if ($now === $expiryDatePlusOneDay){
+                    $expiring[] = [
+                        'product' => $row,
+                        'period' => "one day"
+                    ];
+                }
+
+                if ($now === $expiryDatePlusTwoDays){
+                    $expiring[] = [
+                        'product' => $row,
+                        'period' => "two days"
+                    ];
+                }
+
+                if ($now === $expiryDatePlusThreeDays){
+                    $expiring[] = [
+                        'product' => $row,
+                        'period' => "three days"
+                    ];
+                }
+
+                if ($now > $expiryDatePlusThreeDays){
+                    $expiring[] = [
+                        'product' => $row,
+                        'period' => "expired"
+                    ];
                 }
             }
 
@@ -1228,7 +1270,8 @@ class AdminOps{
     }
 
     private function expiringMessage($expiring){
-        foreach($expiring as $ex){
+
+        foreach($expiring['product'] as $ex){
 
             $userId = $ex['user_id'];
 
@@ -1242,6 +1285,30 @@ class AdminOps{
                 $name = $user['name'];
                 $product = $ex['product'];
                 $productName = $ex['product_name'];
+            }
+
+            if ($expiring['period'] === "two weeks"){
+                $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> is approaching its expiration date.";
+            }
+
+            if ($expiring['period'] === "today"){
+                $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> is expires today.";
+            }
+
+            if ($expiring['period'] === "one day"){
+                $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. This is a first day grace period before service is suspended.";
+            }
+
+            if ($expiring['period'] === "two days"){
+                $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. This is a second day grace period before service is suspended.";
+            }
+
+            if ($expiring['period'] === "three days"){
+                $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. This is a third day grace period before service is suspended.";
+            }
+
+            if ($expiring['period'] === "expired"){
+                $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. You service is suspended. To reactivate your service, intiate payment.";
             }
 
             $mail = new PHPMailer(true);
@@ -1269,7 +1336,7 @@ class AdminOps{
                             <p style='color: #333; line-height: 1.6;'>Hello {$name},</p>
 
                             <p style='color: #333; line-height: 1.6;'>
-                                We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> is approaching its expiration date.
+                                {$composedMessage}
                             </p>
 
                             <p style='color: #333; line-height: 1.6;'>
