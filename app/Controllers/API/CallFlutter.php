@@ -639,7 +639,8 @@ class CallFlutter {
                 $apiResponse['domain'],
                 $apiResponse['ip'],
                 $userEmail,
-                $clientName
+                $clientName,
+                $whmCreated = false
             );
 
             // Commit transaction
@@ -763,6 +764,18 @@ class CallFlutter {
                 throw new Exception('Error updating product url');
             }
 
+            if ($productName === "reseller_growth" || $productName === "reseller_starter"
+            || $productName === "reseller_pro" || $productName === "reseller_enterprise"
+            ){
+                $createWHMResponse = $this->converToWHM($username);
+            }
+
+            if ($createWHMResponse['success']) {
+                $whmCreate = true;
+            }else{
+                $whmCreate = false;
+            }
+
             // Send email notification
             $this->sendHostingMessage(
                 $apiResponse['username'],
@@ -770,7 +783,8 @@ class CallFlutter {
                 $apiResponse['domain'],
                 $apiResponse['ip'],
                 $userEmail,
-                $clientName
+                $clientName,
+                $whmCreate
             );
 
             // Commit transaction
@@ -798,6 +812,41 @@ class CallFlutter {
                 'message' => $e->getMessage()
             ];
         }
+    }
+
+    private function converToWHM($username){
+        $server = "https://{$this->whmHostname}:2087/json-api/setupreseller";
+
+        $query = http_build_query([
+            "user" => $username
+        ]);
+
+        $curl = curl_init();
+
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_URL, $server . "?" . $query);
+
+        $headers = [
+            "Authorization: whm {$this->whmUsername}:{$this->whmApiToken}"
+        ];
+
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $result = json_decode($response, true);
+
+        if (!isset($result['metadata']['result']) || $result['metadata']['result'] != 1) {
+            throw new Exception("Failed to convert account to reseller");
+        }
+
+        return [
+            'status' => 'success'
+        ];
     }
 
     public function adminRegNgDomain(){
@@ -1022,7 +1071,8 @@ class CallFlutter {
             $apiResponse['domain'],
             $apiResponse['ip'],
             $userEmail,
-            $clientName
+            $clientName,
+            $whmCreated = false
         );
 
         // Commit transaction
@@ -1172,7 +1222,20 @@ class CallFlutter {
         return $password;
     }
 
-    private function sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName){
+    private function sendHostingMessage($usernameCreated, $password, $domainCreated, $ipAddress, $userEmail, $clientName, $whmCreated){
+        
+        $whmInfo = "";
+
+        if ($whmCreated === true){
+            $whmInfo = "
+            <p style='color:#333; line-height:1.6; margin-top:15px;'>
+            <strong>Reseller Access Enabled:</strong><br>
+            Your account has also been granted WHM reseller access.<br>
+            WHM Login: <a href='https://{$this->whmHostname}:2087'>https://{$this->whmHostname}:2087</a>
+            </p>
+            ";
+        }
+    
         try {
             $this->resend->emails->send([
                 'from' => 'IruHost <contact@iruhost.com>',
@@ -1190,7 +1253,7 @@ class CallFlutter {
                     Your hosting account for <strong style='color:#0056b3;'>{$domainCreated}</strong> has been successfully set up.
                     You can now log in to your cPanel to manage your website, emails, and files using the details below:
                     </p>
-                    
+                    {$whmInfo}
                     <table cellpadding='8' cellspacing='0' style='width:100%; border-collapse: collapse; margin: 20px 0;'>
                     <tr style='background-color:#f0f4ff;'>
                         <td style='width:35%; font-weight:bold; color:#333;'>Login URL:</td>
