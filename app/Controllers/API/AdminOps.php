@@ -37,12 +37,6 @@ class AdminOps{
         $this->smtpUsername = $_ENV['SMTP_USERNAME'] ?? null;
         $this->smtpPassword = $_ENV['SMTP_PASSWORD'] ?? null;
         $this->smtpEncryption = $_ENV['SMTP_ENCRYPTION'] ?? null;
-
-        // $this->smtpHost = "iruhost.com";
-        // $this->smtpPort = 465;
-        // $this->smtpUsername = "noreply@iruhost.com";
-        // $this->smtpPassword = "Onion$101Banks";
-        // $this->smtpEncryption = "ssl";
     }
 
     public function addBlogs(){
