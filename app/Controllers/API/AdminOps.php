@@ -1277,7 +1277,6 @@ class AdminOps{
             $userId = $ex['product']['user_id'];
             $period = $ex['period'];
 
-            $userId = $ex['user_id'];
 
             $getUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
             $getUser->execute([$userId]);
