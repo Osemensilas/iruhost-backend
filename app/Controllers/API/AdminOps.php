@@ -1221,7 +1221,7 @@ class AdminOps{
             
                 $now = date('Y-m-d');
 
-                if ($now > $twoWeeksBefore && $now < $expiryDate){ {
+                if ($now > $twoWeeksBefore && $now < $expiryDate) {
                     $expiring[] = [
                         'product' => $row,
                         'period' => "two weeks"
