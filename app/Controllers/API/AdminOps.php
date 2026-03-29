@@ -1270,12 +1270,14 @@ class AdminOps{
 
     private function expiringMessage($expiring){
 
-        print_r($expiring);
-
         foreach($expiring as $ex){
 
             $userId = $ex['product']['user_id'];
             $period = $ex['period'];
+
+            if ($period === "expired"){
+                $this->suspendService($ex['product']['product_id']);
+            }
 
 
             $getUser = $this->pdo->prepare("SELECT * FROM users WHERE user_id = ?");
@@ -1388,5 +1390,10 @@ class AdminOps{
                 ]);
             }
         }
+    }
+
+    private function suspendService($productId){
+        $stmt = $this->pdo->prepare("UPDATE products SET status = ? WHERE product_id = ?");
+        $stmt->execute(['suspended', $productId]);
     }
 }
