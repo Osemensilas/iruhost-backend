@@ -1270,8 +1270,6 @@ class AdminOps{
 
     private function expiringMessage($expiring){
 
-        print_r($expiring);
-
         foreach($expiring as $ex){
 
             $userId = $ex['product']['user_id'];
