@@ -1387,7 +1387,6 @@ class AdminOps{
     }
 
     private function suspendService($productId){
-        $stmt = $this->pdo->prepare("UPDATE products SET status = ? WHERE product_id = ?");
-        $stmt->execute(['suspended', $productId]);
+        echo "Suspending service with ID: {$productId}\n";
     }
 }
