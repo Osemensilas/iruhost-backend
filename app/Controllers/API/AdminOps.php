@@ -1290,26 +1290,51 @@ class AdminOps{
 
             if ($period === "two weeks"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> is approaching its expiration date.";
-            }
+                    echo json_encode([
+                        'status' => 'success', 
+                        'message' => $composedMessage
+                    ]);
+                }
 
             if ($period === "today"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> is expires today.";
+                    echo json_encode([
+                        'status' => 'success', 
+                        'message' => $composedMessage
+                    ]);
+                }
             }
 
             if ($period === "one day"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. This is a first day grace period before service is suspended.";
+                echo json_encode([
+                    'status' => 'success', 
+                    'message' => $composedMessage
+                ]);
             }
 
             if ($period === "two days"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. This is a second day grace period before service is suspended.";
+                echo json_encode([
+                    'status' => 'success', 
+                    'message' => $composedMessage
+                ]);
             }
 
             if ($period === "three days"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. This is a third day grace period before service is suspended.";
+                echo json_encode([
+                    'status' => 'success', 
+                    'message' => $composedMessage
+                ]);
             }
 
             if ($period === "expired"){
                 $composedMessage = "We wanted to let you know that your <strong>{$product}</strong> ({$productName}) service with <strong>IruHost</strong> has expired. You service is suspended. To reactivate your service, intiate payment.";
+                echo json_encode([
+                    'status' => 'success', 
+                    'message' => $composedMessage
+                ]);
             }
 
             $mail = new PHPMailer(true);
