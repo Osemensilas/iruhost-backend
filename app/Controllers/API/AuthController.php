@@ -781,7 +781,7 @@ class AuthController{
             $image = '';
         }
 
-        if (empty($description)){
+        if (empty($_FILES['image']['name'])){
             echo "Description Empty";
         }
 
