@@ -781,6 +781,10 @@ class AuthController{
             $image = '';
         }
 
+        if (empty($description)){
+            echo "Description Empty";
+        }
+
         if (empty($category) || empty($price) || empty($webName) || empty($description) || empty($_FILES['image']['name'])){
             echo json_encode(['status' => 'error', 'message' => 'All field required']);
             return;
