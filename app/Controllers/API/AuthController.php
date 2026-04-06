@@ -199,12 +199,12 @@ class AuthController{
 
         try {
             $mail->isSMTP();
-            $mail->Host = $this->smtpHost; // your SMTP server
+            $mail->Host = $this->smtpHost;
             $mail->SMTPAuth = true;
-            $mail->Username = $this->smtpUsername; // SMTP username
-            $mail->Password = $this->smtpPassword;   // SMTP password
-            $mail->SMTPSecure = $this->smtpEncryption; // or ENCRYPTION_SMTPS
-            $mail->Port = $this->smtpPort; // 465 for SSL
+            $mail->Username = $this->smtpUsername;
+            $mail->Password = $this->smtpPassword;
+            $mail->SMTPSecure = $this->smtpEncryption;
+            $mail->Port = $this->smtpPort;
 
             $mail->setFrom('noreply@iruhost.com', 'IruHost');
             $mail->addAddress($email, $name);
@@ -787,9 +787,9 @@ class AuthController{
 
         if ($_FILES['image']['name']) {
             $uploadDir = __DIR__ . "../../../../public/uploads/";
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
+            // if (!is_dir($uploadDir)) {
+            //     mkdir($uploadDir, 0777, true);
+            // }
 
             $filename = time() . "_" . basename($_FILES['image']['name']);
             $targetFile = $uploadDir . $filename;
