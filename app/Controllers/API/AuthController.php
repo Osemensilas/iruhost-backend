@@ -773,7 +773,8 @@ class AuthController{
         $category = htmlspecialchars($_POST['category'] ?? '', ENT_QUOTES, 'UTF-8');
         $price = htmlspecialchars($_POST['price'] ?? '', ENT_QUOTES, 'UTF-8');
         $webName = htmlspecialchars($_POST['webName'] ?? '', ENT_QUOTES, 'UTF-8');
-        $description = htmlspecialchars($_POST['description'] ?? '', ENT_QUOTES, 'UTF-8');
+        $allowedTags = '<p><br><b><strong><i><em><u><ol><ul><li><h1><h2><h3><h4><h5><h6><blockquote><code><pre><a>';
+        $description = htmlspecialchars($_POST['description'] ?? '', $allowedTags);
         $image = null;
 
         if (!$image) {
