@@ -974,10 +974,10 @@ class AdminOps{
                 ]);
             }
         } catch (Exception $e) {
-            // echo json_encode([
-            //     'status' => 'error', 
-            //     'message' => 'SMTP Mail Error to ' . $email . ': ' . $mail->ErrorInfo
-            // ]);
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'SMTP Mail Error to ' . $email . ': ' . $mail->ErrorInfo
+            ]);
         }
     }
 

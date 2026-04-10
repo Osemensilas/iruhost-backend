@@ -893,4 +893,18 @@ class UserProducts{
             ];
         }
     }
+
+    public function userCurrency(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['user'])){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+            return;
+        }
+
+        echo $_SESSION['user'];
+    }
 }

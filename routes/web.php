@@ -137,3 +137,5 @@ $router->get('/api/get-comments', [ChatsController::class, 'getComments']);
 $router->post('/api/message-silas', [Osemen::class, 'msgSilas']);
 
 $router->get('/api/auto-expiring', [AdminOps::class, 'autoExpiring']);
+
+$router->get('/api/get-user-currency', [UserProduct::class, 'userCurrency']);
