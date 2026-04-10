@@ -905,6 +905,24 @@ class UserProducts{
             return;
         }
 
-        echo $_SESSION['user'];
+        $getUserCurrency = $this->pdo->prepare("SELECT * FROM user_currency WHERE user_id = ?");
+        $getUserCurrency->execute([$this->userId]);
+
+        if ($getUserCurrency->rowCount() < 1){
+            echo json_encode([
+                'status' => 'success',
+                'currency' => 'NGN',
+                'message' => 'No currency data'
+            ]);
+            return;
+        }
+
+        $row = $getUserCurrency->fetch();
+
+        echo json_encode([
+            'status' => 'success',
+            'currency' => $row['currency'],
+            'message' => 'Currency data available'
+        ]);
     }
 }
