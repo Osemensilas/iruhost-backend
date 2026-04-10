@@ -29,7 +29,7 @@ class UserProducts{
 
         $this->enomUserId = $_ENV['ENOM_USER_ID'] ?? null;
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
-        $this->userId = $_SESSION['user']['user_id'];
+        $this->userId = $_SESSION['user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
         $this->pdo = DB::connection();
         $this->whmUsername = $_ENV['WHM_USERNAME'] ?? null;
         $this->whmApiToken = $_ENV['WHM_API_TOKEN'] ?? null;
