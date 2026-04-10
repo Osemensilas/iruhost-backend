@@ -138,4 +138,4 @@ $router->post('/api/message-silas', [Osemen::class, 'msgSilas']);
 
 $router->get('/api/auto-expiring', [AdminOps::class, 'autoExpiring']);
 
-$router->get('/api/get-user-currency', [UserProduct::class, 'userCurrency']);
+$router->get('/api/get-user-currency', [UserProducts::class, 'userCurrency']);
