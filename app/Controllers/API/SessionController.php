@@ -184,11 +184,13 @@ class SessionController{
             $row = $stmt->fetch();
 
             $stack = json_decode($row['stack'], true);
+            $features = json_decode($row['features'], true);
 
             echo json_encode([
                 'status' => 'success',
                 'result' => $row,
-                'stack' =>  $stack
+                'stack' =>  $stack,
+                'features' => $features
             ]);
         }
     }
