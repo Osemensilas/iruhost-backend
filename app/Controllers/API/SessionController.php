@@ -169,6 +169,17 @@ class SessionController{
         }
     }
 
+    public function webApp(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $productId = $_GET['productId'] ?? null;
+
+        echo $productId;
+    }
+
     public function getSingleWeb(){
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);

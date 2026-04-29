@@ -22,6 +22,7 @@ $router->get('/api/session-data', [SessionController::class, 'userData']);
 $router->get('/api/session-address', [SessionController::class, 'userAddress']);
 $router->get('/api/acct-bal', [SessionController::class, 'acctBal']);
 $router->post('/api/get-websites', [SessionController::class, 'webList']);
+$router->get('/api/get-web-app', [SessionController::class, 'webApp']);
 $router->post('/api/get-websites-all', [SessionController::class, 'webListAll']);
 $router->post('/api/get-single-website', [SessionController::class, 'getSingleWeb']);
 $router->post('/api/register', [AuthController::class, 'register']);
