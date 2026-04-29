@@ -337,7 +337,7 @@ class AddToCart {
 
             $cartId = uniqid('prod_');
             $currency = "NGN";
-            $renew = null;
+            $renew = 0;
 
             $stmt = $this->pdo->prepare("SELECT * FROM `cart` WHERE domain = ? AND user_id = ?");
             $stmt->execute([$data['website'], $this->userId]);
