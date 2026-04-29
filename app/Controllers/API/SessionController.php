@@ -177,7 +177,17 @@ class SessionController{
 
         $productId = $_GET['productId'] ?? null;
 
-        echo $productId;
+        $stmt = $this->pdo->prepare("SELECT * FROM `websites` WHERE web_id = ?");
+        $stmt->execute([$productId]);
+
+        if ($stmt->rowCount() > 0){
+            $row = $stmt->fetch();
+
+            echo json_encode([
+                'status' => 'success',
+                'result' => $row
+            ]);
+        }
     }
 
     public function getSingleWeb(){
