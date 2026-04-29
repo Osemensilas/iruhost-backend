@@ -336,13 +336,14 @@ class AddToCart {
             $website = $stmt->fetch();
 
             $cartId = uniqid('prod_');
+            $currency = "NGN";
 
             $stmt = $this->pdo->prepare("SELECT * FROM `cart` WHERE domain = ? AND user_id = ?");
             $stmt->execute([$data['website'], $this->userId]);
         
             if (!$stmt->rowCount() > 0){
-                $stmt = $this->pdo->prepare("INSERT INTO `cart`(`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`) VALUES (?,?,?,?,?,?,?,?)");
-                $stmt->execute([$this->userId, $cartId, 'Web application', 'web app', $website['price'], '', '', $data['website']]);
+                $stmt = $this->pdo->prepare("INSERT INTO `cart`(`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`) VALUES (?,?,?,?,?,?,?,?,?)");
+                $stmt->execute([$this->userId, $cartId, 'Web application', 'web app', $website['price'], '', '', $data['website'], $currency]);
 
                 echo json_encode([
                     'status' => 'success',
