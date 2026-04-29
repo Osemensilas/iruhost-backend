@@ -183,9 +183,12 @@ class SessionController{
         if ($stmt->rowCount() > 0){
             $row = $stmt->fetch();
 
+            $row['stack'] = json_decode($row['stack'], true);
+
             echo json_encode([
                 'status' => 'success',
-                'result' => $row
+                'result' => $row,
+                'stack' => json_decode($row['stack'], true)
             ]);
         }
     }
