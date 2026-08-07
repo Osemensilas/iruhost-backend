@@ -276,7 +276,7 @@ class AddToCart {
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        print($data);
+        print_r($data);
 
         $emailName = $data['package'];
         $currency = "NGN";
