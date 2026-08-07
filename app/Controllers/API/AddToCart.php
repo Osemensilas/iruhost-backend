@@ -285,8 +285,8 @@ class AddToCart {
         $emailProduct = 'Email Registration';
         $emailBilling = 'year';
         $emailDomain = "";
-        $emailPrice = $data['price'] ?? null;
-        $emailRenew = $data['price'] ?? null;
+        $emailPrice = $data['price']['price'] ?? null;
+        $emailRenew = $data['price']['price'] ?? null;
 
         echo json_encode([
             "package" => $emailName,
