@@ -276,8 +276,6 @@ class AddToCart {
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        print_r($data);
-
         $emailName = $data['package'];
         $currency = "NGN";
         $emailDuration = 1;
@@ -287,6 +285,18 @@ class AddToCart {
         $emailDomain = "";
         $emailPrice = $data['amount'] ?? null;
         $emailRenew = $data['amount'] ?? null;
+
+        echo json_encode([
+            "package" => $emailName,
+            "currency" => $currency,
+            "duration" => $emailDuration,
+            "id" => $emailId,
+            "product" => $emailProduct,
+            "billing" => $emailBilling,
+            "domain" => $emailDomain,
+            "price" => $emailPrice,
+            "renewPrice" => $emailRenew,
+        ]);
 
         // if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
         //     echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
