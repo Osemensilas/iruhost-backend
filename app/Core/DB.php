@@ -15,10 +15,10 @@ class DB {
             $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
             $dotenv->load();
 
-            $hostname = "localhost";
-            $username = "iruhost_osemen";
-            $password = "Bank$101Onion";
-            $dbname   = "iruhost_iruhost";
+            $hostname = $_ENV['DB_HOST'];
+            $username = $_ENV['DB_USERNAME'];
+            $password = $_ENV['DB_PASSWORD'];
+            $dbname   = $_ENV['DB_DATABASE'];
 
             try {
                 // Connect without specifying database
