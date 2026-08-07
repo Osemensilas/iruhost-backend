@@ -204,7 +204,7 @@ class CartItems {
                     if ($row['product'] == 'SSL Registration'){
                         $totalSslPrice += round($row['amount'], 2);
                     }else{
-                        if ($row['product'] == 'Email Registrations'){
+                        if ($row['product'] == 'Email Registration'){
                             $totalEmailPrice += round($row['amount'], 2);
                         }else{
                             if ($row['product'] == 'Hosting Registration'){
