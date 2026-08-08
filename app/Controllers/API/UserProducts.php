@@ -1103,9 +1103,11 @@ class UserProducts{
 
         $domain = $_GET['domain'] ?? null;
 
-        echo $domain;
+        $mailboxes = $this->getMailboxesByDomain($domain);
 
-        //$this->getMailboxesByDomain($domain);
+        foreach ($mailboxes as $mailbox) {
+            echo $mailbox['username'] . '<br>';
+        }
     }
 
     private function createMailCowMailBox(
