@@ -1091,7 +1091,7 @@ class UserProducts{
     }
 
     public function fetchEmailAccount(){
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
             return;
         }
@@ -1104,6 +1104,8 @@ class UserProducts{
         $domain = $_GET['domain'] ?? null;
 
         echo $domain;
+
+        //$this->getMailboxesByDomain($domain);
     }
 
     private function createMailCowMailBox(
@@ -1176,5 +1178,44 @@ class UserProducts{
             'message' => 'Mailbox created',
             'response' => $result
         ];
+    }
+
+    private function getMailboxesByDomain(string $domain): array
+    {
+        $mailCowUrl = $this->mailCowUrl;
+        $apiKey = $this->mailcowApi;
+
+        $ch = curl_init(
+            $mailCowUrl . '/api/v1/get/mailbox/all/' . urlencode($domain)
+        );
+
+        curl_setopt_array($ch, [
+            CURLOPT_HTTPGET => true,
+            CURLOPT_HTTPHEADER => [
+                'X-API-Key: ' . $apiKey
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30
+        ]);
+
+        $response = curl_exec($ch);
+
+        if ($response === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            throw new Exception($error);
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        if ($httpCode < 200 || $httpCode >= 300) {
+            throw new Exception(
+                'Mailcow returned HTTP ' . $httpCode
+            );
+        }
+
+        return json_decode($response, true) ?? [];
     }
 }
