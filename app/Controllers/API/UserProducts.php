@@ -944,12 +944,14 @@ class UserProducts{
         $getProduct = $this->pdo->prepare("SELECT * FROM `products` WHERE product_id = ?");
         $getProduct->execute([$productId]);
 
-        if ($getProduct > 0){
-            $rows = $getProduct->fetch(PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ?");
+        $stmt->execute([$this->userId]);
 
-            print_r($rows);
+        if ($stmt->rowCount() > 0){
+            $rows = $stmt->fetchAll();
         }
 
         print_r($data);
+        print_r($rows);
     }
 }
