@@ -1071,7 +1071,8 @@ class UserProducts{
                 $productId,
                 $emailId,
                 $username,
-                $domain
+                $domain,
+                $password
             ]);
 
             echo json_encode([
