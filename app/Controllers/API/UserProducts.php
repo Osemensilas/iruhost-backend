@@ -1090,6 +1090,22 @@ class UserProducts{
         }
     }
 
+    public function fetchEmailAccount(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        if (!isset($_SESSION['user'])){
+            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+            return;
+        }
+
+        $domain = $_GET['domain'] ?? null;
+
+        echo $domain;
+    }
+
     private function createMailCowMailBox(
         string $domain,
         string $localPart,
