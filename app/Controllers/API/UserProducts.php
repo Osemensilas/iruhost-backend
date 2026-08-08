@@ -944,23 +944,23 @@ class UserProducts{
         $stmt->execute([$this->userId, $productId]);
 
         if ($stmt->rowCount() > 0){
-            $rows = $stmt->fetchAll();
-        }
+            $rows = $stmt->fetch();
 
-        if ($rows['product_name'] == "Starter"){
-            $allowedMailboxes = 1;
-        }
+            if ($rows['product_name'] == "Starter"){
+                $allowedMailboxes = 1;
+            }
 
-        if ($rows['product_name'] == "Professional"){
-            $allowedMailboxes = 5;
-        }
+            if ($rows['product_name'] == "Professional"){
+                $allowedMailboxes = 5;
+            }
 
-        if ($rows['product_name'] == "Premium"){
-            $allowedMailboxes = 10;
-        }
+            if ($rows['product_name'] == "Premium"){
+                $allowedMailboxes = 10;
+            }
 
-        if ($rows['product_name'] == "Enterprise"){
-            $allowedMailboxes = 30;
+            if ($rows['product_name'] == "Enterprise"){
+                $allowedMailboxes = 30;
+            }
         }
 
         print_r($data);
