@@ -941,8 +941,8 @@ class UserProducts{
 
         $userId = $this->userId;
 
-        $getProduct = $this->pdo->prepare("SELECT * FROM `products` WHERE product_id = ? AND user_id = ?");
-        $getProduct->execute([$productId, $userId]);
+        $getProduct = $this->pdo->prepare("SELECT * FROM `products` WHERE product_id = ?");
+        $getProduct->execute([$productId]);
 
         if ($getProduct > 0){
             $rows = $getProduct->fetch(PDO::FETCH_ASSOC);
