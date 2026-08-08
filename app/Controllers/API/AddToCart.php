@@ -278,39 +278,39 @@ class AddToCart {
 
         print_r($data);
 
-        // $emailName = $data['package'];
-        // $currency = "NGN";
-        // $emailDuration = 1;
-        // $emailId = uniqid("email_");
-        // $emailProduct = 'Email Registration';
-        // $emailBilling = 'year';
-        // $emailDomain = "";
-        // $emailPrice = $data['price']['price'] ?? null;
-        // $emailRenew = $data['price']['price'] ?? null;
+        $emailName = $data['package'];
+        $currency = "NGN";
+        $emailDuration = 1;
+        $emailId = uniqid("email_");
+        $emailProduct = 'Email Registration';
+        $emailBilling = 'year';
+        $emailDomain = $data['domain'];
+        $emailPrice = $data['amount'] ?? null;
+        $emailRenew = $data['amount'] ?? null;
 
-        // if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
-        //     echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
-        //     return;
-        // }
+        if (!$emailName || !$emailPrice || !$emailRenew || !$emailDuration) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing Email details']);
+            return;
+        }
 
 
-        // $stmt = $this->pdo->prepare("INSERT INTO `cart`
-        //     (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
-        //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $this->pdo->prepare("INSERT INTO `cart`
+            (`user_id`, `cart_id`, `product`, `product_name`, `amount`, `renew`, `billing`, `domain`, `currency`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         
-        // try {
-        //     $stmt->execute([$this->userId, $emailId, $emailProduct, $emailName, $emailPrice, $emailRenew, $emailBilling, $emailDomain, $currency]);
+        try {
+            $stmt->execute([$this->userId, $emailId, $emailProduct, $emailName, $emailPrice, $emailRenew, $emailBilling, $emailDomain, $currency]);
             
-        //     echo json_encode([
-        //         'status' => 'success',
-        //         'mesage' => 'Email added to cart'
-        //     ]);
-        // } catch (Exception $err) {
-        //     echo json_encode([
-        //         'status' => 'error',
-        //         'message' => 'Database Error: ' . $err->getMessage()
-        //     ]);
-        // }
+            echo json_encode([
+                'status' => 'success',
+                'mesage' => 'Email added to cart'
+            ]);
+        } catch (Exception $err) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Database Error: ' . $err->getMessage()
+            ]);
+        }
     }
 
     public function addWebsite(){
