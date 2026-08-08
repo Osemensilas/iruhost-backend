@@ -131,4 +131,20 @@ class PanelEmailOperations{
             'link' => $link
         ]);
     }
+
+    public function createEmailAccount(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $username = $data["username"] ?? "";
+        $domain   = $data["domain"] ?? "";
+        $password = $data["password"] ?? "";
+        $productId = $data["id"] ?? "";
+
+        print_r($data);
+    }
 }
