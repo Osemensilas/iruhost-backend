@@ -947,19 +947,19 @@ class UserProducts{
             $rows = $stmt->fetchAll();
         }
 
-        if ($rows['product_name'] === "Starter"){
+        if ($rows['product_name'] == "Starter"){
             $allowedMailboxes = 1;
         }
 
-        if ($rows['product_name'] === "Professional"){
+        if ($rows['product_name'] == "Professional"){
             $allowedMailboxes = 5;
         }
 
-        if ($rows['product_name'] === "Premium"){
+        if ($rows['product_name'] == "Premium"){
             $allowedMailboxes = 10;
         }
 
-        if ($rows['product_name'] === "Enterprise"){
+        if ($rows['product_name'] == "Enterprise"){
             $allowedMailboxes = 30;
         }
 
