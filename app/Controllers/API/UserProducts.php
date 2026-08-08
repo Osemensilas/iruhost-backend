@@ -945,10 +945,10 @@ class UserProducts{
         $getProduct->execute([$productId, $userId]);
 
         if ($getProduct > 0){
-            $rows = $getProduct->fetch();
-        }
+            $rows = $getProduct->fetch(PDO::FETCH_ASSOC);
 
-        print_r($data);
-        print_r($rows);
+            print_r($data);
+            print_r($rows);
+        }
     }
 }
