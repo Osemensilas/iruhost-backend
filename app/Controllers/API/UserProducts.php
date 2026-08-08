@@ -938,6 +938,7 @@ class UserProducts{
         $domain   = $data["domain"] ?? "";
         $password = $data["password"] ?? "";
         $productId = $data["id"] ?? "";
+        $allowedMailboxes = 0;
 
         $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ? AND product_id = ?");
         $stmt->execute([$this->userId, $productId]);
@@ -946,7 +947,24 @@ class UserProducts{
             $rows = $stmt->fetchAll();
         }
 
+        if ($rows['product_name'] === "Starter"){
+            $allowedMailboxes = 1;
+        }
+
+        if ($rows['product_name'] === "Professional"){
+            $allowedMailboxes = 5;
+        }
+
+        if ($rows['product_name'] === "Premium"){
+            $allowedMailboxes = 10;
+        }
+
+        if ($rows['product_name'] === "Enterprise"){
+            $allowedMailboxes = 30;
+        }
+
         print_r($data);
         print_r($rows);
+        echo $allowedMailboxes;
     }
 }
