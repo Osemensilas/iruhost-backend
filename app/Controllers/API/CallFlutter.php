@@ -552,10 +552,10 @@ class CallFlutter {
             ];
         }
 
-        echo json_encode([
+        return [
             "status" => "success",
             "message" => "Email added to products"
-        ]);
+        ];
     }
     
     private function regHosting($expiryDate, $productName, $billing, $cartId, $domain, $cText){
