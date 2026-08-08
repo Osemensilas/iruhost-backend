@@ -1050,20 +1050,26 @@ class UserProducts{
             /*
             * Save mailbox in your database
             */
+            $emailId = uniqid("email_");
+            $password = password_hash($password, PASSWORD_BCRYPT);
+
             $insert = $this->pdo->prepare("
                 INSERT INTO iruap_professional_mails
                 (
                     user_id,
                     product_id,
-                    username,
-                    domain
+                    email_id,
+                    mailbox,
+                    domain,
+                    password
                 )
-                VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, ?,?,?)
             ");
 
             $insert->execute([
                 $this->userId,
                 $productId,
+                $emailId,
                 $username,
                 $domain
             ]);
