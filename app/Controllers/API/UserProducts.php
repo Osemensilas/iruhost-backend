@@ -947,8 +947,9 @@ class UserProducts{
         if ($getProduct > 0){
             $rows = $getProduct->fetch(PDO::FETCH_ASSOC);
 
-            print_r($data);
             print_r($rows);
         }
+
+        print_r($data);
     }
 }
