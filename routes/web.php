@@ -131,6 +131,7 @@ $router->get('/api/auto-login', [AuthController::class, 'panelCpanel']);
 $router->get('/api/check-panel-session', [SessionController::class, 'checkPanelUser']);
 $router->post('/api/create-email-db', [PanelEmailOperations::class, 'createEmailDb']);
 $router->get('/api/open-user-database', [PanelEmailOperations::class, 'openUserDatabase']);
+$router->post('/api/create-mailcow-mail', [PanelEmailOperations::class, 'createEmailAccount']);
 
 $router->post('/api/add-new-comment', [ChatsController::class, 'addNewComment']);
 $router->get('/api/get-comments', [ChatsController::class, 'getComments']);
