@@ -9,7 +9,7 @@ return function ($pdo){
             email_id VARCHAR(36) NOT NULL,
             mailbox VARCHAR(50) NOT NULL,
             domain VARCHAR(50) NOT NULL,
-            password VARCHAR(50) NOT NULL,
+            password VARCHAR(100) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ");
