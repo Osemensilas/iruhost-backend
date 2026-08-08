@@ -943,7 +943,7 @@ class UserProducts{
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $username  = trim($data['username'] ?? '');
+        $username  = trim($data['mailbox'] ?? '');
         $domain    = trim($data['domain'] ?? '');
         $password  = $data['password'] ?? '';
         $productId = $data['id'] ?? '';
