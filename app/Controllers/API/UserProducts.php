@@ -939,13 +939,8 @@ class UserProducts{
         $password = $data["password"] ?? "";
         $productId = $data["id"] ?? "";
 
-        $userId = $this->userId;
-
-        $getProduct = $this->pdo->prepare("SELECT * FROM `products` WHERE product_id = ?");
-        $getProduct->execute([$productId]);
-
-        $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ?");
-        $stmt->execute([$this->userId]);
+        $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ? AND product_id = ?");
+        $stmt->execute([$this->userId, $productId]);
 
         if ($stmt->rowCount() > 0){
             $rows = $stmt->fetchAll();
