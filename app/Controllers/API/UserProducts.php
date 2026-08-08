@@ -3,6 +3,7 @@
 namespace App\Controllers\Api;
 use Dotenv\Dotenv;
 use App\Core\DB;
+use Exception;
 use PDO;
 
 
@@ -963,8 +964,67 @@ class UserProducts{
             }
         }
 
+        $productMail = $this->pdo->prepare("SELECT * FROM `iruap_professional_mails` WHERE product_id = ? AND user_id = ?");
+        $productMail->execute([$productId, $this->userId]);
+
+        if ($productMail->rowCount() > $allowedMailboxes){
+            echo json_encode([
+                "status" => "error",
+                "message" => "Maximum mailbox already create"
+            ]);
+            return;
+        }
+
+        function createMailCowMailBox(
+            string $domain,
+            string $localPart,
+            string $password,
+            int $quotaMb = 5120
+        ): array{
+            $mailCowUrl = 'https://mail.iruhost.com';
+            $apiKey = "";
+            $data = [
+                'active' => 1,
+                'domain' => $domain,
+                'local_part' => $localPart,
+                'name' => $localPart,
+                'password' => $password,
+                'password2' => $password,
+                'quota' => (string) $quotaMb,
+                'force_pw_update' => '0',
+                'tls_enforce_in' => '1',
+                'tls_enforce_out' => '1'
+            ];
+            $ch = curl_init(
+                $mailCowUrl . '/api/v1/add/mailbox'
+            );
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'X-API-Key: ' . $apiKey
+                ],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30
+            ]);
+
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            if ($response === false){
+                throw new Exception(curl_error($ch));
+            }
+
+            curl_close($ch);
+
+            echo json_encode([
+                'status' => $httpCode,
+                'response' => json_decode($response, true)
+            ]);
+        }
+
         print_r($data);
-        print_r($rows);
         echo $allowedMailboxes;
     }
 }
