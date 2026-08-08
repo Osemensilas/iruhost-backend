@@ -18,6 +18,8 @@ class UserProducts{
     protected $whmHostname;
     protected $encryptionKey;
     protected $encryptionIV;
+    protected $mailcowApi;
+    protected $mailCowUrl;
 
     public function __construct(){
 
@@ -30,6 +32,8 @@ class UserProducts{
 
         $this->enomUserId = $_ENV['ENOM_USER_ID'] ?? null;
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
+        $this->mailcowApi = $_ENV['MAIL_COW_READ_WRITE_API'] ?? null;
+        $this->mailCowUrl = 'https://mail.iruhost.com';
         $this->userId = $_SESSION['user']['user_id'] ?? $_SESSION['guest']['id'] ?? null;
         $this->pdo = DB::connection();
         $this->whmUsername = $_ENV['WHM_USERNAME'] ?? null;
@@ -927,104 +931,227 @@ class UserProducts{
         ]);
     }
 
-    public function createEmailAccount(){
+    public function createEmailAccount()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid request method'
+            ]);
             return;
         }
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $username = $data["username"] ?? "";
-        $domain   = $data["domain"] ?? "";
-        $password = $data["password"] ?? "";
-        $productId = $data["id"] ?? "";
-        $allowedMailboxes = 0;
+        $username  = trim($data['username'] ?? '');
+        $domain    = trim($data['domain'] ?? '');
+        $password  = $data['password'] ?? '';
+        $productId = $data['id'] ?? '';
 
-        $stmt = $this->pdo->prepare("SELECT * FROM `products` WHERE user_id = ? AND product_id = ?");
-        $stmt->execute([$this->userId, $productId]);
-
-        if ($stmt->rowCount() > 0){
-            $rows = $stmt->fetch();
-
-            if ($rows['product_name'] == "Starter"){
-                $allowedMailboxes = 1;
-            }
-
-            if ($rows['product_name'] == "Professional"){
-                $allowedMailboxes = 5;
-            }
-
-            if ($rows['product_name'] == "Premium"){
-                $allowedMailboxes = 10;
-            }
-
-            if ($rows['product_name'] == "Enterprise"){
-                $allowedMailboxes = 30;
-            }
-        }
-
-        $productMail = $this->pdo->prepare("SELECT * FROM `iruap_professional_mails` WHERE product_id = ? AND user_id = ?");
-        $productMail->execute([$productId, $this->userId]);
-
-        if ($productMail->rowCount() > $allowedMailboxes){
+        if (!$username || !$domain || !$password || !$productId) {
             echo json_encode([
-                "status" => "error",
-                "message" => "Maximum mailbox already create"
+                'status' => 'error',
+                'message' => 'All fields are required'
             ]);
             return;
         }
 
-        function createMailCowMailBox(
-            string $domain,
-            string $localPart,
-            string $password,
-            int $quotaMb = 5120
-        ): array{
-            $mailCowUrl = 'https://mail.iruhost.com';
-            $apiKey = "";
-            $data = [
-                'active' => 1,
-                'domain' => $domain,
-                'local_part' => $localPart,
-                'name' => $localPart,
-                'password' => $password,
-                'password2' => $password,
-                'quota' => (string) $quotaMb,
-                'force_pw_update' => '0',
-                'tls_enforce_in' => '1',
-                'tls_enforce_out' => '1'
-            ];
-            $ch = curl_init(
-                $mailCowUrl . '/api/v1/add/mailbox'
-            );
-            curl_setopt_array($ch, [
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => json_encode($data),
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                    'X-API-Key: ' . $apiKey
-                ],
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 30
-            ]);
+        /*
+        * Get purchased product
+        */
+        $stmt = $this->pdo->prepare("
+            SELECT *
+            FROM products
+            WHERE user_id = ?
+            AND product_id = ?
+        ");
 
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $stmt->execute([
+            $this->userId,
+            $productId
+        ]);
 
-            if ($response === false){
-                throw new Exception(curl_error($ch));
-            }
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            curl_close($ch);
-
+        if (!$product) {
             echo json_encode([
-                'status' => $httpCode,
-                'response' => json_decode($response, true)
+                'status' => 'error',
+                'message' => 'Product not found'
             ]);
+            return;
         }
 
-        print_r($data);
-        echo $allowedMailboxes;
+        /*
+        * Determine mailbox limit
+        */
+        $allowedMailboxes = match ($product['product_name']) {
+            'Starter'      => 1,
+            'Professional' => 5,
+            'Premium'      => 10,
+            'Enterprise'   => 30,
+            default        => 0
+        };
+
+        if ($allowedMailboxes === 0) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid email plan'
+            ]);
+            return;
+        }
+
+        /*
+        * Count existing mailboxes
+        */
+        $productMail = $this->pdo->prepare("
+            SELECT *
+            FROM iruap_professional_mails
+            WHERE product_id = ?
+            AND user_id = ?
+        ");
+
+        $productMail->execute([
+            $productId,
+            $this->userId
+        ]);
+
+        $mailboxCount = $productMail->rowCount();
+
+        if ($mailboxCount >= $allowedMailboxes) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Maximum mailbox limit reached'
+            ]);
+            return;
+        }
+
+        /*
+        * Create mailbox on Mailcow
+        */
+        try {
+
+            $mailcowResult = $this->createMailCowMailBox(
+                $domain,
+                $username,
+                $password
+            );
+
+            /*
+            * Check Mailcow response
+            */
+            if (!$mailcowResult['success']) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => $mailcowResult['message']
+                ]);
+                return;
+            }
+
+            /*
+            * Save mailbox in your database
+            */
+            $insert = $this->pdo->prepare("
+                INSERT INTO iruap_professional_mails
+                (
+                    user_id,
+                    product_id,
+                    username,
+                    domain
+                )
+                VALUES (?, ?, ?, ?)
+            ");
+
+            $insert->execute([
+                $this->userId,
+                $productId,
+                $username,
+                $domain
+            ]);
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Email account created successfully',
+                'email' => $username . '@' . $domain
+            ]);
+
+        } catch (Exception $e) {
+
+            echo json_encode([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    private function createMailCowMailBox(
+        string $domain,
+        string $localPart,
+        string $password,
+        int $quotaMb = 5120
+    ): array {
+
+        $mailCowUrl = $this->mailCowUrl;
+        $apiKey = $this->mailcowApi;
+
+        $payload = [
+            'active' => '1',
+            'domain' => $domain,
+            'local_part' => $localPart,
+            'name' => $localPart,
+            'password' => $password,
+            'password2' => $password,
+            'quota' => (string) $quotaMb,
+            'force_pw_update' => '0',
+            'tls_enforce_in' => '1',
+            'tls_enforce_out' => '1'
+        ];
+
+        $ch = curl_init(
+            $mailCowUrl . '/api/v1/add/mailbox'
+        );
+
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'X-API-Key: ' . $apiKey
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30
+        ]);
+
+        $response = curl_exec($ch);
+
+        if ($response === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            throw new Exception($error);
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        $result = json_decode($response, true);
+
+        /*
+        * Mailcow normally returns an array
+        * describing whether the operation succeeded.
+        */
+        if ($httpCode < 200 || $httpCode >= 300) {
+            return [
+                'success' => false,
+                'message' => 'Mailcow returned HTTP ' . $httpCode,
+                'response' => $result
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Mailbox created',
+            'response' => $result
+        ];
     }
 }
