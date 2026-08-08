@@ -925,4 +925,30 @@ class UserProducts{
             'message' => 'Currency data available'
         ]);
     }
+
+    public function createEmailAccount(){
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $username = $data["username"] ?? "";
+        $domain   = $data["domain"] ?? "";
+        $password = $data["password"] ?? "";
+        $productId = $data["id"] ?? "";
+
+        $userId = $this->userId;
+
+        $getProduct = $this->pdo->prepare("SELECT * FROM `products` WHERE product_id = ? AND user_id = ?");
+        $getProduct->execute([$productId, $userId]);
+
+        if ($getProduct > 0){
+            $rows = $getProduct->fetch();
+        }
+
+        print_r($data);
+        print_r($rows);
+    }
 }

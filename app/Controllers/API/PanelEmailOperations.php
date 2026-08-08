@@ -145,6 +145,11 @@ class PanelEmailOperations{
         $password = $data["password"] ?? "";
         $productId = $data["id"] ?? "";
 
+        $userId = $this->userId;
+
+        $getProduct = $this->pdo->prepare("SELECT * FROM `user_domains` WHERE product_id = ? AND user_id = ?");
+        $getProduct->execute([$productId, $userId]);
+
         print_r($data);
     }
 }

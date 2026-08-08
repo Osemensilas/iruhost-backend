@@ -86,6 +86,7 @@ $router->get('/api/user-app', [UserProducts::class, 'appList']);
 $router->post('/api/create-cpanel-mail', [UserProducts::class, 'createCpanelEmail']);
 $router->get('/api/get-iruap-domain', [UserProducts::class, 'getIruapDomain']);
 $router->get('/api/verify-renewal', [UserProducts::class, 'verifyRenewal']);
+$router->post('/api/create-mailcow-mail', [UserProducts::class, 'createEmailAccount']);
 $router->get('/api/get-signups', [AdminDashboard::class, 'signUps']);
 $router->get('/api/get-active-users', [AdminDashboard::class, 'activeUsers']);
 $router->get('/api/get-total-sales', [AdminDashboard::class, 'getTotalSalesNum']);
@@ -131,7 +132,6 @@ $router->get('/api/auto-login', [AuthController::class, 'panelCpanel']);
 $router->get('/api/check-panel-session', [SessionController::class, 'checkPanelUser']);
 $router->post('/api/create-email-db', [PanelEmailOperations::class, 'createEmailDb']);
 $router->get('/api/open-user-database', [PanelEmailOperations::class, 'openUserDatabase']);
-$router->post('/api/create-mailcow-mail', [PanelEmailOperations::class, 'createEmailAccount']);
 
 $router->post('/api/add-new-comment', [ChatsController::class, 'addNewComment']);
 $router->get('/api/get-comments', [ChatsController::class, 'getComments']);
