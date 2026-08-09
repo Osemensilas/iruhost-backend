@@ -88,6 +88,7 @@ $router->get('/api/get-iruap-domain', [UserProducts::class, 'getIruapDomain']);
 $router->get('/api/verify-renewal', [UserProducts::class, 'verifyRenewal']);
 $router->post('/api/create-mailcow-mail', [UserProducts::class, 'createEmailAccount']);
 $router->get('/api/fetch-mailcow-mail', [UserProducts::class, 'fetchEmailAccount']);
+$router->post('/api/delete-mailcow-mail', [UserProducts::class, 'deleteEmailAccount']);
 $router->get('/api/get-signups', [AdminDashboard::class, 'signUps']);
 $router->get('/api/get-active-users', [AdminDashboard::class, 'activeUsers']);
 $router->get('/api/get-total-sales', [AdminDashboard::class, 'getTotalSalesNum']);
