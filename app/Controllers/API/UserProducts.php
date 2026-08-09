@@ -1167,11 +1167,7 @@ class UserProducts{
             return;
         }
 
-
-        /*
-        * First delete the mailbox from Mailcow
-        */
-
+        // Delete mailbox from Mailcow
         $mailcowResult = $this->deleteMailCowMailbox($mailbox);
 
         if (!$mailcowResult['success']) {
@@ -1183,11 +1179,7 @@ class UserProducts{
             return;
         }
 
-
-        /*
-        * Check Mailcow's actual response
-        */
-
+        // Check Mailcow response
         $mailcowResponse = $mailcowResult['response'];
 
         $mailcowItem = $mailcowResponse[0] ?? null;
@@ -1206,12 +1198,8 @@ class UserProducts{
             return;
         }
 
-
-        /*
-        * Mailbox successfully deleted from Mailcow.
-        *
-        * Now delete it from your database.
-        */
+        // Mailcow deletion succeeded.
+        // Now delete the mailbox from your database.
 
         $stmt = $this->pdo->prepare("
             DELETE FROM `iruap_professional_mails`
@@ -1231,11 +1219,6 @@ class UserProducts{
             ]);
             return;
         }
-
-
-        /*
-        * Everything succeeded
-        */
 
         echo json_encode([
             'status' => 'success',
@@ -1402,8 +1385,7 @@ class UserProducts{
         return [
             'success' => true,
             'http_code' => $httpCode,
-            'response' => $result,
-            'raw_response' => $response
+            'response' => $result
         ];
     }
 }
