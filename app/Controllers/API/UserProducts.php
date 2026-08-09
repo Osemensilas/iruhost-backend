@@ -1137,7 +1137,8 @@ class UserProducts{
         ]);
     }
 
-    public function deleteEmailAccount(){
+    public function deleteEmailAccount()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode([
                 'status' => 'error',
@@ -1146,14 +1147,17 @@ class UserProducts{
             return;
         }
 
-        if (!isset($_SESSION['user'])){
-            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+        if (!isset($_SESSION['user'])) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid user'
+            ]);
             return;
         }
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        $mailbox = $data['mailbox'];
+        $mailbox = $data['mailbox'] ?? '';
 
         if (!$mailbox || !filter_var($mailbox, FILTER_VALIDATE_EMAIL)) {
             echo json_encode([
@@ -1163,70 +1167,62 @@ class UserProducts{
             return;
         }
 
-        [$localPart, $domain] = explode('@', $mailbox, 2);
 
-        $mailCowUrl = $this->mailCowUrl;
-        $apiKey = $this->mailcowApi;
+        /*
+        * First delete the mailbox from Mailcow
+        */
 
-        $payload = [
-            'items' => [
-                [
-                    'domain' => $domain,
-                    'local_part' => $localPart
-                ]
-            ]
-        ];
+        $mailcowResult = $this->deleteMailCowMailbox($mailbox);
 
-        $ch = curl_init(rtrim($mailCowUrl, '/') . '/api/v1/delete/mailbox');
-
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'X-API-Key: ' . $apiKey
-            ],
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 30
-        ]);
-
-        $response = curl_exec($ch);
-
-        if ($response === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-
+        if (!$mailcowResult['success']) {
             echo json_encode([
                 'status' => 'error',
-                'message' => 'Failed to connect to Mailcow: ' . $error
+                'message' => 'Failed to connect to Mailcow',
+                'details' => $mailcowResult['message']
             ]);
             return;
         }
 
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        curl_close($ch);
+        /*
+        * Check Mailcow's actual response
+        */
 
-        $mailcowResponse = json_decode($response, true);
+        $mailcowResponse = $mailcowResult['response'];
 
-        $mailcowResult = $mailcowResponse[0] ?? null;
+        $mailcowItem = $mailcowResponse[0] ?? null;
 
-        if (!$mailcowResult || ($mailcowResult['type'] ?? '') !== 'success') {
+        if (
+            !$mailcowItem ||
+            ($mailcowItem['type'] ?? '') !== 'success'
+        ) {
             echo json_encode([
                 'status' => 'error',
-                'message' => $mailcowResult['msg']
+                'message' => $mailcowItem['msg']
                     ?? 'Failed to delete mailbox from Mailcow',
-                'http_code' => $httpCode,
+                'http_code' => $mailcowResult['http_code'],
                 'mailcow_response' => $mailcowResponse
             ]);
-
             return;
         }
 
-        $stmt = $this->pdo->prepare("DELETE FROM `iruap_professional_mails` WHERE `email` = ? AND `user_id` = ?");
 
-        $result = $stmt->execute([$mailbox, $this->userId]);
+        /*
+        * Mailbox successfully deleted from Mailcow.
+        *
+        * Now delete it from your database.
+        */
+
+        $stmt = $this->pdo->prepare("
+            DELETE FROM `iruap_professional_mails`
+            WHERE `email` = ?
+            AND `user_id` = ?
+        ");
+
+        $result = $stmt->execute([
+            $mailbox,
+            $this->userId
+        ]);
 
         if (!$result) {
             echo json_encode([
@@ -1236,6 +1232,10 @@ class UserProducts{
             return;
         }
 
+
+        /*
+        * Everything succeeded
+        */
 
         echo json_encode([
             'status' => 'success',
@@ -1352,5 +1352,56 @@ class UserProducts{
         }
 
         return json_decode($response, true) ?? [];
+    }
+
+    private function deleteMailCowMailbox(string $mailbox): array
+    {
+        $mailCowUrl = $this->mailCowUrl;
+        $apiKey = $this->mailcowApi;
+
+        $payload = [
+            'items' => [
+                $mailbox
+            ]
+        ];
+
+        $ch = curl_init(
+            rtrim($mailCowUrl, '/') . '/api/v1/delete/mailbox'
+        );
+
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'X-API-Key: ' . $apiKey
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30
+        ]);
+
+        $response = curl_exec($ch);
+
+        if ($response === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            return [
+                'success' => false,
+                'message' => $error
+            ];
+        }
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        return [
+            'success' => true,
+            'http_code' => $httpCode,
+            'response' => json_decode($response, true),
+            'raw_response' => $response
+        ];
     }
 }
