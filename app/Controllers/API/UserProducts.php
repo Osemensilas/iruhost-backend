@@ -1397,10 +1397,12 @@ class UserProducts{
 
         curl_close($ch);
 
+        $result = json_decode($response, true);
+
         return [
             'success' => true,
             'http_code' => $httpCode,
-            'response' => json_decode($response, true),
+            'response' => $result,
             'raw_response' => $response
         ];
     }
