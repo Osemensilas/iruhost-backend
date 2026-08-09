@@ -1092,22 +1092,44 @@ class UserProducts{
 
     public function fetchEmailAccount(){
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid request method'
+            ]);
             return;
         }
 
-        if (!isset($_SESSION['user'])){
-            echo json_encode(['status' => 'error', 'message' => 'Invalid user']);
+        if (!isset($_SESSION['user'])) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Invalid user'
+            ]);
             return;
         }
 
         $domain = $_GET['domain'] ?? null;
 
+        if (!$domain) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Domain is required'
+            ]);
+            return;
+        }
+
         $mailboxes = $this->getMailboxesByDomain($domain);
 
+        $theMail = [];
+
         foreach ($mailboxes as $mailbox) {
-            echo $mailbox['username'] . '<br>';
+            $theMail[] = $mailbox['username'];
         }
+
+        echo json_encode([
+            'status' => 'success',
+            'mails' => $theMail,
+            'message' => "emails retrieved successfully"
+        ]);
     }
 
     private function createMailCowMailBox(
