@@ -27,6 +27,9 @@ class CallFlutter {
     protected $server;
     protected $whogohostUsername;
     protected $whogohostApi;
+    protected $mailcowApi;
+    protected $mailCowUrl;
+
     public function __construct(){
 
         $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
@@ -34,6 +37,8 @@ class CallFlutter {
 
         $this->pdo = DB::connection();
         $this->secretKey = $_ENV['FLUTTERWAVE_SECRETE_KEY'] ?? null;
+        $this->mailcowApi = $_ENV['MAIL_COW_READ_WRITE_API'] ?? null;
+        $this->mailCowUrl = 'https://mail.iruhost.com';
         $this->userId = $_SESSION['user']['user_id'] ?? null;
         $this->enomUserId = $_ENV['ENOM_USER_ID'];
         $this->enomApiToken = $_ENV['ENOM_USER_API_TOKEN'] ?? null;
@@ -516,45 +521,240 @@ class CallFlutter {
         ];
     }
 
-    private function regEmail($productName, $billing, $cartId, $domain){
+    private function regEmail($productName, $billing, $cartId, $domain)
+    {
         $productId = uniqid('prod_');
         $product = 'email';
         $text = 'Manage';
-        $url = "/manage-email?email=$domain";
-        $expiryDate = date('Y-m-d H:i:s', strtotime('+1 year'));
-        if ($productName === "Starter"){
+
+        $url = "/manage-email?email=" . urlencode($domain) .
+            "&id=" . urlencode($productId);
+
+        $expiryDate = date(
+            'Y-m-d H:i:s',
+            strtotime('+1 year')
+        );
+
+        /*
+        * Determine mailbox limit
+        */
+
+        if ($productName === "Starter") {
+
             $hostingName = "basic_email";
-        }else{
-            if ($productName === "Professional"){
-                $hostingName = "professional_email";
-            }else{
-                $hostingName = "premium_email";
-            }
-        }
+            $allowedMailboxes = 1;
 
-        $stmt = $this->pdo->prepare("INSERT INTO `products`(`user_id`, `product_id`, `product`, `product_name`, `billing`, `domain`, `url`, `text`, `expiry_date`) VALUES (?,?,?,?,?,?,?,?,?)");
-        $result = $stmt->execute([$this->userId, $productId, $product, $productName, $billing, $domain, $url, $text, $expiryDate]);
+        } elseif ($productName === "Professional") {
 
-        if (!$result){
+            $hostingName = "professional_email";
+            $allowedMailboxes = 5;
+
+        } elseif ($productName === "Premium") {
+
+            $hostingName = "premium_email";
+            $allowedMailboxes = 10;
+
+        } elseif ($productName === "Enterprise") {
+
+            $hostingName = "enterprise_email";
+            $allowedMailboxes = 30;
+
+        } else {
+
             return [
                 'status' => 'error',
-                'message' => 'Unknown error occurred'
+                'message' => 'Invalid email product'
             ];
         }
 
-        $stmt = $this->pdo->prepare("DELETE FROM `cart` WHERE cart_id = ? AND user_id = ?");
-        $deleteCart = $stmt->execute([$cartId, $this->userId]);
 
-        if (!$deleteCart){
+        /*
+        * Create domain in Mailcow
+        */
+
+        $mailCowUrl = $this->mailCowUrl;
+        $apiKey = $this->mailcowApi;
+
+        // 5 GB per mailbox
+        $maxQuotaMb = 5120;
+
+        // Total domain quota
+        $totalQuotaMb = $allowedMailboxes * $maxQuotaMb;
+
+        $payload = [
+            'active' => '1',
+            'domain' => $domain,
+            'description' => 'IruHost - ' . $productName,
+
+            // Maximum number of mailboxes
+            'mailboxes' => (string) $allowedMailboxes,
+
+            // Maximum quota for one mailbox
+            'maxquota' => (string) $maxQuotaMb,
+
+            // Total quota for the domain
+            'quota' => (string) $totalQuotaMb,
+
+            // Default quota for new mailboxes
+            'defquota' => (string) $maxQuotaMb,
+
+            'aliases' => '400',
+            'restart_sogo' => '1',
+            'backupmx' => '0',
+            'relay_all_recipients' => '0',
+            'rl_frame' => 's',
+            'rl_value' => '10'
+        ];
+
+        $ch = curl_init(
+            rtrim($mailCowUrl, '/') . '/api/v1/add/domain'
+        );
+
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'X-API-Key: ' . $apiKey
+            ],
+
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30
+        ]);
+
+        $response = curl_exec($ch);
+
+        /*
+        * cURL connection error
+        */
+
+        if ($response === false) {
+
+            $error = curl_error($ch);
+
+            curl_close($ch);
+
+            return [
+                'status' => 'error',
+                'message' => 'Mailcow connection failed: ' . $error
+            ];
+        }
+
+        $httpCode = curl_getinfo(
+            $ch,
+            CURLINFO_HTTP_CODE
+        );
+
+        curl_close($ch);
+
+        $mailcowResponse = json_decode(
+            $response,
+            true
+        );
+
+        /*
+        * Mailcow can return HTTP 200
+        * even when the operation failed.
+        */
+
+        $mailcowResult = $mailcowResponse[0] ?? null;
+
+        if (
+            !$mailcowResult ||
+            ($mailcowResult['type'] ?? '') !== 'success'
+        ) {
+
+            return [
+                'status' => 'error',
+                'message' => $mailcowResult['msg']
+                    ?? 'Failed to create domain in Mailcow',
+
+                'http_code' => $httpCode,
+
+                'mailcow_response' => $mailcowResponse
+            ];
+        }
+
+
+        /*
+        * Mailcow domain created successfully.
+        *
+        * Now save the product in your database.
+        */
+
+        $stmt = $this->pdo->prepare("
+            INSERT INTO `products`
+            (
+                `user_id`,
+                `product_id`,
+                `product`,
+                `product_name`,
+                `billing`,
+                `domain`,
+                `url`,
+                `text`,
+                `expiry_date`
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+
+        $result = $stmt->execute([
+            $this->userId,
+            $productId,
+            $product,
+            $productName,
+            $billing,
+            $domain,
+            $url,
+            $text,
+            $expiryDate
+        ]);
+
+        if (!$result) {
+
+            return [
+                'status' => 'error',
+                'message' => 'Mailcow domain created but failed to save product'
+            ];
+        }
+
+
+        /*
+        * Delete cart
+        */
+
+        $stmt = $this->pdo->prepare("
+            DELETE FROM `cart`
+            WHERE cart_id = ?
+            AND user_id = ?
+        ");
+
+        $deleteCart = $stmt->execute([
+            $cartId,
+            $this->userId
+        ]);
+
+        if (!$deleteCart) {
+
             return [
                 'status' => 'error',
                 'message' => 'Failed to delete from cart'
             ];
         }
 
+
+        /*
+        * Everything succeeded
+        */
+
         return [
-            "status" => "success",
-            "message" => "Email added to products"
+            'status' => 'success',
+            'message' => 'Email added to products',
+            'product_id' => $productId,
+            'domain' => $domain,
+            'mailboxes' => $allowedMailboxes
         ];
     }
     
