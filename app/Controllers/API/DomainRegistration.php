@@ -294,7 +294,6 @@ class DomainRegistration{
         }
     }
 
-
     public function existingCheck(){
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
